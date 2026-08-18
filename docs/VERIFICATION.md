@@ -94,6 +94,23 @@ returned three VACUOUS verdicts, and each was a different kind of mistake:
    that directly. Both are kept: one is the symptom a caller meets, the other
    is the cause.
 
+## Two operational notes for whoever runs this next
+
+**`TRYBUILD=overwrite` creates a `wip/` directory at the repo root.** It is
+transient — it exists only while snapshots are being regenerated — and it is
+deliberately NOT in `.gitignore`, because that file is a repo-forge boilerplate
+artifact regenerated wholesale by `migrate --apply`, so a line added there does
+not survive. Delete it after regenerating; if it is ever committed, that is the
+signal the snapshot run was interrupted.
+
+**Two pre-commit guards fired on the first commit and neither was bypassed.**
+`let secret = matches!(…)` (a bool) tripped the credential guard's whole-word
+`secret` arm and was renamed to `is_secret`. The literal `"Password: "` — the
+prompt PAM shows a human — tripped its `pass(word)` arm, which structurally
+cannot tell a prompt from an assignment; `mock.rs` therefore carries the
+guard's own `SYNTHETIC-FIXTURE` marker. That is narrower than `--no-verify`:
+it declares one file a fixture and leaves every other file checked.
+
 ## What is NOT sealed, and why
 
 Two of `MUKAE.md`'s sixteen illegal states are **only-mitigated**, and both for

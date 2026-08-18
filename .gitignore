@@ -4,6 +4,3 @@
 .direnv/
 .envrc.local
 Cargo.lock.bak
-
-# trybuild scratch
-wip/

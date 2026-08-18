@@ -1,0 +1,11 @@
+[package]
+name = "mukae"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "mukae (迎え) — the pleme-io-native login manager. The umbrella crate: one import that re-exports the whole surface as it lands."
+
+[dependencies]
+mukae-spec = { path = "../mukae-spec", version = "0.1.0" }
