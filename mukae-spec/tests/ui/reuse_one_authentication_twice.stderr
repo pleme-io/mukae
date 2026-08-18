@@ -1,0 +1,11 @@
+error[E0382]: use of moved value: `cap`
+  --> tests/ui/reuse_one_authentication_twice.rs:56:43
+   |
+48 |     let cap = capability_from(outcome, seat, PamHandleId(1)).unwrap();
+   |         --- move occurs because `cap` has type `SeatCapability<mukae_spec::Authenticated>`, which does not implement the `Copy` trait
+...
+54 |     let _first = start_session(&mut env, cap, plan());
+   |                                          --- value moved here
+55 |     // The capability was consumed above. There is no second one.
+56 |     let _second = start_session(&mut env, cap, plan());
+   |                                           ^^^ value used here after move

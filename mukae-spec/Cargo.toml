@@ -1,0 +1,24 @@
+[package]
+name = "mukae-spec"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "mukae-spec — the typed login border. The capability chain, the seat typestate, and the mockable SeatEnv seam, with no PAM, no root, no pixels and no libc."
+
+# ── THE DEPENDENCY LIST IS AN INVARIANT, NOT A CONVENIENCE ────────────
+# Illegal state [14] in theory/MUKAE.md is "a syscall inside spec code", and
+# the mechanism is exactly this list: `libc`, `nix`, `pam-sys` and `wgpu` are
+# absent, so naming one is E0433 — it does not resolve. Adding any of them
+# here does not add a feature, it deletes a proof. tests/ui/syscall_in_spec.rs
+# is the committed red run.
+[dependencies]
+serde = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+trybuild = "1"
+
+[lints.clippy]
+pedantic = "warn"

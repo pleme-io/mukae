@@ -1,0 +1,10 @@
+error[E0624]: associated function `password` is private
+  --> tests/ui/forge_an_auth_proof.rs:16:24
+   |
+16 |     let _ = AuthProof::password(Uid(0), Passphrase::new("root".into()));
+   |                        ^^^^^^^^ private associated function
+   |
+  ::: src/capability.rs
+   |
+   |     pub(crate) fn password(uid: Uid, authtok: Passphrase) -> Self {
+   |     ------------------------------------------------------------- private associated function defined here

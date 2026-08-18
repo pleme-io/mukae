@@ -1,0 +1,5 @@
+error[E0599]: no method named `into_authenticated` found for struct `SeatCapability<S>` in the current scope
+  --> tests/ui/denied_upgraded_to_authenticated.rs:15:20
+   |
+15 |     let _ = denied.into_authenticated();
+   |                    ^^^^^^^^^^^^^^^^^^ method not found in `SeatCapability<mukae_spec::Denied>`

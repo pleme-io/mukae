@@ -1,0 +1,5 @@
+error[E0433]: failed to resolve: could not find `libc` in `mukae_spec`
+  --> tests/ui/syscall_in_spec_consumer.rs:19:25
+   |
+19 |     let _ = mukae_spec::libc::fork();
+   |                         ^^^^ could not find `libc` in `mukae_spec`

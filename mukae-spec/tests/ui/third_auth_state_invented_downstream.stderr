@@ -1,0 +1,23 @@
+error[E0277]: the trait bound `Probably: capability::sealed::Sealed` is not satisfied
+  --> tests/ui/third_auth_state_invented_downstream.rs:10:20
+   |
+10 | impl SeatState for Probably {}
+   |                    ^^^^^^^^ unsatisfied trait bound
+   |
+help: the trait `capability::sealed::Sealed` is not implemented for `Probably`
+  --> tests/ui/third_auth_state_invented_downstream.rs:9:1
+   |
+ 9 | struct Probably;
+   | ^^^^^^^^^^^^^^^
+   = help: the following other types implement trait `capability::sealed::Sealed`:
+             mukae_spec::Authenticated
+             mukae_spec::Denied
+note: required by a bound in `SeatState`
+  --> src/capability.rs
+   |
+   | pub trait SeatState: sealed::Sealed {}
+   |                      ^^^^^^^^^^^^^^ required by this bound in `SeatState`
+   = note: `SeatState` is a "sealed trait", because to implement it you also need to implement `mukae_spec::capability::sealed::Sealed`, which is not accessible; this is usually done to force you to use one of the provided types that already implement it
+   = help: the following types implement the trait:
+             mukae_spec::Authenticated
+             mukae_spec::Denied
