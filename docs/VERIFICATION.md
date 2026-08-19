@@ -117,8 +117,15 @@ it declares one file a fixture and leaves every other file checked.
 gap between them, as pure data. **There is no loop in it**, deliberately. The
 fleet has one convergence engine (`lava-viggy`'s seven beats, which `bancadad`
 already runs on) and writing a second here would be exactly the duplication
-that adoption removed. When mukae reaches the registry, `bancadad` gains a
-`World` impl over this in a few lines.
+that adoption removed.
+
+**On "bancadad gains a `World` impl in a few lines" — I said that twice and it
+is two-thirds true.** `observe` and `describe` genuinely are trivial;
+`apply_calls` is exactly as real as the `SeatEnv` behind it. At M0 that is
+`MockSeatEnv`, so wiring it up today yields a reconciler correctly driving a
+mock — real progress, not a live desktop. Only `login-close-session` has an
+implementation path that does not wait for M3, and rounding the two together is
+how a mock-backed loop gets cited later as a working one.
 
 **A login surface is not like the rest of the desktop, and the type says so.**
 
