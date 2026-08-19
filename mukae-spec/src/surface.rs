@@ -8,10 +8,21 @@
 //! is here is the *shape* a reconciler needs: what the login surface's state
 //! keys are, what authority each needs, and what calls would close a gap.
 //!
-//! When mukae reaches the registry, `bancadad` gains a `World` impl over this
-//! in a few lines and the login surface converges on the same engine as the
-//! rest of the desktop. Until then this is proven against `MockSeatEnv`, which
-//! is the same standing as everything else in M0.
+//! When mukae reaches the registry, `bancadad` implements its `World` over
+//! this. **"A few lines" is true of two thirds of that and false of the
+//! third**, and the distinction is worth stating because I claimed the easy
+//! version twice:
+//!
+//! | `World` method | cost |
+//! |---|---|
+//! | `observe` | genuinely a few lines — map [`Key::path`] over [`observe`] |
+//! | `describe` | one line |
+//! | `apply_calls` | **as real as the `SeatEnv` behind it, and no more** |
+//!
+//! At M0 that `SeatEnv` is `MockSeatEnv`, so the wired-up result would be a
+//! reconciler correctly driving a mock. That is genuine progress and it is not
+//! a live desktop; only `login-close-session` has a real implementation path
+//! that does not wait for M3.
 //!
 //! ## Why a login surface is NOT like the rest of the desktop
 //!
