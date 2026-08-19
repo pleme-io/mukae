@@ -32,6 +32,8 @@
 //! `pub mod` that a consumer could `use` and get nothing from would be worse
 //! than the absence, because only the absence is a compile error.
 
+pub mod introspect;
+
 pub use mukae_spec as spec;
 
 // The types a consumer reaches for most, lifted to the root so the common

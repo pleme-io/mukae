@@ -1,0 +1,20 @@
+[package]
+name = "mukae-face"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "mukae (迎え) — the login face. egaku widgets on egaku-term, painted in the Nord irodori owns."
+
+[dependencies]
+mukae-spec = { path = "../mukae-spec", version = "0.1.0" }
+# The fleet's renderer-free widget set and its TTY drawer. SecretInput is the
+# one that matters here: it masks, it never Clones, its Debug is hand-written,
+# and its buffer is Zeroizing — which is why this face can render a password
+# field without ever holding a password.
+egaku = "0.1"
+egaku-term = "0.3"
+
+[lints.clippy]
+pedantic = "warn"
