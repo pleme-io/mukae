@@ -473,7 +473,7 @@ dependencies = [
 
 [[package]]
 name = "mukae"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "kanshou",
  "mukae-spec",
@@ -482,7 +482,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-face"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "egaku",
  "egaku-term",
@@ -491,7 +491,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-greetd"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "mukae-spec",
  "serde",
@@ -500,7 +500,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-greeter"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "egaku",
  "egaku-term",
@@ -514,7 +514,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-host"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "libc",
  "mukae-spec",
@@ -523,7 +523,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-lisp"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "mukae-spec",
  "serde",
@@ -533,7 +533,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-native"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "mukae-spec",
  "pwhash",
@@ -543,7 +543,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-spec"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "serde",
  "thiserror",
