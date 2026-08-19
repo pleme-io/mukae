@@ -139,23 +139,26 @@ pub unsafe extern "C" fn bridging_conv(
                 }
             };
 
-            // ★ The one place a secret is turned into bytes, and it is
-            // immediately handed to C. `Passphrase` cannot be read outside its
-            // own crate, so the answer arrives already reduced to what libpam
-            // needs — there is no path here that could log or copy it
-            // elsewhere.
-            let s = match &answer {
-                PamAnswer::Visible(v) => v.as_str(),
-                PamAnswer::Secret(_) => {
-                    // A Secret cannot be exposed from here by construction.
-                    // The face converts it at the boundary; if it did not, we
-                    // must fail rather than send an empty password, which PAM
-                    // would treat as a real (wrong) answer and count as an
-                    // attempt.
-                    unsafe { libc::free(arr.cast()) };
-                    return None;
-                }
+            // ★ The one place a secret is turned into bytes on this path, and
+            // it is immediately handed to C.
+            //
+            // ── WHAT THIS ARM USED TO DO, AND WHY IT WAS WRONG ────────────
+            // It matched `Secret(_)`, freed the array and returned
+            // `PAM_CONV_ERR` — on the reasoning that a `Passphrase` cannot be
+            // read outside its own crate and "the face converts it at the
+            // boundary". Nothing converted it anywhere. So a password typed
+            // into mukae was never handed to PAM and every login failed,
+            // always, with the failure looking exactly like a wrong password.
+            //
+            // `into_wire` is the deliberate, consuming escape that makes the
+            // program work without widening the surface: it destroys the
+            // `Passphrase` in the act, so the plaintext lives only as the
+            // `String` being copied into libpam's memory on the next line.
+            let owned = match answer {
+                PamAnswer::Visible(v) => v,
+                PamAnswer::Secret(sec) => mukae_spec::capability::into_wire(sec),
             };
+            let s: &str = &owned;
 
             // SAFETY: writing within the calloc'd array of n elements.
             unsafe {

@@ -37,8 +37,8 @@ impl Passphrase {
         Self(s)
     }
 
-    /// The only reader. `pub(crate)` so a consumer cannot get the plaintext
-    /// back out of the border.
+    /// The only reader inside the border. `pub(crate)` so a consumer cannot
+    /// get the plaintext back out by reading it.
     #[must_use]
     pub(crate) fn expose(&self) -> &str {
         &self.0
@@ -47,6 +47,34 @@ impl Passphrase {
 
 /// ★ A secret that prints itself is a secret in the logs. The redaction is
 /// the whole impl, so there is no path that renders the plaintext.
+/// Surrender a passphrase to the authenticator that will check it.
+///
+/// ── ★ WHY THIS EXISTS, AND WHY IT IS THE ONLY ONE ─────────────────────────
+/// A passphrase has to LEAVE this program to be checked — there is no
+/// authenticator inside it. libpam takes a `malloc`'d C string; greetd takes a
+/// JSON field on a socket. Both live in other crates, and `expose` is
+/// `pub(crate)`, so before this existed neither could send one.
+///
+/// That was not a safe design, it was a broken one. Measured 2026-08-19:
+/// `bridging_conv` matched `PamAnswer::Secret(_)` and returned `PAM_CONV_ERR`
+/// — so a password typed into mukae was never handed to PAM, and **every PAM
+/// login failed, always**. The comment there claimed "the answer arrives
+/// already reduced to what libpam needs", describing a conversion that nothing
+/// performed. A guarantee enforced by making the program not work is not a
+/// guarantee; it is a bug with a security-shaped rationale.
+///
+/// ── ★ WHAT KEEPS IT NARROW ────────────────────────────────────────────────
+/// It **consumes**. The `Passphrase` is destroyed in the act, so there is no
+/// read-it-twice, no read-then-log, and no accidental capture of a value the
+/// caller still holds. It is one function with one name, so the audit question
+/// "where can a passphrase leave?" is a grep with a small, countable answer —
+/// which is what the `pub(crate)` reader was reaching for and could not deliver
+/// while it also made the program unable to log anyone in.
+#[must_use]
+pub fn into_wire(p: Passphrase) -> String {
+    p.0
+}
+
 impl std::fmt::Debug for Passphrase {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("Passphrase(<redacted>)")

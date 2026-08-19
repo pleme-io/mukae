@@ -30,7 +30,7 @@
 
 use mukae_host::authenticate::authenticate;
 use mukae_spec::capability::Passphrase;
-use mukae_spec::env::{MsgStyle, PamAnswer, PamStep};
+use mukae_spec::env::{MsgStyle, PamAnswer, PamClass, PamStep};
 use mukae_spec::ids::{ServiceName, UserName};
 
 /// A username no account can hold. Deliberately not a plausible one: the point
@@ -77,12 +77,28 @@ fn libpam_actually_calls_our_conversation_and_takes_the_answer() {
     )))
     .expect("the worker is alive and blocked on this answer");
 
-    // And the verdict. `Failed` is the CORRECT outcome: the account does not
-    // exist. A `Complete` here would mean the stack authenticated a
-    // nonexistent user, which is a finding about the machine, not about mukae.
+    // ── ★ THE CLASS IS THE ASSERTION, NOT MERELY `Failed` ─────────────────
+    // This test previously asserted `Failed` and PASSED FOR THE WRONG REASON.
+    // `bridging_conv` was refusing every `Secret` outright and returning
+    // `PAM_CONV_ERR`, so PAM failed because we never answered — which is
+    // indistinguishable from a wrong password if you only check that it
+    // failed. The password had never once reached the stack.
+    //
+    // `AuthError` is PAM's verdict on an answer it EVALUATED. A conversation
+    // failure surfaces as `Abort` instead, so asserting the class is what
+    // separates "we delivered a wrong password" from "we delivered nothing".
+    // Without this line the whole file is theatre.
     let verdict = face.next();
-    assert!(
-        matches!(verdict, PamStep::Failed { .. }),
-        "a nonexistent account with a wrong password must fail; got {verdict:?}"
-    );
+    match verdict {
+        PamStep::Failed {
+            class: PamClass::AuthError,
+        } => {}
+        PamStep::Failed {
+            class: PamClass::Abort,
+        } => panic!(
+            "PAM aborted the conversation rather than judging the answer — \
+             the passphrase did not reach the stack"
+        ),
+        other => panic!("expected AuthError from an evaluated wrong password; got {other:?}"),
+    }
 }

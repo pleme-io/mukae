@@ -277,6 +277,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "mukae-greetd"
+version = "0.1.3"
+dependencies = [
+ "mukae-spec",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "mukae-greeter"
 version = "0.1.3"
 dependencies = [

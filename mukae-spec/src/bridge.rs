@@ -1,4 +1,22 @@
-//! The push↔pull bridge: libpam's callback world, made steppable.
+//! The push↔pull bridge: a callback world, made steppable.
+//!
+//! ── ★ WHY THIS IS IN mukae-spec AND NOT IN mukae-host ─────────────────────
+//! It was in `mukae-host` — the `linux`-only crate that links libpam — and it
+//! contains NO PAM. Every mention of `pam_authenticate` below is a comment;
+//! the code is `std::sync::mpsc` over this crate's own types. It sat there
+//! because PAM was the first thing that needed it, which is not a structural
+//! reason.
+//!
+//! That mattered the moment a SECOND producer appeared. greetd runs the PAM
+//! stack itself and speaks JSON over a socket, so a greetd transport is not
+//! PAM at all — and it produces exactly this conversation: a prompt with an
+//! echo decision, an answer, a verdict. Two independent producers of one shape
+//! is the signal to move the shape somewhere neither owns.
+//!
+//! So `Bridge` is the CONVERSATION TRANSPORT, not the PAM bridge. libpam is
+//! one backend; greetd is another. `Session` consumes a `Bridge` and cannot
+//! tell which it was handed, which is the property that lets the same face,
+//! the same masking rules and the same introspection serve both.
 //!
 //! ── THE IMPEDANCE MISMATCH, AND WHY IT NEEDS A THREAD ──────────────────────
 //! `conv.rs` states the problem exactly and this module is its answer:
@@ -36,7 +54,7 @@
 use std::sync::mpsc::{Receiver, RecvTimeoutError, SyncSender, sync_channel};
 use std::time::Duration;
 
-use mukae_spec::env::{MsgStyle, PamAnswer, PamClass, PamError, PamStep, PromptText};
+use crate::env::{MsgStyle, PamAnswer, PamClass, PamError, PamStep, PromptText};
 
 /// How long `pam_next` waits for the worker to produce a step before deciding
 /// the transaction is wedged.

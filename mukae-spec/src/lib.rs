@@ -51,6 +51,7 @@
 
 #![forbid(unsafe_code)]
 
+pub mod bridge;
 pub mod capability;
 pub mod conversation;
 pub mod coverage;

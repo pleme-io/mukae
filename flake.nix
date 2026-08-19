@@ -27,7 +27,14 @@
       # libraries and no greeter: the whole workspace was unshippable while
       # every crate in it compiled. mukae-lisp and mukae-host are members for
       # the same reason — a crate absent here is not built by the flake at all.
-      members = [ "mukae" "mukae-spec" "mukae-lisp" "mukae-host" "mukae-face" "mukae-greeter" ];
+      members = [ "mukae" "mukae-spec" "mukae-lisp" "mukae-host" "mukae-face" "mukae-greetd" "mukae-greeter" ];
       src = self;
+      # ★ libpam, as a FUNCTION of pkgs. These args are given once and reused
+      # for every system, so a derivation named here would belong to one
+      # system and be silently wrong on the others — which is why substrate's
+      # helper had to learn the function form before this could be expressed
+      # at all. Without it the build reaches the linker and dies on
+      # `unable to find library -lpam`.
+      buildInputs = p: [ p.pam ];
     };
 }

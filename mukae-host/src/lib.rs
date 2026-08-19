@@ -52,7 +52,13 @@
 #![cfg(target_os = "linux")]
 
 pub mod authenticate;
-pub mod bridge;
+/// The conversation transport, re-exported from its real home.
+///
+/// It moved to `mukae-spec` because it contains no PAM — see that module's
+/// header. Re-exported here rather than repointed at every call site, because
+/// a consumer that reached for `mukae_host::bridge` was not wrong about what
+/// it wanted, only about where it lived.
+pub use mukae_spec::bridge;
 pub mod bridging_conv;
 pub mod conv;
 pub mod ffi;
