@@ -31,5 +31,9 @@ zeroize = { version = "1", features = ["zeroize_derive"] }
 zbus = { version = "5", default-features = false, features = ["blocking-api", "tokio"] }
 zvariant = "5"
 
+[dev-dependencies]
+# Only for getuid() in the live logind test — the crate itself needs no libc.
+libc = "0.2"
+
 [lints.clippy]
 pedantic = "warn"
