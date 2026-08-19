@@ -89,6 +89,9 @@ fn main() -> ExitCode {
 
 #[cfg(target_os = "linux")]
 fn authenticate_run(face: Face, service: Option<String>) -> ExitCode {
+    use std::sync::Arc;
+
+    use mukae::introspect::{Drivable, LoginFlow};
     use mukae_spec::ids::ServiceName;
     use session::{Session, Verdict};
 
@@ -105,7 +108,28 @@ fn authenticate_run(face: Face, service: Option<String>) -> ExitCode {
         }
     };
 
-    let mut sess = match Session::start(face, svc) {
+    // ★ Observable, never drivable. On a real seat, submitting an answer over
+    // MCP is a remote login bypass wearing a test harness's clothes — so the
+    // drive verbs are ABSENT here rather than refused, and `Drivable::MockOnly`
+    // is reachable only from the mock environment, which authenticates nobody.
+    let flow = Arc::new(LoginFlow::new(Drivable::Observable));
+
+    // Spawned BEFORE the transaction, so an agent can observe a login that is
+    // failing to start — which is exactly when observation earns its keep and
+    // exactly when a late-registered surface is useless.
+    //
+    // `spawn_sidecar` is infallible by construction: a socket that cannot bind
+    // degrades to "no introspection" rather than "no greeter". That property
+    // is the only reason this call may sit on the path to a login screen.
+    match kanshou::Server::spawn_sidecar("mukae", Arc::clone(&flow)) {
+        Some(p) => eprintln!("mukae: introspection at {}", p.display()),
+        None => eprintln!(
+            "mukae: introspection sidecar did NOT start — the login still \
+             works, but `gen kanshou query mukae ...` will find nothing."
+        ),
+    }
+
+    let mut sess = match Session::start(face, svc, flow) {
         Ok(s) => s,
         Err(e) => {
             eprintln!("mukae: could not start a PAM transaction: {e}");

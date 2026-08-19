@@ -17,6 +17,8 @@ path = "src/main.rs"
 [dependencies]
 mukae-face = { path = "../mukae-face", version = "0.1.0" }
 mukae-spec = { path = "../mukae-spec", version = "0.1.0" }
+mukae = { path = "../mukae", version = "0.1.0" }
+kanshou = "0.1"
 egaku-term = "0.3"
 egaku = "0.1"
 

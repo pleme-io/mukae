@@ -8,4 +8,9 @@ rust-version.workspace = true
 description = "mukae (迎え) — the pleme-io-native login manager. The umbrella crate: one import that re-exports the whole surface as it lands."
 
 [dependencies]
+# The introspection sidecar. Consumed, never re-rolled: a hand-written debug
+# socket is how mado ended up `.expect()`-ing on an optional one, which is the
+# defect kanshou was extracted to retire.
+kanshou = "0.1"
+serde_json = "1"
 mukae-spec = { path = "../mukae-spec", version = "0.1.0" }

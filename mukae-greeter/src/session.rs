@@ -22,9 +22,12 @@
 //! Collapsing the two styles is the mechanism by which a greeter echoes a
 //! password, which is why `MsgStyle` distinguishes them in the first place.
 
+use std::sync::Arc;
+
 use egaku_term::app::App;
 use egaku_term::crossterm::event::Event;
 use egaku_term::{Buffer, error::Result};
+use mukae::introspect::LoginFlow;
 use mukae_face::{Action, Face, Field};
 use mukae_host::authenticate::authenticate;
 use mukae_host::bridge::Bridge;
@@ -60,6 +63,15 @@ pub struct Session {
     awaiting: Option<MsgStyle>,
     verdict: Option<Verdict>,
     service: ServiceName,
+    /// ★ The observation surface, shared with the kanshou sidecar thread.
+    ///
+    /// Every step is reported here as well as drawn. That is what makes the
+    /// login flow answerable over MCP — and it is the reason naturalizing the
+    /// greeter was worth doing at all: tuigreet draws a prompt and there is no
+    /// way to ask it what step it is on, whether it masked the field, or why a
+    /// login failed. Those questions have cost a person standing at the
+    /// machine every single time.
+    flow: Arc<LoginFlow>,
 }
 
 impl Session {
@@ -67,17 +79,23 @@ impl Session {
     ///
     /// # Errors
     /// The reason the transaction could not be started at all.
-    pub fn start(face: Face, service: ServiceName) -> std::result::Result<Self, String> {
+    pub fn start(
+        face: Face,
+        service: ServiceName,
+        flow: Arc<LoginFlow>,
+    ) -> std::result::Result<Self, String> {
         // ★ No username is passed in. PAM asks for it, through the same
         // conversation as everything else — which is what lets a stack that
         // wants no username, or three factors, work without this code knowing.
         let bridge = authenticate(&service, None)?;
+        flow.began();
         let mut s = Self {
             face,
             bridge,
             awaiting: None,
             verdict: None,
             service,
+            flow,
         };
         s.pump();
         Ok(s)
@@ -97,7 +115,13 @@ impl Session {
     /// something the person did not ask about.
     fn pump(&mut self) {
         loop {
-            match self.bridge.next() {
+            let step = self.bridge.next();
+            // ★ Observed BEFORE it is rendered. An agent watching a login that
+            // is failing to come up must see the step the face is stuck on,
+            // and a surface updated after the draw would be one step behind
+            // exactly when that matters.
+            self.flow.observe(&step);
+            match step {
                 PamStep::Prompt { style, msg } => {
                     self.face.prompt = Some(msg.0);
                     self.awaiting = Some(style);

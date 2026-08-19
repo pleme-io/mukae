@@ -49,6 +49,8 @@
 
 use std::sync::{Mutex, atomic::{AtomicU64, Ordering}};
 
+use kanshou::{Introspect, Query, QueryError, QueryResult};
+
 use mukae_spec::env::{MsgStyle, PamStep};
 
 /// Whether this greeter's flow may be DRIVEN over the wire, or only watched.
@@ -232,6 +234,35 @@ mod tests {
     }
 
     #[test]
+    fn the_schema_never_offers_a_way_to_ask_which_failure_it_was() {
+        // ★ The username oracle, guarded at the surface rather than in prose.
+        // Someone adding a `class` leaf later has to delete this test to do
+        // it, which is the point — an accidental addition cannot pass.
+        let f = LoginFlow::new(Drivable::Observable);
+        assert!(
+            !f.schema().contains(&"class"),
+            "publishing the PAM failure class is a username oracle"
+        );
+        let q = Query { path: vec!["class".to_string()], args: Vec::new() };
+        assert!(f.query(&q).is_err(), "and it must not answer off-schema");
+    }
+
+    #[test]
+    fn the_root_query_publishes_the_prompt_but_never_an_answer() {
+        let f = LoginFlow::new(Drivable::Observable);
+        f.observe(&PamStep::Prompt {
+            style: MsgStyle::PromptEchoOff,
+            msg: PromptText("PIN:".into()),
+        });
+        let v = f
+            .query(&Query { path: Vec::new(), args: Vec::new() })
+            .expect("root query answers");
+        let s = serde_json::to_string(&v).expect("serialises");
+        assert!(s.contains("PIN:"), "the prompt is publishable");
+        assert!(s.contains("\"echo\":false"), "and so is the mask decision");
+    }
+
+    #[test]
     fn a_real_seat_refuses_to_be_driven() {
         assert!(!LoginFlow::new(Drivable::Observable).may_drive());
         assert!(LoginFlow::new(Drivable::MockOnly).may_drive());
@@ -246,5 +277,68 @@ mod tests {
         f.observe(&PamStep::Complete);
         let s = f.snapshot();
         assert_eq!((s.attempts, s.failures, s.successes), (2, 1, 1));
+    }
+}
+
+/// The queryable surface, as kanshou sees it.
+///
+/// ── ★ WHY A HAND-WRITTEN IMPL AND NOT `#[derive(Introspect)]` ─────────────
+/// The derive projects named struct fields. Every leaf here is a *decision*
+/// about what may be published — `failed` deliberately carries no class, the
+/// counts come from atomics, and the current step is a reduced view rather
+/// than the `PamStep` itself. A derive would publish the fields as they are,
+/// and the whole point of this surface is that publishing is a choice someone
+/// makes on purpose.
+///
+/// ── ★ WHAT AN AGENT CAN ASK, AND WHY EACH IS SAFE ─────────────────────────
+/// Everything below is information PAM itself puts on a screen for whoever is
+/// standing at the machine. The password is not reachable from here by
+/// construction, not by omission: `Passphrase::expose` is `pub(crate)` to
+/// `mukae-spec`, and this is not that crate.
+impl Introspect for LoginFlow {
+    fn query(&self, q: &Query) -> QueryResult {
+        let snap = self.snapshot();
+        let head = q.path.first().map(String::as_str).unwrap_or_default();
+        match head {
+            "mode" => Ok(serde_json::json!(snap.mode)),
+            "may_drive" => Ok(serde_json::json!(snap.may_drive)),
+            "attempts" => Ok(serde_json::json!(snap.attempts)),
+            "failures" => Ok(serde_json::json!(snap.failures)),
+            "successes" => Ok(serde_json::json!(snap.successes)),
+            "step" => Ok(serde_json::json!(snap.step_kind)),
+            "prompt" => Ok(serde_json::json!(snap.prompt)),
+            // ★ The leaf worth having. A greeter that echoes a password is the
+            // single worst bug this program can have, and this is how an agent
+            // CHECKS that the face was told to mask — without a person having
+            // to watch the screen while someone types.
+            "echo" => Ok(serde_json::json!(snap.echo)),
+            "" => Ok(serde_json::json!({
+                "mode": snap.mode,
+                "may_drive": snap.may_drive,
+                "attempts": snap.attempts,
+                "failures": snap.failures,
+                "successes": snap.successes,
+                "step": snap.step_kind,
+                "prompt": snap.prompt,
+                "echo": snap.echo,
+            })),
+            other => Err(QueryError::unknown_field(other)),
+        }
+    }
+
+    fn schema(&self) -> &'static [&'static str] {
+        // ★ No `class` leaf, and its absence is the design. An agent that
+        // could ask WHICH failure class it was would have a username oracle —
+        // the same reason a login screen says "login incorrect" for both.
+        &[
+            "mode",
+            "may_drive",
+            "attempts",
+            "failures",
+            "successes",
+            "step",
+            "prompt",
+            "echo",
+        ]
     }
 }
