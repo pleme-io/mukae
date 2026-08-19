@@ -27,7 +27,7 @@
       # libraries and no greeter: the whole workspace was unshippable while
       # every crate in it compiled. mukae-lisp and mukae-host are members for
       # the same reason — a crate absent here is not built by the flake at all.
-      members = [ "mukae" "mukae-spec" "mukae-lisp" "mukae-host" "mukae-face" "mukae-greetd" "mukae-greeter" ];
+      members = [ "mukae" "mukae-spec" "mukae-lisp" "mukae-host" "mukae-face" "mukae-greetd" "mukae-native" "mukae-greeter" ];
       src = self;
       # ★ libpam, as a FUNCTION of pkgs. These args are given once and reused
       # for every system, so a derivation named here would belong to one

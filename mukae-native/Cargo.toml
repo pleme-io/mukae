@@ -1,0 +1,26 @@
+[package]
+name = "mukae-native"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "mukae (迎え) — credential verification in pure Rust. No libpam, no .so, no C ABI: the shadow file read and the hash checked here."
+
+[dependencies]
+mukae-spec = { path = "../mukae-spec", version = "0.1.0" }
+# The two hash schemes a NixOS shadow file actually contains. Both pure Rust,
+# both RustCrypto: yescrypt is NixOS's default and sha512crypt is what older
+# entries carry.
+# `password-hash` gives the crypt-string (MCF) layer — `$y$params$salt$hash`
+# parsed and verified by RustCrypto rather than by hand. Hand-rolling that
+# encoding is where a hash verifier goes wrong in the direction that ACCEPTS.
+yescrypt = { version = "0.1", features = ["password-hash"] }
+# Everything a shadow file can hold that is not yescrypt: $6$ sha512crypt,
+# $5$ sha256crypt, $1$ md5crypt, bcrypt, and the historical forms. Dispatches
+# on the prefix itself, so this crate does not re-derive that table.
+pwhash = "1"
+zeroize = { version = "1", features = ["zeroize_derive"] }
+
+[lints.clippy]
+pedantic = "warn"

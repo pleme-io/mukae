@@ -1,7 +1,8 @@
 [workspace]
 resolver = "2"
 members = ["mukae", "mukae-face",
-    "mukae-greetd", "mukae-greeter", "mukae-host", "mukae-lisp", "mukae-spec"]
+    "mukae-greetd",
+    "mukae-native", "mukae-greeter", "mukae-host", "mukae-lisp", "mukae-spec"]
 
 [workspace.package]
 version = "0.1.4"
