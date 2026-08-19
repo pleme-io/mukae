@@ -1,0 +1,23 @@
+[package]
+name = "mukae-greeter"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "mukae (迎え) — the greeter binary. The pleme-io login face, as something a display manager can exec."
+
+# The binary is `mukae`, not `mukae-greeter`: it is what appears in a greetd
+# command line and in an operator's muscle memory, and the crate name only
+# exists to keep the workspace unambiguous.
+[[bin]]
+name = "mukae"
+path = "src/main.rs"
+
+[dependencies]
+mukae-face = { path = "../mukae-face", version = "0.1.0" }
+mukae-spec = { path = "../mukae-spec", version = "0.1.0" }
+egaku-term = "0.3"
+
+[lints.clippy]
+pedantic = "warn"
