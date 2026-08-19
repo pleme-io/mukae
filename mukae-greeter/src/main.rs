@@ -45,11 +45,13 @@ mukae (迎え) — the pleme-io login face
                    after --cmd is the command; put it last.
 
   --authenticate   Run a real PAM conversation to a verdict, mukae's own way.
+                   ★ NOT IN THE DEFAULT BUILD. libpam is the one thing that
+                     would put a .so in this binary, and it is a GUEST — a C
+                     library with an ABI, not a wire — so it is off unless
+                     built with `--features pam`.
                    ★ Authenticates ONLY. Opens no session, execs nothing,
                      claims no VT. Exit 0 means the person proved who they
-                     are, NOT that they are logged in — this is the path
-                     toward retiring greetd, and it is not there yet.
-                   Linux only — libpam is not linked elsewhere.
+                     are, NOT that they are logged in.
   --service NAME   PAM service to authenticate against (default: `login`).
   --user NAME      Prefill the username field.
 
@@ -100,7 +102,7 @@ fn main() -> ExitCode {
     }
 }
 
-#[cfg(target_os = "linux")]
+#[cfg(all(target_os = "linux", feature = "pam"))]
 fn authenticate_run(face: Face, service: Option<String>) -> ExitCode {
     use std::sync::Arc;
 
@@ -261,15 +263,19 @@ fn greetd_run(_face: Face, _args: &[String]) -> ExitCode {
     ExitCode::FAILURE
 }
 
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(all(target_os = "linux", feature = "pam")))]
 fn authenticate_run(_face: Face, _service: Option<String>) -> ExitCode {
-    // Refused by PLATFORM, not by readiness. libpam is a Linux interface and
-    // mukae-host is not built here at all, so there is no code path to run —
-    // this arm exists so the message names the reason instead of the linker
-    // naming `-lpam`.
+    // ★ Refused by BUILD, not by readiness — and the distinction is the point.
+    // The PAM path works and is tested; it is simply not in this binary,
+    // because libpam is the only thing that would make this an executable with
+    // a C library hanging off it. MODULARIZE, DON'T DELETE: the code is intact
+    // and one flag away.
     eprintln!(
-        "mukae: --authenticate needs libpam, which is linked only on Linux.\n\
-         mukae: the face itself runs here — drop the flag to draw it."
+        "mukae: --authenticate is not in this build.\n\
+         mukae: libpam is a C library, not a wire, so it is off by default —\n\
+         mukae: this binary links no .so beyond libc. Rebuild with\n\
+         mukae: `--features pam` if you want it, or use --greetd, which is\n\
+         mukae: what a seat actually runs."
     );
     ExitCode::FAILURE
 }

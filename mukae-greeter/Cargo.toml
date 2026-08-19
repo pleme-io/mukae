@@ -28,8 +28,25 @@ egaku = "0.1"
 # rather than about the platform. The face stays buildable everywhere, which
 # is what makes it testable on the machine this is usually written from.
 [target.'cfg(target_os = "linux")'.dependencies]
-mukae-host = { path = "../mukae-host", version = "0.1.0" }
 mukae-greetd = { path = "../mukae-greetd", version = "0.1.0" }
+# ★ OPTIONAL, AND OFF BY DEFAULT — this is the only thing in the binary that
+# would link a `.so`. See the `pam` feature below.
+mukae-host = { path = "../mukae-host", version = "0.1.0", optional = true }
+
+[features]
+# ★ DEFAULT IS EMPTY, SO THE SHIPPED BINARY LINKS NO libpam.
+#
+# `--greetd` — the mode that actually seats a person — speaks a socket and
+# needs no C library at all. `--authenticate` drives libpam directly, which is
+# the GUEST path: libpam is a C library with an ABI, not a wire, so the
+# naturalize waiver does not cover it. Defaulting it off means the binary a
+# machine boots carries libc and nothing else.
+#
+# MODULARIZE, DON'T DELETE: the PAM path keeps working, keeps its tests, and
+# keeps being buildable with `--features pam`. It is configured off, not
+# removed — reviving it is a flag, not a rewrite.
+default = []
+pam = ["dep:mukae-host"]
 
 [lints.clippy]
 pedantic = "warn"

@@ -29,8 +29,11 @@ use egaku_term::crossterm::event::Event;
 use egaku_term::{Buffer, error::Result};
 use mukae::introspect::LoginFlow;
 use mukae_face::{Action, Face, Field};
+#[cfg(feature = "pam")]
 use mukae_host::authenticate::authenticate;
-use mukae_host::bridge::Bridge;
+// ★ From mukae-spec, not mukae-host. That move is what lets the greeter drop
+// libpam entirely: the conversation type never needed it.
+use mukae_spec::bridge::Bridge;
 use mukae_spec::capability::Passphrase;
 use mukae_spec::env::{MsgStyle, PamAnswer, PamStep};
 use mukae_spec::ids::ServiceName;
@@ -108,6 +111,7 @@ impl Session {
         s
     }
 
+    #[cfg(feature = "pam")]
     pub fn start(
         face: Face,
         service: ServiceName,
