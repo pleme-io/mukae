@@ -58,6 +58,7 @@ pub mod env;
 pub mod ids;
 pub mod mock;
 pub mod session;
+pub mod surface;
 
 pub use capability::{AuthMethod, AuthProof, Authenticated, Denied, SeatCapability, SeatState};
 pub use conversation::{Ask, Conversation, Face, Outcome, capability_from};
@@ -65,3 +66,4 @@ pub use coverage::{COVERAGE, Phase, live_actions, phase_of};
 pub use env::{Answer, PamAnswer, PamStep, SeatEnv};
 pub use ids::{PamHandleId, Seat0Witness, SeatId, ServiceName, Uid, UserName};
 pub use session::{Argv, SessionHandle, SessionPlan, start_session};
+pub use surface::{Drivable, Gap, Key, Verdict, diff};

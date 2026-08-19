@@ -111,6 +111,44 @@ cannot tell a prompt from an assignment; `mock.rs` therefore carries the
 guard's own `SYNTHETIC-FIXTURE` marker. That is narrower than `--no-verify`:
 it declares one file a fixture and leaves every other file checked.
 
+## The reconciliation adapter — and why it is an adapter
+
+`surface.rs` makes the login surface reconcilable: desired, observed, and the
+gap between them, as pure data. **There is no loop in it**, deliberately. The
+fleet has one convergence engine (`lava-viggy`'s seven beats, which `bancadad`
+already runs on) and writing a second here would be exactly the duplication
+that adoption removed. When mukae reaches the registry, `bancadad` gains a
+`World` impl over this in a few lines.
+
+**A login surface is not like the rest of the desktop, and the type says so.**
+
+| | |
+|---|---|
+| `login.session.open` | **CloseOnly** — a loop may end a session, never start one |
+| `login.session.owner` | **ObserveOnly** — decided by who authenticated |
+| `login.enabled` | **Both** |
+
+The `CloseOnly` asymmetry is the safety property. Closing needs no secret;
+opening needs an `AuthProof`, which only a human interaction produces — and the
+capability chain already makes a machine-minted one unconstructable. Stating it
+here means a *planner* never emits an action the type system would refuse.
+
+Three further shape decisions, each because a login is not idempotent:
+
+- **`NeedsHuman` does not block convergence.** A seat declaring "someone should
+  be logged in" is not broken while nobody is; it is waiting. A loop reporting
+  that as failure every tick trains its operator to ignore it.
+- **The surface is tiny** — 3 keys against 31 catalog actions — because most
+  login actions are events in a conversation, not state, and re-running one
+  costs a retry budget or locks an account. A test fails if it grows past a
+  quarter of the catalog without someone re-checking that.
+- **An unobserved key is unknown, never `false`.** Same distinction
+  `Answer::Blind` draws for identity.
+
+`observe()` returns all-unknown on an M0 world, and that is a correct value
+rather than a `todo!()`: the seat-scoped session query arrives with the seat
+half at M4, so today every key honestly reads as unseen.
+
 ## What is NOT sealed, and why
 
 Two of `MUKAE.md`'s sixteen illegal states are **only-mitigated**, and both for
