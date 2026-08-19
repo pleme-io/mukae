@@ -1,0 +1,23 @@
+[package]
+name = "mukae-lisp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "mukae-lisp — the (defmukae …) authoring surface. A login manager's whole configuration as tatara-lisp data, lowered onto mukae-spec's typed border."
+
+# ── WHY THIS IS A SEPARATE CRATE ──────────────────────────────────────
+# mukae-spec's dependency list is an invariant, not a preference: illegal
+# state [14] (a syscall in spec code) is closed BY that list, so every crate
+# added there deletes a proof. tatara-lisp is harmless in itself, but the
+# invariant is worth more than the convenience of one crate — so the authoring
+# surface sits ABOVE the border and depends on it, never the reverse.
+[dependencies]
+mukae-spec = { path = "../mukae-spec", version = "0.1.0" }
+tatara-lisp = "0.3"
+serde = { workspace = true }
+thiserror = { workspace = true }
+
+[lints.clippy]
+pedantic = "warn"

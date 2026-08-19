@@ -134,9 +134,46 @@ is a compile error at the call site.
 | PAM linkage (`HostSeatEnv`) | M3 |
 | any face — TTY or GPU | M5 / M6 |
 | the handoff envelope and the epoch typestate | M2 / M7 |
-| the `(defmukae …)` tatara-lisp surface | not M0; the border is plain typed Rust today |
+| ~~the `(defmukae …)` tatara-lisp surface~~ | **SHIPPED** — `mukae-lisp`, 13 tests over the committed spec |
 
-**The tatara-lisp surface is the one to watch.** `MUKAE.md` §4.2 designs
-`(defmukae …)` / `(defseat …)` forms over a `#[derive(TataraDomain)]` border,
-and none of that is here. Saying "the typed border exists" is true; saying "the
-authoring surface exists" would not be.
+## The authoring surface — `mukae-lisp`, and what it corrected
+
+`(defmukae …)` ships. `mukae-lisp/specs/fleet-entrance.mukae.lisp` is a real
+two-seat entrance, and 13 tests exercise it — the committed file itself, not a
+fixture, so drift from what an operator would actually write is what breaks.
+
+It is a SEPARATE CRATE on purpose. `mukae-spec`'s dependency list is the
+mechanism that closes illegal state [14], so every crate added there deletes a
+proof; the authoring surface sits above the border and depends on it.
+
+**Three measured corrections to `MUKAE.md` §4.2's sketch.**
+
+1. **Enum values must be single words.** `DeriveKeywordSexp` lowercases the
+   identifier with *no separator*, while field names go snake → kebab. Two
+   opposite conventions in one language. §4.2 writes `:sealed-memfd`,
+   `:physical-presence` and `:no-display` as *values* — none of those parse.
+   Pinned by `enum_values_have_no_separator_but_field_names_do`.
+2. **A typo'd kwarg IS rejected on the derive path.** §4.2 calls a lint "not
+   optional here" because of the silent empty-`Vec` trap. That trap is real on
+   the *manual* extraction path; `DeriveTataraDomain` emits a
+   `__TATARA_ALLOWED_KEYWORDS` gate that errors with a did-you-mean. Re-pinned
+   per-domain because the consequence is severe: a login config that parses
+   green while missing half its fields is a machine nobody can get into.
+3. **A `Vec<T>` is a bare run of forms** — the language has neither a map nor a
+   vector, so every nested value is its own named domain.
+
+**What lowering enforces that the data language cannot.** A form is data; the
+invariants live in the lowering, at the one boundary where the typed
+information exists:
+
+| refused | why it cannot be a type in the lisp |
+|---|---|
+| a VT console on a non-`seat0` seat | lisp cannot carry a `Seat0Witness`; `as_seat0()` is its only producer |
+| autologin *and* restart-on-exit | greetd's boolean pair; the autologin arm has no `restart` field to lower into |
+| a greeter with a `:user` | greeters have none |
+| a seatless console with VT fields | not harmless — the author believes that seat has a VT |
+| a duplicate seat id | the second would silently win |
+
+Still absent: `:catalog`, `:handoff` and `:faces` from §4.2's sketch, because
+`SessionCatalogSpec`, `HandoffSpec` and `Faces` do not exist as types yet
+(M2/M6/M7). The forms cover what the border can actually receive.
