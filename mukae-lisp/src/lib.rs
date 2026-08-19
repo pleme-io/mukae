@@ -56,6 +56,12 @@
 //!   autologin arm has no `restart` field, so the illegal combination has no
 //!   representation to lower FROM.
 
+pub mod catalog;
+pub use catalog::{
+    Absence, CatalogError, Epoch, FaceForm, FaceKind, FactForm, Handoff, HandoffForm, HonorForm,
+    Honored, Resolution, SessionCatalog, SessionsForm, Transport, Volatility,
+};
+
 use mukae_spec::ids::{IdError, SeatId, ServiceName, UserName};
 use tatara_lisp::{DeriveKeywordSexp, DeriveTataraDomain, KeywordSexp, TataraDomain};
 
@@ -192,6 +198,20 @@ pub struct MukaeForm {
     pub seats: Vec<SeatForm>,
     #[tatara(domain)]
     pub auth: AuthPolicyForm,
+    /// Where sessions come from. Optional: a machine with a single fixed
+    /// session needs no catalog, and demanding one would make the simple
+    /// case verbose to no purpose.
+    #[tatara(domain)]
+    pub catalog: Option<catalog::SessionsForm>,
+    /// The greeter -> session handoff. Optional, and its absence is a
+    /// SUPPORTED configuration rather than a degraded one — see
+    /// `catalog::Absence`, where every path resolves to an empty dict and the
+    /// session simply probes for itself.
+    #[tatara(domain)]
+    pub handoff: Option<catalog::HandoffForm>,
+    /// Which faces render. Optional; a headless CI entrance declares one.
+    #[tatara(domain)]
+    pub faces: Vec<catalog::FaceForm>,
 }
 
 // ── The lowered, typed shapes ─────────────────────────────────────────

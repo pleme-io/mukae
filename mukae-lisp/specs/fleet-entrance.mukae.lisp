@@ -55,4 +55,45 @@
     ;; A greeter that exits and stays gone is a machine with no way in, so
     ;; the restart policy is the recoverable one.
     :startup (defstartup :mode :greeter :restart :always)
-    :retry (defretry :attempts 5 :window-secs 60 :backoff :exponential)))
+    :retry (defretry :attempts 5 :window-secs 60 :backoff :exponential))
+
+  ;; Where sessions come from. Every XDG hint is honoured by default, so a
+  ;; packager who set Hidden=true gets the entry hidden without anyone having
+  ;; to opt in to obedience.
+  :catalog
+  (defsessions
+    :name "xdg"
+    :dirs ("/run/current-system/sw/share/wayland-sessions"
+           "/run/current-system/sw/share/xsessions"))
+
+  ;; The greeter -> session handoff.
+  ;;
+  ;; ── WHAT THIS FORM CANNOT SAY ────────────────────────────────────
+  ;;   There is no :battery fact and no :thermal fact, and not because
+  ;;   nobody wrote one: a fact whose validity window is shorter than the
+  ;;   handoff latency is not configuration, it is a sensor, and `Volatility`
+  ;;   has no arm that would describe it. Consume those live instead.
+  ;;
+  ;;   :transport has ONE arm. The other two candidates were killed on
+  ;;   structure, not preference — $XDG_RUNTIME_DIR is destroyed by logind at
+  ;;   exactly the moment the session starts, and a shared /var/lib path fails
+  ;;   SILENTLY in the benign direction.
+  :handoff
+  (defhandoff
+    :name "entrance-to-session"
+    :transport :sealedmemfd
+    :env-var "MUKAE_HANDOFF_FD"
+    :validity-secs 120
+    :facts ((deffact :path "outputs.topology" :volatility :hotplugvolatile :epoch :e0)
+            (deffact :path "outputs.scale"    :volatility :hotplugvolatile :epoch :e0)
+            (deffact :path "gpu.class"        :volatility :bootstable      :epoch :e0)
+            (deffact :path "keyboard.model"   :volatility :bootstable      :epoch :e0)
+            (deffact :path "input.layout"     :volatility :decision        :epoch :atsubmit)
+            (deffact :path "session.chosen"   :volatility :decision        :epoch :atsubmit)
+            (deffact :path "theme.tokens"     :volatility :authored        :epoch :e1)))
+
+  ;; Which faces render. The headless one is not a test fixture — it is how
+  ;; a greeter is proven to have painted anything at all in CI.
+  :faces ((defface :kind :gpu      :renderer "omoya-entrance")
+          (defface :kind :tty      :renderer "egaku-term")
+          (defface :kind :headless :renderer "garasu")))

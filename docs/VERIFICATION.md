@@ -174,6 +174,62 @@ information exists:
 | a seatless console with VT fields | not harmless — the author believes that seat has a VT |
 | a duplicate seat id | the second would silently win |
 
-Still absent: `:catalog`, `:handoff` and `:faces` from §4.2's sketch, because
-`SessionCatalogSpec`, `HandoffSpec` and `Faces` do not exist as types yet
-(M2/M6/M7). The forms cover what the border can actually receive.
+### `:catalog`, `:handoff` and `:faces` — shipped, at three different tiers
+
+All three of §4.2's remaining sections now exist, and they are **not equally
+real**. Saying so is the point:
+
+| section | tier | why |
+|---|---|---|
+| `:faces` | **live** | pure data — which renderer serves which face |
+| `:catalog` | **live logic, M3 reader** | the rules are typed and proven; the filesystem impl is M3, same standing as the login conversation |
+| `:handoff` | **DECLARATION ONLY** | the envelope's shape and invariants are here; the layer that feeds a config fold is not, and cannot be until shikumi grows an `Attested` tier |
+
+**I said last pass that these needed hardware. That was wrong**, and it is
+worth naming as the error it was: `:catalog` is a filesystem read behind a
+mockable seam and `:faces` is data — neither goes near a GPU. What the handoff
+is actually blocked on is §5.5's **S1**, an upstream shikumi change measured at
+~1453 `ConfigTierKind` sites, because an injected `Discovered` fact is
+currently overwritten by `prescribed_default()` (ordinals `Bare, Discovered,
+Default, Custom`). That is a real dependency and a large one — but it is *our
+own abstraction*, not a fact about the world, and the two deserve different
+words.
+
+**What the handoff form refuses, and why each would produce a stale value:**
+
+| refused | consequence if allowed |
+|---|---|
+| a sensor path (`battery.*`, `thermal.*`, `power.draw`, `fan.*`) | hands over a value already wrong on arrival |
+| a hotplug-volatile fact at epoch E2 | by E2 the session has started; the measurement is history |
+| zero validity | stale on arrival by definition |
+| an env var containing `=` | an assignment, not a name — never resolves |
+| a duplicate fact path | one silently wins |
+
+The sensor rule has **two mechanisms, not one**. `Volatility` has no `Sensor`
+arm, so there is no volatility a declarer could give such a fact — structural.
+The name check catches an author reaching for it anyway under a volatility that
+does not fit.
+
+**Every one of the seven absence paths resolves to an empty dict**, with the
+denominator carried in `Absence::ALL` rather than in prose. That is §5.4's
+contract verbatim: a missing handoff must be indistinguishable from a machine
+that never had one, so the session re-probes exactly as it would have. A
+fallback that guessed would be worse than no handoff, because the session would
+trust the guess.
+
+### One modelling correction to §4.2, made on merit
+
+§4.2 writes `:honor (:hidden :no-display :try-exec)` — a list, implying an open
+set. The XDG Desktop Entry spec defines exactly those three and no more, so the
+shipped form is three named optional flags. An unknown hint has nowhere to go
+and the same hint cannot be named twice. Undeclared means **honoured**:
+ignoring `Hidden=true` because nobody opted into obedience would show a user an
+entry its packager deliberately deleted.
+
+### And a measured correction to the fleet's own notes on tatara-lisp
+
+"No map, no vector" reads naturally as *a list-valued field is impossible*. It
+is not — the language has no vector TYPE, while a `Vec<String>` FIELD lowers
+fine from a bare run. `mukae-lisp/tests/vec_of_strings.rs` is the probe, kept
+rather than deleted because the wrong reading costs real design: it is what
+pushes an author into `:dirs ((defdir :path "/a") (defdir :path "/b"))`.
