@@ -37,6 +37,7 @@
 //! it is the session half's decision and pretending otherwise would put a
 //! security-shaped assumption in a crate that only checks hashes.
 
+pub mod logind;
 pub mod shadow;
 pub mod verify;
 

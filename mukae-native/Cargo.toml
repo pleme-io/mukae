@@ -22,5 +22,14 @@ yescrypt = { version = "0.1", features = ["password-hash"] }
 pwhash = "1"
 zeroize = { version = "1", features = ["zeroize_derive"] }
 
+# ── ★ D-Bus, and ONLY on Linux ────────────────────────────────────────────
+# logind is the one thing here we speak to rather than replace, and its
+# transport is a wire. zbus is pure Rust — it implements the D-Bus protocol
+# itself rather than binding libdbus, so this adds no .so, which is the whole
+# point of the crate it lives in.
+[target.'cfg(target_os = "linux")'.dependencies]
+zbus = { version = "5", default-features = false, features = ["blocking-api", "tokio"] }
+zvariant = "5"
+
 [lints.clippy]
 pedantic = "warn"
