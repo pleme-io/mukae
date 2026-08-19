@@ -118,21 +118,19 @@ pub fn authenticate(svc: &ServiceName, user: Option<&UserName>) -> Result<Bridge
 mod tests {
     use super::*;
 
-    #[test]
-    fn a_service_name_with_a_nul_fails_synchronously() {
-        // Synchronously, not as a Failed step: a caller that mistyped a service
-        // name should learn at the call, not after a thread has spun up and a
-        // face has drawn a prompt for a transaction that never existed.
-        let bad = ServiceName::new("lo\0gin".to_string());
-        assert!(authenticate(&bad, None).is_err());
-    }
+    // ★ There is NO test that a NUL in the service name is rejected here,
+    // and that is a finding rather than an omission: `ServiceName::parse`
+    // already refuses NULs *and* path separators — a `/` would be a traversal
+    // into an arbitrary PAM config. The bad value cannot be constructed, so
+    // the CString::new below cannot fail for a parsed name, and a test would
+    // be asserting against a state with no constructor.
 
     #[test]
     fn an_unknown_service_reports_through_the_bridge_not_a_panic() {
         // PAM services are files in /etc/pam.d. A service nobody configured is
         // a normal runtime outcome — a misconfigured seat — and must arrive as
         // a step the face can render rather than as a crash on the worker.
-        let svc = ServiceName::new("mukae-no-such-service-exists".to_string());
+        let svc = ServiceName::parse("mukae-no-such-service-exists").expect("a bare name parses");
         let mut face = authenticate(&svc, None).expect("start is fine; the service is not");
         assert!(
             matches!(face.next(), PamStep::Failed { .. }),
