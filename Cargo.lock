@@ -228,14 +228,14 @@ dependencies = [
 
 [[package]]
 name = "mukae"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "mukae-spec",
 ]
 
 [[package]]
 name = "mukae-face"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "egaku",
  "egaku-term",
@@ -244,7 +244,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-greeter"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "egaku-term",
  "mukae-face",
@@ -253,7 +253,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-host"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "libc",
  "mukae-spec",
@@ -262,7 +262,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-lisp"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "mukae-spec",
  "serde",
@@ -272,7 +272,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-spec"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "serde",
  "thiserror",
