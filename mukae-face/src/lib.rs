@@ -26,6 +26,7 @@
 //! code cannot contain a password.
 
 use egaku::{KeyCombo, KeyMap, Rect, SecretInput, TextInput};
+use egaku_term::crossterm::event::{Event, KeyCode, KeyEventKind, KeyModifiers};
 use egaku_term::{
     Buffer,
     Style,
@@ -34,6 +35,35 @@ use egaku_term::{
     error::Result,
     theme::Palette,
 };
+
+/// A printable character from a key event, or `None`.
+///
+/// ── ★ WHY THIS IS RE-DERIVED HERE ────────────────────────────────────────
+/// `egaku_term::app::text_char` is the same function and it is `pub(crate)`,
+/// so no consumer can call it. That is an upstream omission rather than a
+/// design: this crate is on the STRING dispatch path (it returns a `KeyMap`,
+/// not a `hotkey_map`), and on that path the runtime routes every unclaimed
+/// key to `on_unhandled` — it never calls `on_text`. So a string-path app
+/// that wants text input has no choice but to write this itself.
+///
+/// The modifier check is the load-bearing half: Ctrl-C arrives as
+/// `KeyCode::Char('c')`, and a face that took it as text would silently type a
+/// `c` into a password field instead of letting the binding claim it.
+fn text_char(evt: &Event) -> Option<char> {
+    let Event::Key(k) = evt else { return None };
+    if k.kind != KeyEventKind::Press {
+        return None;
+    }
+    if k.modifiers
+        .intersects(KeyModifiers::CONTROL | KeyModifiers::ALT | KeyModifiers::SUPER)
+    {
+        return None;
+    }
+    match k.code {
+        KeyCode::Char(c) => Some(c),
+        _ => None,
+    }
+}
 
 /// Which field has focus. Two fields, so an enum rather than an index —
 /// an index invites arithmetic that can point at a third field that does not
@@ -204,6 +234,24 @@ impl App for Face {
     fn should_quit(&self) -> bool {
         self.quit
     }
+
+    /// Where typed characters actually arrive.
+    ///
+    /// ── ★ THE BUG THIS CLOSES ────────────────────────────────────────────
+    /// `Action::Type(c)` existed and NOTHING PRODUCED IT. The runtime's string
+    /// dispatch path resolves a key through `keymap()`, and everything it does
+    /// not claim goes to `on_unhandled` — whose default is a no-op. `on_text`
+    /// fires only on the typed (`hotkey_map`) path, which this face is not on.
+    ///
+    /// So the face compiled, drew, and could not be typed into: a login screen
+    /// that ignores the keyboard. Found by reading the runtime rather than by
+    /// running it, which is the only way an unproduced enum variant is ever
+    /// found — the compiler is perfectly happy with an arm nothing constructs.
+    fn on_unhandled(&mut self, event: &Event) {
+        if let Some(c) = text_char(event) {
+            self.handle(&Action::Type(c));
+        }
+    }
 }
 
 #[cfg(test)]
@@ -237,6 +285,40 @@ mod tests {
         f.handle(&Action::Type('x'));
         assert_eq!(f.username(), "ld", "username unchanged");
         assert_eq!(f.masked.mask_len(), 1);
+    }
+
+    fn key(c: char, m: KeyModifiers) -> Event {
+        use egaku_term::crossterm::event::{KeyEvent, KeyEventState};
+        Event::Key(KeyEvent {
+            code: KeyCode::Char(c),
+            modifiers: m,
+            kind: KeyEventKind::Press,
+            state: KeyEventState::NONE,
+        })
+    }
+
+    #[test]
+    fn a_typed_character_actually_reaches_the_field() {
+        // ★ THE REGRESSION TEST FOR A LOGIN SCREEN THAT IGNORED THE KEYBOARD.
+        // Action::Type existed with no producer, because the string dispatch
+        // path routes unclaimed keys to on_unhandled and this face did not
+        // implement it. Every other test drove `handle` directly and therefore
+        // could not see it — the gap was between the runtime and the app, not
+        // inside either.
+        let mut f = face();
+        f.on_unhandled(&key('l', KeyModifiers::NONE));
+        f.on_unhandled(&key('d', KeyModifiers::NONE));
+        assert_eq!(f.username(), "ld");
+    }
+
+    #[test]
+    fn a_modified_key_is_not_text() {
+        // Ctrl-C arrives as KeyCode::Char('c'). A face that took it as text
+        // would type a `c` into the password field instead of letting the
+        // binding claim it — silently, and into the one field nobody can see.
+        let mut f = face();
+        f.on_unhandled(&key('c', KeyModifiers::CONTROL));
+        assert_eq!(f.username(), "", "a modified key is a chord, never text");
     }
 
     #[test]
