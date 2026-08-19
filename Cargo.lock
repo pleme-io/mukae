@@ -533,7 +533,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-native"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "mukae-spec",
  "pwhash",
