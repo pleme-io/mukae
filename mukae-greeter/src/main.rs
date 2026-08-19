@@ -34,12 +34,21 @@ mod session;
 const HELP: &str = "\
 mukae (迎え) — the pleme-io login face
 
-  mukae [--authenticate] [--service NAME] [--user NAME]
+  mukae [--greetd | --authenticate] [--service NAME] [--user NAME]
+        [--cmd PROGRAM [ARG...]]
 
-  --authenticate   Run a real PAM conversation to a verdict.
+  --greetd         Run as greetd's greeter. THE MODE THAT LOGS SOMEONE IN:
+                   greetd owns the PAM stack, the VT, the privilege drop and
+                   the exec; mukae owns the face, the theme and the
+                   introspection. Requires $GREETD_SOCK.
+  --cmd P [ARG..]  What to start on success, in --greetd mode. Everything
+                   after --cmd is the command; put it last.
+
+  --authenticate   Run a real PAM conversation to a verdict, mukae's own way.
                    ★ Authenticates ONLY. Opens no session, execs nothing,
                      claims no VT. Exit 0 means the person proved who they
-                     are, NOT that they are logged in.
+                     are, NOT that they are logged in — this is the path
+                     toward retiring greetd, and it is not there yet.
                    Linux only — libpam is not linked elsewhere.
   --service NAME   PAM service to authenticate against (default: `login`).
   --user NAME      Prefill the username field.
@@ -70,6 +79,10 @@ fn main() -> ExitCode {
         for c in u.chars() {
             face.user.insert_char(c);
         }
+    }
+
+    if args.iter().any(|a| a == "--greetd") {
+        return greetd_run(face, &args);
     }
 
     if args.iter().any(|a| a == "--authenticate") {
@@ -175,6 +188,77 @@ fn authenticate_run(face: Face, service: Option<String>) -> ExitCode {
             ExitCode::FAILURE
         }
     }
+}
+
+/// Run as greetd's greeter — the mode that actually seats a person.
+#[cfg(target_os = "linux")]
+fn greetd_run(face: Face, args: &[String]) -> ExitCode {
+    use std::sync::Arc;
+
+    use mukae::introspect::{Drivable, LoginFlow};
+    use mukae_greetd::{SessionCmd, connect};
+    use session::{Session, Verdict};
+
+    // Everything after `--cmd` is the session command. Taken positionally
+    // rather than as a quoted string, because splitting a string on spaces is
+    // how a path with a space in it becomes two arguments.
+    let cmd: Vec<String> = args
+        .iter()
+        .position(|a| a == "--cmd")
+        .map(|i| args[i + 1..].to_vec())
+        .unwrap_or_default();
+
+    if cmd.is_empty() {
+        eprintln!(
+            "mukae: --greetd needs --cmd PROGRAM [ARG...] — what to start once\n\
+             mukae: the person is authenticated. Without it a successful login\n\
+             mukae: would land on nothing, which looks exactly like a failure."
+        );
+        return ExitCode::FAILURE;
+    }
+
+    let flow = Arc::new(LoginFlow::new(Drivable::Observable));
+    match kanshou::Server::spawn_sidecar("mukae", Arc::clone(&flow)) {
+        Some(p) => eprintln!("mukae: introspection at {}", p.display()),
+        None => eprintln!("mukae: introspection sidecar did NOT start — the login still works."),
+    }
+
+    let bridge = match connect(SessionCmd {
+        cmd,
+        env: Vec::new(),
+    }) {
+        Ok(b) => b,
+        Err(e) => {
+            eprintln!("mukae: {e}");
+            return ExitCode::FAILURE;
+        }
+    };
+
+    let mut sess = Session::from_bridge(face, bridge, flow);
+    if let Err(e) = egaku_term::run(&mut sess) {
+        eprintln!("mukae: {e}");
+        return ExitCode::FAILURE;
+    }
+
+    match sess.verdict() {
+        // greetd has started the session. This one IS a login.
+        Some(Verdict::Authenticated) => ExitCode::SUCCESS,
+        Some(Verdict::Refused) => {
+            eprintln!("mukae: login incorrect.");
+            ExitCode::FAILURE
+        }
+        Some(Verdict::Abandoned) => ExitCode::FAILURE,
+        None => {
+            eprintln!("mukae: the conversation ended without a verdict.");
+            ExitCode::FAILURE
+        }
+    }
+}
+
+#[cfg(not(target_os = "linux"))]
+fn greetd_run(_face: Face, _args: &[String]) -> ExitCode {
+    eprintln!("mukae: --greetd needs a greetd socket, which exists only on Linux.");
+    ExitCode::FAILURE
 }
 
 #[cfg(not(target_os = "linux"))]

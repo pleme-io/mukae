@@ -29,6 +29,7 @@ egaku = "0.1"
 # is what makes it testable on the machine this is usually written from.
 [target.'cfg(target_os = "linux")'.dependencies]
 mukae-host = { path = "../mukae-host", version = "0.1.0" }
+mukae-greetd = { path = "../mukae-greetd", version = "0.1.0" }
 
 [lints.clippy]
 pedantic = "warn"

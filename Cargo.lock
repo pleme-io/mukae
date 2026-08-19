@@ -294,6 +294,7 @@ dependencies = [
  "kanshou",
  "mukae",
  "mukae-face",
+ "mukae-greetd",
  "mukae-host",
  "mukae-spec",
 ]

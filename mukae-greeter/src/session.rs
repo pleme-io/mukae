@@ -79,6 +79,35 @@ impl Session {
     ///
     /// # Errors
     /// The reason the transaction could not be started at all.
+    /// Drive a conversation that some other transport already started.
+    ///
+    /// ── ★ THE CONSTRUCTOR THAT PROVES THE ABSTRACTION ────────────────────
+    /// `Bridge` is the conversation, not the PAM bridge, so a session does not
+    /// need to know where its prompts come from. This takes one from anywhere
+    /// — libpam via `authenticate`, greetd via `mukae_greetd::connect` — and
+    /// everything downstream is byte-identical: the same face, the same
+    /// routing by `MsgStyle`, the same undifferentiated failure message, the
+    /// same published surface.
+    ///
+    /// The `service` field is left as a diagnostic label. A greetd
+    /// conversation has no PAM service of its own to name — greetd chose one —
+    /// so claiming one here would be a fact this program does not have.
+    pub fn from_bridge(face: Face, bridge: Bridge, flow: Arc<LoginFlow>) -> Self {
+        flow.began();
+        let mut s = Self {
+            face,
+            bridge,
+            awaiting: None,
+            verdict: None,
+            service: ServiceName::parse("greetd").unwrap_or_else(|_| {
+                unreachable!("`greetd` is a bare name and always parses")
+            }),
+            flow,
+        };
+        s.pump();
+        s
+    }
+
     pub fn start(
         face: Face,
         service: ServiceName,
