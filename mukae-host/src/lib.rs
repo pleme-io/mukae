@@ -51,6 +51,7 @@
 #![forbid(unsafe_op_in_unsafe_fn)]
 #![cfg(target_os = "linux")]
 
+pub mod authenticate;
 pub mod bridge;
 pub mod bridging_conv;
 pub mod conv;
