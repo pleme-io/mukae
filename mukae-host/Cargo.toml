@@ -1,0 +1,24 @@
+[package]
+name = "mukae-host"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "mukae-host — the real PAM linkage. The ONLY crate in the tree that names libc, and the only one that can."
+
+# ── THIS IS WHERE libc IS ALLOWED, AND THAT IS THE WHOLE POINT ────────
+# `mukae-spec` closes illegal state [14] by not depending on libc, so a
+# syscall in the border is E0433. That proof only means something if there is
+# somewhere else for the syscalls to live. This is that somewhere.
+#
+# Linux-only by construction: PAM is a Linux/BSD interface and this crate
+# links `libpam`. The `cfg(target_os)` gate is at the top of lib.rs so a
+# darwin consumer gets a clear message rather than a linker error.
+[dependencies]
+mukae-spec = { path = "../mukae-spec", version = "0.1.0" }
+libc = "0.2"
+thiserror = { workspace = true }
+
+[lints.clippy]
+pedantic = "warn"

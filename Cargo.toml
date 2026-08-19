@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["mukae", "mukae-lisp", "mukae-spec"]
+members = ["mukae", "mukae-host", "mukae-lisp", "mukae-spec"]
 
 [workspace.package]
 version = "0.1.0"

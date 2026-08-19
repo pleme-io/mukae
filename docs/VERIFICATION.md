@@ -167,6 +167,48 @@ abstractions, so they do not become types by trying harder.
 | 16 | missing the libseat disable-ack deadline | a deadline is a fact about time. `seat_poll` takes a mandatory deadline and a miss is `SeatError::AckDeadlineMissed` |
 | 17 | a greeter that painted nothing and reported healthy | a claim about photons. `assert_no_magenta_pixels` passes an all-black frame, so the positive proof is a committed golden frame hash — M6 |
 
+## `mukae-host` — the PAM linkage, and exactly how far it got
+
+**LINKED AND EXERCISED against linux-pam 1.7.1 on x86_64-linux (rio). NEVER
+USED TO AUTHENTICATE ANYBODY.**
+
+The link is proven rather than assumed:
+
+```
+binary: target/debug/deps/mukae_host-ce949bf16b1a59e9
+        libpam.so.0 => /nix/store/sx3…-linux-pam-1.7.1/lib/libpam.so.0
+undefined pam_ symbols resolved from libpam: 4
+```
+
+8 tests pass on that host, and two of them *execute the `extern "C"`
+conversation callback* — so this is past a compile check, though well short of
+a login.
+
+**What that is NOT.** M3's done-predicate is a `loginctl show-session`
+transcript from a real VM reporting `Type=tty Class=user Seat=seat0 VTNr=N`,
+plus `/run/user/<uid>` existing during a session and gone after logout. None of
+that has happened. For an authentication path the gap between "links" and
+"runs" is exactly where the bugs are.
+
+**Implemented:** `setcred`, `putenv`, `getenvlist`, `open_session`,
+`close_session`, `end`, `acct_mgmt`, `chauthtok` — straight calls with typed
+error mapping, and the code map is the part these tests genuinely verify
+(`MAXTRIES` is not `AuthError` because retrying on it locks an account;
+`NEW_AUTHTOK_REQD` is a verdict, not a denial).
+
+**Deliberately NOT implemented — the conversation.** libpam PUSHES through a
+callback from inside `pam_authenticate`; `SeatEnv` PULLS one step at a time.
+Bridging needs a thread and two channels per transaction, and a mistake there
+is a hung login rather than a compile error. So `next_step`/`answer` return
+`HostError::ConversationNotBridged`, a typed refusal naming the work. **A
+placeholder `Ok` would be an authentication that always succeeds behind a
+signature that reads as finished** — the worst artifact this repo could hold.
+
+The `pam_conv` struct still carries a *refusing* callback rather than a null
+pointer, because libpam is entitled to call it and a null there is a segfault
+instead of a typed failure. The four memory-contract rules a real conversation
+must obey are written into `conv.rs` now, while there is nothing to get wrong.
+
 ## Scope — what M0 is not
 
 Absent and deliberately **not stubbed**, because a `todo!()` behind a signature
