@@ -18,6 +18,15 @@ path = "src/main.rs"
 mukae-face = { path = "../mukae-face", version = "0.1.0" }
 mukae-spec = { path = "../mukae-spec", version = "0.1.0" }
 egaku-term = "0.3"
+egaku = "0.1"
+
+# ★ The PAM half is linux-only BY TARGET, not by feature. mukae-host links
+# libpam and is `cfg(target_os = "linux")`; making this a feature would let a
+# darwin build select it and fail at link time with a message about `-lpam`
+# rather than about the platform. The face stays buildable everywhere, which
+# is what makes it testable on the machine this is usually written from.
+[target.'cfg(target_os = "linux")'.dependencies]
+mukae-host = { path = "../mukae-host", version = "0.1.0" }
 
 [lints.clippy]
 pedantic = "warn"

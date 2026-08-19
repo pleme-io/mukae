@@ -246,8 +246,10 @@ dependencies = [
 name = "mukae-greeter"
 version = "0.1.2"
 dependencies = [
+ "egaku",
  "egaku-term",
  "mukae-face",
+ "mukae-host",
  "mukae-spec",
 ]
 
