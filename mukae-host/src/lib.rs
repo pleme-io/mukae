@@ -52,6 +52,7 @@
 #![cfg(target_os = "linux")]
 
 pub mod bridge;
+pub mod bridging_conv;
 pub mod conv;
 pub mod ffi;
 
