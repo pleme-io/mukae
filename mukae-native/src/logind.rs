@@ -201,7 +201,7 @@ mod tests {
 
 #[cfg(target_os = "linux")]
 mod bus {
-    use std::os::fd::{FromRawFd, IntoRawFd, OwnedFd};
+    use std::os::fd::OwnedFd;
 
     use super::{Request, Session};
 
@@ -276,10 +276,16 @@ mod bus {
             .deserialize()
             .map_err(|e| format!("logind's reply did not match soshusub: {e}"))?;
 
-        // SAFETY: the fd came from the bus reply and is owned by us — zvariant
-        // hands over ownership, and `into_raw_fd` releases its wrapper without
-        // closing. Closing it here would end the session we just created.
-        let owned = unsafe { OwnedFd::from_raw_fd(fd.into_raw_fd()) };
+        // ★ A MOVE, NOT A DUP, AND NO `unsafe`. zvariant ships
+        // `impl From<zvariant::OwnedFd> for std::os::fd::OwnedFd`, which
+        // unwraps the owned variant and hands the descriptor over intact.
+        //
+        // Worth stating because the obvious alternatives are both wrong:
+        // `as_raw_fd()` + `from_raw_fd()` creates a SECOND owner and the
+        // original's Drop closes the session out from under us, and `dup()`
+        // would leave logind watching a descriptor nobody holds. The move is
+        // the only shape where exactly one owner exists at every instant.
+        let owned = OwnedFd::from(fd);
 
         Ok(Session::new(
             id,
