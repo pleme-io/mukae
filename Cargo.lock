@@ -709,6 +709,7 @@ dependencies = [
 name = "mukae-native"
 version = "0.1.7"
 dependencies = [
+ "libc",
  "mukae-spec",
  "pwhash",
  "yescrypt",
