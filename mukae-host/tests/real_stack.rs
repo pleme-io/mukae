@@ -27,6 +27,19 @@
 //! ```text
 //! cargo test -p mukae-host --test real_stack -- --ignored --nocapture
 //! ```
+//!
+//! ── ★ WHY THE PLATFORM GATE IS HERE AND NOT ONLY ON THE CRATE ─────────────
+//! `mukae-host` is `#![cfg(target_os = "linux")]` — it is the only crate that
+//! names `libc`, and off Linux it compiles to an EMPTY crate. An integration
+//! test is a SEPARATE crate, so it does not inherit that gate: on a darwin
+//! runner `use mukae_host::authenticate` resolves against the empty version
+//! and fails with `E0432: could not find authenticate in mukae_host`.
+//!
+//! That is a COMPILE error, not a skipped test — `cargo test --workspace` on
+//! macOS goes red for a file that was never meant to run there. The gate has
+//! to be repeated on every target that reaches into a `cfg`-gated crate.
+
+#![cfg(target_os = "linux")]
 
 use mukae_host::authenticate::authenticate;
 use mukae_spec::capability::Passphrase;
