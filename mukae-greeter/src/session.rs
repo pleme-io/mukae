@@ -102,9 +102,8 @@ impl Session {
             bridge,
             awaiting: None,
             verdict: None,
-            service: ServiceName::parse("greetd").unwrap_or_else(|_| {
-                unreachable!("`greetd` is a bare name and always parses")
-            }),
+            service: ServiceName::parse("greetd")
+                .unwrap_or_else(|_| unreachable!("`greetd` is a bare name and always parses")),
             flow,
         };
         s.pump();
@@ -204,9 +203,9 @@ impl Session {
             // side of it. The face never calls this; that is why a screenshot
             // or a panic backtrace from the drawing code cannot contain a
             // password.
-            MsgStyle::PromptEchoOff => {
-                PamAnswer::Secret(Passphrase::new(self.face.masked.expose_secret().to_string()))
-            }
+            MsgStyle::PromptEchoOff => PamAnswer::Secret(Passphrase::new(
+                self.face.masked.expose_secret().to_string(),
+            )),
             _ => PamAnswer::Visible(self.face.username().to_string()),
         };
 

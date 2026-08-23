@@ -27,14 +27,7 @@
 
 use egaku::{KeyCombo, KeyMap, Rect, SecretInput, TextInput};
 use egaku_term::crossterm::event::{Event, KeyCode, KeyEventKind, KeyModifiers};
-use egaku_term::{
-    Buffer,
-    Style,
-    app::App,
-    draw,
-    error::Result,
-    theme::Palette,
-};
+use egaku_term::{Buffer, Style, app::App, draw, error::Result, theme::Palette};
 
 /// A printable character from a key event, or `None`.
 ///
@@ -208,7 +201,12 @@ impl App for Face {
 
         draw::text_input_with(
             frame,
-            Rect { x: f32::from(x), y: f32::from(y), width: f32::from(bw), height: 1.0 },
+            Rect {
+                x: f32::from(x),
+                y: f32::from(y),
+                width: f32::from(bw),
+                height: 1.0,
+            },
             &self.user,
             self.focus == Field::User,
             &self.palette,
@@ -219,7 +217,12 @@ impl App for Face {
         // the characters typed.
         draw::secret_input_with(
             frame,
-            Rect { x: f32::from(x), y: f32::from(y + 2), width: f32::from(bw), height: 1.0 },
+            Rect {
+                x: f32::from(x),
+                y: f32::from(y + 2),
+                width: f32::from(bw),
+                height: 1.0,
+            },
             &self.masked,
             self.focus == Field::Secret,
             &self.palette,

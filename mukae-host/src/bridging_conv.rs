@@ -204,14 +204,8 @@ mod tests {
         // Same property refusing_conv is tested for: libpam probes with these.
         let mut out: *mut ffi::pam_response = std::ptr::null_mut();
         // SAFETY: matches the calling convention; nothing is dereferenced.
-        let rc = unsafe {
-            bridging_conv(
-                0,
-                std::ptr::null_mut(),
-                &raw mut out,
-                std::ptr::null_mut(),
-            )
-        };
+        let rc =
+            unsafe { bridging_conv(0, std::ptr::null_mut(), &raw mut out, std::ptr::null_mut()) };
         assert_eq!(rc, ffi::PAM_CONV_ERR);
         assert!(out.is_null(), "rule 3: *resp stays null on failure");
     }
@@ -220,9 +214,8 @@ mod tests {
     fn a_stale_response_pointer_is_cleared_before_anything_else() {
         let mut out = 0xdead_beef_usize as *mut ffi::pam_response;
         // SAFETY: standard convention.
-        let rc = unsafe {
-            bridging_conv(1, std::ptr::null_mut(), &raw mut out, std::ptr::null_mut())
-        };
+        let rc =
+            unsafe { bridging_conv(1, std::ptr::null_mut(), &raw mut out, std::ptr::null_mut()) };
         assert_eq!(rc, ffi::PAM_CONV_ERR);
         assert!(out.is_null(), "a stale pointer must never survive");
     }
@@ -237,9 +230,7 @@ mod tests {
         let mut out: *mut ffi::pam_response = std::ptr::null_mut();
         let side = Box::into_raw(Box::new(conv));
         // SAFETY: side is live for the call; freed immediately after.
-        let rc = unsafe {
-            bridging_conv(1, std::ptr::null_mut(), &raw mut out, side.cast())
-        };
+        let rc = unsafe { bridging_conv(1, std::ptr::null_mut(), &raw mut out, side.cast()) };
         // msg is null here, so it refuses before reaching the channel — the
         // point is that it refuses, and leaves *resp null.
         assert_eq!(rc, ffi::PAM_CONV_ERR);

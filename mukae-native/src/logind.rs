@@ -192,7 +192,14 @@ mod tests {
         // What CAN be checked mechanically: the field is private, so a
         // consumer crate cannot name it. That is enforced by the compiler on
         // every build of every downstream crate.
-        let names: Vec<&str> = vec!["id", "object_path", "runtime_path", "seat", "vtnr", "existing"];
+        let names: Vec<&str> = vec![
+            "id",
+            "object_path",
+            "runtime_path",
+            "seat",
+            "vtnr",
+            "existing",
+        ];
         assert_eq!(names.len(), 6, "the public surface is these six and no fd");
     }
 }

@@ -128,9 +128,7 @@ fn check(stored: &str, passphrase: &str) -> Option<bool> {
         "$5$",  // sha256crypt
         "$6$",  // sha512crypt
         "$2a$", // bcrypt, three spellings
-        "$2b$",
-        "$2y$",
-        "$sha1$", // sha1crypt
+        "$2b$", "$2y$", "$sha1$", // sha1crypt
         "_",      // BSDi extended DES
     ];
     if PWHASH_SCHEMES.iter().any(|p| stored.starts_with(p)) {
@@ -175,7 +173,10 @@ mod tests {
     #[test]
     fn a_locked_account_is_refused_before_the_passphrase_matters() {
         let e = ShadowEntry::parse_line("bob:!$6$salt$hash:::::::").expect("parses");
-        assert!(matches!(verify(&e, "whatever"), Verdict::Cannot(Unusable::Locked)));
+        assert!(matches!(
+            verify(&e, "whatever"),
+            Verdict::Cannot(Unusable::Locked)
+        ));
     }
 
     #[test]
@@ -184,8 +185,14 @@ mod tests {
         // one must fail — a verifier that accepted the empty guess would log
         // anyone in as every passwordless system account on the machine.
         let e = ShadowEntry::parse_line("svc::::::::").expect("parses");
-        assert!(matches!(verify(&e, ""), Verdict::Cannot(Unusable::NoPassword)));
-        assert!(matches!(verify(&e, "x"), Verdict::Cannot(Unusable::NoPassword)));
+        assert!(matches!(
+            verify(&e, ""),
+            Verdict::Cannot(Unusable::NoPassword)
+        ));
+        assert!(matches!(
+            verify(&e, "x"),
+            Verdict::Cannot(Unusable::NoPassword)
+        ));
     }
 
     #[test]

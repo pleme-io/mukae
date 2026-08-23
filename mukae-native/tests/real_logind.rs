@@ -57,16 +57,25 @@ fn logind_accepts_our_argument_list_and_hands_back_a_session() {
     // is what it CONTAINS. A non-empty id and a real runtime path are the
     // cheapest evidence that logind understood the request rather than merely
     // accepted it.
-    assert!(!session.id.is_empty(), "logind returned an empty session id");
     assert!(
-        session.object_path.starts_with("/org/freedesktop/login1/session/"),
+        !session.id.is_empty(),
+        "logind returned an empty session id"
+    );
+    assert!(
+        session
+            .object_path
+            .starts_with("/org/freedesktop/login1/session/"),
         "object path is not a login1 session path: {}",
         session.object_path
     );
     println!(
         "session id={} path={} runtime={} seat={:?} vtnr={} existing={}",
-        session.id, session.object_path, session.runtime_path, session.seat,
-        session.vtnr, session.existing
+        session.id,
+        session.object_path,
+        session.runtime_path,
+        session.seat,
+        session.vtnr,
+        session.existing
     );
 
     // Dropping ends it. Stated rather than left implicit, because the whole

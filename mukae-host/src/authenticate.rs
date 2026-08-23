@@ -48,7 +48,8 @@ use crate::ffi;
 pub fn authenticate(svc: &ServiceName, user: Option<&UserName>) -> Result<Bridge, String> {
     // Built before the thread so a bad name fails here, synchronously, rather
     // than as a mysterious Failed step a moment later.
-    let c_svc = CString::new(svc.as_str()).map_err(|_| "service name contains a NUL".to_string())?;
+    let c_svc =
+        CString::new(svc.as_str()).map_err(|_| "service name contains a NUL".to_string())?;
     let c_user = match user {
         Some(u) => {
             Some(CString::new(u.as_str()).map_err(|_| "username contains a NUL".to_string())?)

@@ -47,7 +47,10 @@
 //! A test can drive that flow end to end. A real seat runs `HostSeatEnv`, where
 //! the drive verbs are absent rather than refused — see `Drivable`.
 
-use std::sync::{Mutex, atomic::{AtomicU64, Ordering}};
+use std::sync::{
+    Mutex,
+    atomic::{AtomicU64, Ordering},
+};
 
 use kanshou::{Introspect, Query, QueryError, QueryResult};
 
@@ -147,7 +150,11 @@ impl LoginFlow {
             },
             PamStep::Complete => {
                 self.successes.fetch_add(1, Ordering::Relaxed);
-                StepView { kind: "complete", prompt: None, echo: None }
+                StepView {
+                    kind: "complete",
+                    prompt: None,
+                    echo: None,
+                }
             }
             PamStep::Failed { .. } => {
                 self.failures.fetch_add(1, Ordering::Relaxed);
@@ -156,7 +163,11 @@ impl LoginFlow {
                 // caller which one it was is a username oracle — the same
                 // reason a login screen says "login incorrect" rather than "no
                 // such user". The count is published; the discriminator is not.
-                StepView { kind: "failed", prompt: None, echo: None }
+                StepView {
+                    kind: "failed",
+                    prompt: None,
+                    echo: None,
+                }
             }
         };
         if let Ok(mut g) = self.current.lock() {
@@ -225,7 +236,9 @@ mod tests {
         // ★ UserUnknown vs AuthError is a USERNAME ORACLE. A login screen says
         // "login incorrect" for both, and so does this surface.
         let f = LoginFlow::new(Drivable::Observable);
-        f.observe(&PamStep::Failed { class: PamClass::UserUnknown });
+        f.observe(&PamStep::Failed {
+            class: PamClass::UserUnknown,
+        });
         let s = f.snapshot();
         assert_eq!(s.step_kind, Some("failed"));
         assert_eq!(s.failures, 1);
@@ -243,7 +256,10 @@ mod tests {
             !f.schema().contains(&"class"),
             "publishing the PAM failure class is a username oracle"
         );
-        let q = Query { path: vec!["class".to_string()], args: Vec::new() };
+        let q = Query {
+            path: vec!["class".to_string()],
+            args: Vec::new(),
+        };
         assert!(f.query(&q).is_err(), "and it must not answer off-schema");
     }
 
@@ -255,7 +271,10 @@ mod tests {
             msg: PromptText("PIN:".into()),
         });
         let v = f
-            .query(&Query { path: Vec::new(), args: Vec::new() })
+            .query(&Query {
+                path: Vec::new(),
+                args: Vec::new(),
+            })
             .expect("root query answers");
         let s = serde_json::to_string(&v).expect("serialises");
         assert!(s.contains("PIN:"), "the prompt is publishable");
@@ -272,7 +291,9 @@ mod tests {
     fn counts_distinguish_still_typing_from_failed_repeatedly() {
         let f = LoginFlow::new(Drivable::MockOnly);
         f.began();
-        f.observe(&PamStep::Failed { class: PamClass::AuthError });
+        f.observe(&PamStep::Failed {
+            class: PamClass::AuthError,
+        });
         f.began();
         f.observe(&PamStep::Complete);
         let s = f.snapshot();
