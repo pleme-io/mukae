@@ -1,0 +1,35 @@
+# ★ THE COMPILE-FAIL SEALS ARE COUPLED TO ONE COMPILER, SO CI MUST NOT FLOAT.
+#
+# `mukae-spec/tests/ui/*.stderr` are compared BYTE FOR BYTE by trybuild, and
+# rustc rewords its diagnostics between releases. Measured across 1.91.1 ->
+# 1.97.1: E0433 went from "failed to resolve: could not find `libc`" to
+# "cannot find `libc`", the "other types implement" help grew source spans,
+# and `println!` stopped emitting its macro-origin note. Three of the seven
+# seals moved. Nothing in this repository changed — the compiler did.
+#
+# `.github/workflows/ci.yml` runs bare `cargo fmt` / `cargo test`, which on a
+# GitHub runner means the rustup toolchain the macos-15 image happens to ship
+# that week. That floats independently of flake.lock, so the seals were being
+# compared against a compiler nobody chose and `main` went red with no commit
+# to blame. Pinning here is what makes `cargo test` reproducible at all.
+#
+# ★ THIS IS NOT A SECOND SOURCE OF TRUTH. It names the SAME compiler the flake
+# already resolves: `fenix` in flake.lock is stable 2026-07-16, whose
+# data/stable.json carries rustc-1.97.1. So the rustup path (ci.yml), the nix
+# path (crate2nix, `nix develop`) and the auto-release nextest gate now read
+# one compiler's diagnostics instead of three.
+#
+# ★ KNOWN COST, ACCEPTED KNOWINGLY: a bare `cargo test` on a workstation whose
+# `cargo` is NOT rustup — a nix-profile cargo, for instance — ignores this file
+# and keeps using whatever it is. If that is older than 1.97.1 the seals will
+# mismatch locally while CI is green. That is the stale toolchain talking, not
+# a regression: run the suite through the flake's own toolchain instead.
+#
+# ★ WHEN flake.lock's fenix MOVES, THIS MOVES WITH IT, IN THE SAME COMMIT, and
+# the seals are re-blessed alongside:
+#     TRYBUILD=overwrite cargo test -p mukae-spec --test compile_fail
+# Bumping one without the other puts `main` straight back where it just was.
+[toolchain]
+channel = "1.97.1"
+profile = "minimal"
+components = ["rustfmt", "clippy"]
