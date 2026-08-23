@@ -36,5 +36,16 @@
       # at all. Without it the build reaches the linker and dies on
       # `unable to find library -lpam`.
       buildInputs = p: [ p.pam ];
+      # ★ AND libpam AT RUN TIME, which is a SEPARATE fact from linking against
+      # it. `buildInputs` gets the linker its `-L`; it does not give the
+      # resulting cargo test binary a RUNPATH into the nix store, so on Linux
+      # `mukae-host`'s test binary died with
+      #
+      #   error while loading shared libraries: libpam.so.0
+      #
+      # and `cargo nextest` could not even enumerate the tests (exit 127) —
+      # which reads as a broken test harness rather than a missing library.
+      # Same function-of-pkgs form and same reason as `buildInputs` above.
+      devEnvVars = p: { LD_LIBRARY_PATH = "${p.pam}/lib"; };
     };
 }
