@@ -18,9 +18,44 @@
     };
   };
   outputs = inputs @ { self, nixpkgs, crate2nix, fenix, substrate, ... }:
-    (import "${substrate}/lib/rust-library-workspace-flake.nix" {
-      inherit nixpkgs crate2nix fenix;
-    }) {
+    let
+      # ── ★ THE MODULE TRIO, VIA THE DIRECT PATH ───────────────────────────
+      # `rust.tool` consumers (mado, namimado, omoya) pass a `module = {...}`
+      # attr and the builder emits the trio for them. This workspace is built
+      # by `rust-library-workspace-flake.nix`, which has NO such seam — so the
+      # trio is constructed here explicitly, which is the usage
+      # `lib/module-trio.nix`'s own header documents.
+      #
+      # Measured before writing this: mukae's flake emitted
+      # `apps checks devShells overlays packages` and NO module outputs at
+      # all. The greeter that logs every operator in had no module of its
+      # own, while the terminal it eventually launches shipped three.
+      #
+      # ★ withAnvilMcp — the binary gains `mukae mcp`, a READ-ONLY stdio
+      # sidecar (mukae-greeter/src/mcp.rs). Registering it with
+      # blackmatter-anvil is what makes the login flow observable by an
+      # agent: which PAM step, what prompt, whether echo is masked, how many
+      # attempts have failed. There is deliberately no write surface — see
+      # that module's header for why an agent must not type at a greeter.
+      trio = (import "${substrate}/lib/module-trio.nix" {
+        lib = nixpkgs.lib;
+      }).mkModuleTrio {
+        name = "mukae";
+        description = "mukae (迎え) — the pleme-io-native login face";
+        # The workspace's shipped binary is `mukae`, from mukae-greeter.
+        binaryName = "mukae";
+        hmNamespace = "blackmatter.components";
+        withAnvilMcp = true;
+        anvilDescription =
+          "mukae (迎え) — the login face. OBSERVE ONLY: read which PAM step the greeter is on, "
+          + "what it is prompting for, whether echo is masked, and the attempt/failure counters. "
+          + "No synthetic input is exposed at the authentication boundary. `blind` means no "
+          + "greeter is running, which is the normal state once someone is logged in.";
+      };
+
+      base = (import "${substrate}/lib/rust-library-workspace-flake.nix" {
+        inherit nixpkgs crate2nix fenix;
+      }) {
       workspaceName = "mukae";
       # ★ mukae-greeter carries `[[bin]] name = "mukae"` — the binary a display
       # manager execs. It was ABSENT from this list, so `nix build` produced
@@ -47,5 +82,12 @@
       # which reads as a broken test harness rather than a missing library.
       # Same function-of-pkgs form and same reason as `buildInputs` above.
       devEnvVars = p: { LD_LIBRARY_PATH = "${p.pam}/lib"; };
+      };
+    in
+    base
+    // {
+      nixosModules.default = trio.nixosModule;
+      darwinModules.default = trio.darwinModule;
+      homeManagerModules.default = trio.homeManagerModule;
     };
 }

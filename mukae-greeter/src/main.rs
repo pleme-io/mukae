@@ -29,6 +29,7 @@ use egaku_term::theme::Palette;
 use mukae_face::Face;
 
 #[cfg(target_os = "linux")]
+mod mcp;
 mod session;
 
 const HELP: &str = "\
@@ -60,6 +61,33 @@ UI testable on a machine that has no PAM at all.";
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
+
+    // ── ★ THE MCP BRANCH RUNS FIRST, AND TAKES NO VT ────────────────────
+    // `mukae mcp` is a stdio sidecar that OBSERVES the greeter already
+    // running on this host over kanshou. It must not fall through to the
+    // face, which would claim a VT and paint over a live login screen.
+    //
+    // It is also read-only by construction: see src/mcp.rs — there is no
+    // synthetic-input surface at the authentication boundary.
+    if args.first().map(String::as_str) == Some("mcp") {
+        let rt = match tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+        {
+            Ok(rt) => rt,
+            Err(e) => {
+                eprintln!("mukae mcp: cannot build runtime: {e}");
+                return ExitCode::FAILURE;
+            }
+        };
+        return match rt.block_on(crate::mcp::serve()) {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(e) => {
+                eprintln!("mukae mcp: {e}");
+                ExitCode::FAILURE
+            }
+        };
+    }
 
     if args.iter().any(|a| a == "-h" || a == "--help") {
         eprintln!("{HELP}");
