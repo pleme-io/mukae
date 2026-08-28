@@ -319,6 +319,34 @@ fn greeter_login(
         "mukaed: session opened — pid {} uid {}",
         session.pid.0, session.uid.0
     );
+        // ── ★ SAY WHAT THE SESSION WAS ACTUALLY HANDED ─────────────────────
+        // A session started with no HOME is invisible from the outside: the
+        // login succeeds, the compositor comes up, and every layer reports
+        // healthy while the person gets a machine that is not theirs. That
+        // shipped, and it took reading /proc/<pid>/environ of a live process to
+        // find -- by which point the operator had already been told twice that
+        // their theme and their shell were wrong.
+        //
+        // Keys only, and the value of HOME. No secret reaches this map (PATH,
+        // HOME, USER, LOGNAME, SHELL, XDG_*), but logging keys is enough to see
+        // an absence, and an absence is the whole failure mode here.
+        {
+            let mut keys: Vec<&str> = session.env.0.keys().map(String::as_str).collect();
+            keys.sort_unstable();
+            eprintln!(
+                "mukaed: session environment ({} vars): {}",
+                keys.len(),
+                keys.join(" ")
+            );
+            if !session.env.0.contains_key("HOME") {
+                eprintln!(
+                    "mukaed: WARNING — this session has no HOME. Every ~/.config \
+                     lookup it makes will miss, so a compositor or terminal will \
+                     silently run its built-in defaults instead of the \
+                     operator\u{2019}s configuration."
+                );
+            }
+        }
     let mut status = 0;
     unsafe { libc::waitpid(session.pid.0, &raw mut status, 0) };
     env.pam_close_session(h).map_err(|e| format!("{e}"))?;
