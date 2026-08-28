@@ -159,6 +159,59 @@ pub struct ChildPid(pub i32);
 pub enum SpawnError {
     #[error("fork refused")]
     Refused,
+
+    // ── ★ WHY THIS ENUM HAS ARMS AND NOT JUST `Refused` ─────────────────
+    // A session spawn crosses a privilege boundary, and the failures on
+    // either side of that boundary mean opposite things. "the session binary
+    // was missing" is a configuration mistake; "setuid did not take" is a
+    // machine that just tried to hand a user's session a ROOT process and
+    // caught itself. Collapsing them loses precisely the distinction an
+    // operator must act on, and the second one silently is the shape of
+    // every setuid CVE.
+    /// The identity could not be resolved before the fork — no passwd entry,
+    /// or NSS refused.
+    #[error("no passwd entry for uid {0}")]
+    UnknownPrincipal(u32),
+
+    /// `fork(2)` itself failed.
+    #[error("fork failed: errno {0}")]
+    ForkFailed(i32),
+
+    /// ★ THE ONE THAT MUST NEVER BE A GENERIC FAILURE. The child could not
+    /// drop to the target identity, and refused to exec rather than run the
+    /// session with more privilege than it asked for.
+    #[error("privilege drop failed at {step}: errno {errno}")]
+    PrivilegeDropFailed { step: DropStep, errno: i32 },
+
+    /// The drop reported success and the process still held privilege it
+    /// should not — caught by the post-drop verification, not by trusting
+    /// the return codes.
+    #[error("privilege drop reported success but {0} — refusing to exec")]
+    PrivilegeDropUnverified(&'static str),
+
+    /// `execve(2)` failed; the child never became the session.
+    #[error("exec failed: errno {0}")]
+    ExecFailed(i32),
+}
+
+/// Which step of the drop failed. Ordered as it must be performed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
+pub enum DropStep {
+    /// `setsid(2)` — a session leader with no controlling terminal.
+    #[error("setsid")]
+    Setsid,
+    /// `initgroups(3)` — supplementary groups. MUST precede `setgid`,
+    /// because it needs the privilege `setgid` is about to give away.
+    #[error("initgroups")]
+    InitGroups,
+    /// `setgid(2)`. MUST precede `setuid`: after the uid is dropped the
+    /// process can no longer change its gid, so the reverse order silently
+    /// leaves the session in root's group.
+    #[error("setgid")]
+    Setgid,
+    /// `setuid(2)` — the irreversible one.
+    #[error("setuid")]
+    Setuid,
 }
 
 /// The four answers an identity lookup can give.
