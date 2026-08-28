@@ -239,9 +239,42 @@ fn greeter_login(
     // to one console is the artefact an operator sees as a flickering or
     // half-painted screen, and the greeter has no reason to exist past the
     // moment its answer was accepted.
+    // ── ★ THE FACE IS KILLED, SO THE SCREEN IS OURS TO REPAIR ──────────
+    // SIGTERM terminates the process outright, so the greeter never runs
+    // its `Terminal` Drop -- no LeaveAlternateScreen, no Show cursor, no
+    // reset. Whatever frame it drew last stays on the console until
+    // something else paints over it.
+    //
+    // Measured on plo 2026-08-28, on the operator's own login: after Enter
+    // the greeter wrote 1401 bytes and NONE of them were \e[?1049l or
+    // \e[?25h, leaving the console reading `Password` / the username /
+    // a row of asterisks. So a SUCCESSFUL login leaves your own name and
+    // your masked passphrase frozen on screen for as long as the
+    // compositor takes to draw -- which reads as a hang at the exact
+    // moment a person is waiting to learn whether they got in.
+    //
+    // Repaired HERE rather than by asking the face to exit politely,
+    // because this cannot fail: mukaed owns the console claim, the greeter
+    // is already reaped, and a face that CRASHED leaves exactly the same
+    // mess as one that was signalled. The owner of the console repairs it.
     unsafe { libc::kill(gpid.0, libc::SIGTERM) };
     let mut st = 0;
     unsafe { libc::waitpid(gpid.0, &raw mut st, 0) };
+    const RESTORE: &[u8] = b"\x1b[?1049l\x1b[?25h\x1b[0m\x1b[2J\x1b[H";
+    // The face draws on `tty` when a VT was claimed and on the descriptors
+    // we were started with when it was not; it leaves the same wreckage
+    // either way. isatty keeps escape bytes out of the journal, which is
+    // where a systemd unit's stdout actually goes.
+    if let Some(console) = &tty {
+        use std::io::Write as _;
+        let mut console = console;
+        let _ = console.write_all(RESTORE);
+        let _ = console.flush();
+    } else if unsafe { libc::isatty(1) } == 1 {
+        // SAFETY: fd 1 is ours and stays ours -- write(2) rather than a
+        // File, which would close the descriptor when it dropped.
+        unsafe { libc::write(1, RESTORE.as_ptr().cast(), RESTORE.len()) };
+    }
 
     let uid = env.uid_for_handle(h).map_err(|e| format!("{e}"))?;
     let proof = env.mint_proof(h, uid).map_err(|e| format!("{e}"))?;
