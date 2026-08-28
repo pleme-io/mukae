@@ -73,6 +73,36 @@ fn main() -> std::process::ExitCode {
 /// unprivileged user, and the ONLY thing it can reach is one end of a
 /// socketpair created here before the fork. It never sees /etc/shadow, never
 /// talks to logind, and cannot start a session.
+/// The passwd name for a uid, for the one PATH entry that needs it.
+///
+/// `mukae_seat::spawn` resolves the full record again at the moment of exec
+/// -- deliberately, since that is where HOME/USER/LOGNAME/SHELL are
+/// guaranteed. This is the narrower question mukaed itself has to answer
+/// while assembling policy, and it is a lookup rather than a second source
+/// of truth: nothing here is exported.
+fn passwd_name_of_uid(uid: u32) -> Option<String> {
+    let mut entry = unsafe { std::mem::zeroed::<libc::passwd>() };
+    let mut buf = vec![0i8; 4096];
+    let mut out = std::ptr::null_mut::<libc::passwd>();
+    let rc = unsafe {
+        libc::getpwuid_r(
+            uid,
+            &raw mut entry,
+            buf.as_mut_ptr(),
+            buf.len(),
+            &raw mut out,
+        )
+    };
+    if rc != 0 || out.is_null() || entry.pw_name.is_null() {
+        return None;
+    }
+    Some(
+        unsafe { std::ffi::CStr::from_ptr(entry.pw_name) }
+            .to_string_lossy()
+            .into_owned(),
+    )
+}
+
 /// The environment mukaed CONTRIBUTES to a session.
 ///
 /// ── ★ WHAT IS AND IS NOT DECIDED HERE ───────────────────────────────────
@@ -85,12 +115,39 @@ fn main() -> std::process::ExitCode {
 /// This function exists because both login paths were assembling PATH by hand
 /// and had already drifted -- one of them silently shipping a session with
 /// nine environment variables and no HOME.
-fn session_env_for(_uid: u32) -> mukae_spec::env::EnvSet {
+fn session_env_for(uid: u32) -> mukae_spec::env::EnvSet {
     let mut env = mukae_spec::env::EnvSet::default();
-    env.0.insert(
-        "PATH".into(),
-        "/run/current-system/sw/bin:/usr/bin:/bin".into(),
-    );
+    // ── ★ /run/wrappers/bin FIRST, OR THE SESSION HAS NO sudo ──────────
+    // Every setuid binary on a NixOS host lives in /run/wrappers/bin --
+    // sudo, passwd, mount, ping. The store copy at
+    // /run/current-system/sw/bin/sudo is NOT setuid and refuses to run:
+    //
+    //     sudo must be owned by uid 0 and have the setuid bit set
+    //
+    // Omitting the wrappers directory therefore does not merely hide sudo,
+    // it produces an error that reads like a broken installation. Measured
+    // on plo 2026-08-28, from the operator's own seat, trying to reboot.
+    //
+    // A login shell does not rescue this: frostmourne's rc PREPENDS its
+    // entries to whatever it inherits, so a directory missing here is
+    // missing for everything the session ever starts.
+    //
+    // The per-user profile is here for the same reason -- a session whose
+    // PATH lacks it cannot see anything home-manager installed, which is
+    // most of what an operator actually types.
+    //
+    // ★ THIS IS NIXOS-SHAPED, AND THAT IS A KNOWN WART. mukaed should take
+    // its session PATH from configuration rather than know a distribution's
+    // layout; the hardcode predates this fix and is left as one line to
+    // change rather than widened into a second one.
+    let mut path = String::from("/run/wrappers/bin");
+    if let Some(name) = passwd_name_of_uid(uid) {
+        path.push_str(":/etc/profiles/per-user/");
+        path.push_str(&name);
+        path.push_str("/bin");
+    }
+    path.push_str(":/run/current-system/sw/bin:/usr/bin:/bin");
+    env.0.insert("PATH".into(), path);
     // Not a class the session can choose: mukaed only ever starts one after
     // authenticating a person. XDG_SESSION_TYPE is deliberately NOT set --
     // mukaed cannot know whether the command it is about to exec is graphical,
@@ -593,7 +650,7 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
 
 #[cfg(test)]
 mod tests {
-    use super::console_for;
+    use super::{console_for, session_env_for};
     use mukae_seat::Console;
 
     // ── ★ THE ASYMMETRY THIS FUNCTION EXISTS TO REMOVE ──────────────────
@@ -602,6 +659,35 @@ mod tests {
     // seat produced XDG_SEAT="" on a real VT. Both call this now; these pin
     // what it must return so a third caller cannot quietly reintroduce the
     // split.
+    // ── ★ THE SETUID GUARD ──────────────────────────────────────────
+    // A session PATH without /run/wrappers/bin has no sudo, no passwd, no
+    // mount -- and the failure does not read as "not found", it reads as
+    // "sudo must be owned by uid 0 and have the setuid bit set", which
+    // looks like a broken installation rather than a missing directory.
+    // The operator hit exactly that from their own seat, trying to reboot.
+    #[test]
+    fn the_session_path_leads_with_the_setuid_wrappers() {
+        let env = session_env_for(unsafe { libc::getuid() });
+        let path = env.0.get("PATH").expect("a session must have a PATH");
+        assert!(
+            path.starts_with("/run/wrappers/bin"),
+            "the wrappers directory must come FIRST -- a later entry is \
+             shadowed by the non-setuid store copy. got {path:?}"
+        );
+    }
+
+    #[test]
+    fn the_session_path_keeps_the_system_profile() {
+        // Leading with the wrappers must not cost the system profile: that
+        // is where everything else the session runs comes from.
+        let env = session_env_for(unsafe { libc::getuid() });
+        let path = env.0.get("PATH").expect("a session must have a PATH");
+        assert!(
+            path.contains("/run/current-system/sw/bin"),
+            "got {path:?}"
+        );
+    }
+
     #[test]
     fn a_vt_attaches_to_seat0_with_that_vt() {
         let c = console_for(std::num::NonZeroU32::new(1));
