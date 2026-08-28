@@ -413,3 +413,21 @@ pub fn expose_authtok<'a, E: crate::env::SeatEnv + ?Sized>(
 ) -> &'a str {
     p.expose()
 }
+
+/// Read the authtok to put it on the greeter↔daemon transport.
+///
+/// ── ★ WHY THIS IS SEPARATE FROM `expose_authtok` ─────────────────────────
+/// That one is the *environment's* privilege — the thing that hashes. This is
+/// the *greeter's*, and the greeter is the unprivileged half that must NOT
+/// hash: putting the shadow format, the salt and the hash comparison into the
+/// process that draws the login screen turns a captured greeter into an
+/// offline cracking oracle.
+///
+/// So the plaintext crosses one `socketpair(2)` created by the daemon before
+/// the fork — never a path, never a listener, never disk, never argv. Naming
+/// the two readers separately is what keeps "the greeter may transport it"
+/// from quietly becoming "the greeter may inspect it".
+#[must_use]
+pub fn expose_authtok_for_transport(p: &Passphrase) -> &str {
+    p.expose()
+}

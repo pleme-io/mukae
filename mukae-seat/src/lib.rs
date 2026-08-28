@@ -44,6 +44,8 @@
 //!   environment authenticates and spawns.
 
 mod spawn;
+pub mod ipc;
+pub mod vt;
 
 use std::collections::HashMap;
 
