@@ -77,6 +77,7 @@ fn greeter_login(
     program: &str,
     greeter_user: &str,
     session_cmd: Vec<std::ffi::OsString>,
+    vt: Option<std::num::NonZeroU32>,
 ) -> Result<std::process::ExitCode, String> {
     use std::os::unix::io::AsRawFd as _;
 
@@ -129,12 +130,37 @@ fn greeter_login(
     // The greeter goes through the SAME verified drop as a session. One
     // implementation of "become this user" rather than a second, weaker one
     // written for the unprivileged half.
+    // ── ★ THE GREETER NEEDS A TERMINAL, NOT JUST A SOCKET ──────────────
+    // It draws with egaku-term, which reads stdin and writes stdout. Spawned
+    // without them it inherits whatever the daemon had — under systemd that
+    // is the journal, so the face renders escape sequences into a log file
+    // and the screen stays blank while everything reports healthy.
+    let tty = vt.map(|n| {
+        std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(format!("/dev/tty{}", n.get()))
+    });
+    let tty = match tty {
+        Some(Ok(f)) => Some(f),
+        Some(Err(e)) => return Err(format!("opening the greeter's console: {e}")),
+        None => None,
+    };
+
+    let mut inherit = vec![(theirs.as_raw_fd(), GREETER_FD)];
+    if let Some(t) = &tty {
+        // stdin, stdout, stderr — all three, because a face that can draw but
+        // cannot report its own failure is the worst of the three states.
+        for target in 0..=2 {
+            inherit.push((t.as_raw_fd(), target));
+        }
+    }
+
     let gpid = mukae_seat::spawn_inheriting(
         &gplan,
         &genv,
         mukae_spec::ids::Uid(guid),
-        theirs.as_raw_fd(),
-        GREETER_FD,
+        inherit,
     )
     .map_err(|e| format!("spawning the greeter: {e}"))?;
     drop(theirs);
@@ -287,7 +313,7 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
     // ── the greeter path: supervise a face instead of reading stdin ─────
     if let Some(program) = greeter {
         let who = greeter_user.ok_or("--greeter requires --greeter-user")?;
-        return greeter_login(&program, &who, cmd);
+        return greeter_login(&program, &who, cmd, vt);
     }
 
     let user = user.ok_or("--user is required (or use --greeter)")?;

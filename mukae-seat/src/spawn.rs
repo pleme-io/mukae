@@ -96,7 +96,7 @@ pub(crate) struct Prepared {
     /// CLOEXEC on the target as a side effect, so the child keeps exactly
     /// the fd that was asked for and nothing else, at a number the program
     /// can be told about.
-    inherit: Option<(libc::c_int, libc::c_int)>,
+    inherit: Vec<(libc::c_int, libc::c_int)>,
 }
 
 /// Resolve the identity and marshal argv/envp. Parent side only.
@@ -108,7 +108,7 @@ pub(crate) fn prepare(
     env: &EnvSet,
     to: Uid,
 ) -> Result<Prepared, SpawnError> {
-    prepare_inheriting(plan, env, to, None)
+    prepare_inheriting(plan, env, to, Vec::new())
 }
 
 /// [`prepare`] with one descriptor the child keeps. See [`Prepared::inherit`].
@@ -119,7 +119,7 @@ pub(crate) fn prepare_inheriting(
     plan: &SessionPlan,
     env: &EnvSet,
     to: Uid,
-    inherit: Option<(libc::c_int, libc::c_int)>,
+    inherit: Vec<(libc::c_int, libc::c_int)>,
 ) -> Result<Prepared, SpawnError> {
     // ── the passwd lookup, via NSS and never /etc/passwd ────────────────
     // `getpwuid_r` so an LDAP or SSSD user resolves exactly as a local one
@@ -285,10 +285,16 @@ pub(crate) fn spawn(p: &Prepared) -> Result<ChildPid, SpawnError> {
             // the program finds it in place. `dup2` clears CLOEXEC on the
             // target, which is precisely why the fd survives the exec while
             // every other one does not.
-            if let Some((from, to_fd)) = p.inherit
-                && libc::dup2(from, to_fd) < 0
-            {
-                die(wr, ChildFail::Exec);
+            // ★ IN ORDER, AND THE ORDER IS THE CALLER'S. A greeter needs its
+            // socket AND a terminal on 0/1/2, and `dup2` onto a number that
+            // is still the source of a later mapping would clobber it. The
+            // caller lists them; this does not reorder or deduplicate,
+            // because guessing at intent here would be worse than a caller
+            // that has to think about it once.
+            for (from, to_fd) in &p.inherit {
+                if libc::dup2(*from, *to_fd) < 0 {
+                    die(wr, ChildFail::Exec);
+                }
             }
 
             // Best-effort: a missing home is not a reason to refuse a

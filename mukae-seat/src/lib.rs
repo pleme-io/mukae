@@ -593,9 +593,8 @@ pub fn spawn_inheriting(
     plan: &SessionPlan,
     env: &EnvSet,
     to: Uid,
-    from_fd: i32,
-    child_fd: i32,
+    inherit: Vec<(i32, i32)>,
 ) -> Result<ChildPid, SpawnError> {
-    let prepared = spawn::prepare_inheriting(plan, env, to, Some((from_fd, child_fd)))?;
+    let prepared = spawn::prepare_inheriting(plan, env, to, inherit)?;
     spawn::spawn(&prepared)
 }
