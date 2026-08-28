@@ -28,8 +28,15 @@ use std::process::ExitCode;
 use egaku_term::theme::Palette;
 use mukae_face::Face;
 
-#[cfg(target_os = "linux")]
+// ★ Gated on the FEATURE only, not on the platform: the MCP sidecar is a
+// stdio observer and is portable, while `session` genuinely is not. See
+// mukae-greeter/Cargo.toml — rmcp does not build under this workspace's
+// crate2nix builder, and a default that cannot build takes plo's login
+// screen with it.
+#[cfg(feature = "mcp")]
 mod mcp;
+
+#[cfg(target_os = "linux")]
 mod session;
 
 const HELP: &str = "\
@@ -70,23 +77,41 @@ fn main() -> ExitCode {
     // It is also read-only by construction: see src/mcp.rs — there is no
     // synthetic-input surface at the authentication boundary.
     if args.first().map(String::as_str) == Some("mcp") {
-        let rt = match tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build()
+        // ★ REFUSED, NOT IGNORED, when the feature is off. Falling through
+        // here would run the GREETER: it would claim a VT and paint over a
+        // live login screen because someone asked for a read-only sidecar.
+        // An unbuilt feature must fail loudly at the boundary, never degrade
+        // into a different program.
+        #[cfg(not(feature = "mcp"))]
         {
-            Ok(rt) => rt,
-            Err(e) => {
-                eprintln!("mukae mcp: cannot build runtime: {e}");
-                return ExitCode::FAILURE;
-            }
-        };
-        return match rt.block_on(crate::mcp::serve()) {
-            Ok(()) => ExitCode::SUCCESS,
-            Err(e) => {
-                eprintln!("mukae mcp: {e}");
-                ExitCode::FAILURE
-            }
-        };
+            eprintln!(
+                "mukae: this binary was built without the `mcp` feature.\n\
+                 Rebuild with `--features mcp`. It is off by default because \
+                 rmcp does not compile under this workspace's crate2nix \
+                 builder (pending-mukae-mcp)."
+            );
+            return ExitCode::FAILURE;
+        }
+        #[cfg(feature = "mcp")]
+        {
+            let rt = match tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+            {
+                Ok(rt) => rt,
+                Err(e) => {
+                    eprintln!("mukae mcp: cannot build runtime: {e}");
+                    return ExitCode::FAILURE;
+                }
+            };
+            return match rt.block_on(crate::mcp::serve()) {
+                Ok(()) => ExitCode::SUCCESS,
+                Err(e) => {
+                    eprintln!("mukae mcp: {e}");
+                    ExitCode::FAILURE
+                }
+            };
+        }
     }
 
     if args.iter().any(|a| a == "-h" || a == "--help") {

@@ -20,9 +20,33 @@ mukae-spec = { path = "../mukae-spec", version = "0.1.0" }
 mukae = { path = "../mukae", version = "0.1.0" }
 kanshou = "0.1"
 # ── MCP face (see src/mcp.rs) — read-only observation of the login flow.
-rmcp = { version = "0.15", features = ["server", "transport-io"] }
-tokio = { version = "1", features = ["rt", "io-util", "macros", "sync", "time"] }
-schemars = "1"
+#
+# ★ OPTIONAL, AND OFF BY DEFAULT. Not timidity — a measured build failure.
+# rmcp uses `env!("CARGO_CRATE_NAME")`, which crate2nix does not set, so it
+# fails under THIS workspace's builder with:
+#
+#   error: environment variable `CARGO_CRATE_NAME` not defined at compile time
+#
+# That cascaded rmcp -> mukae-greeter -> greetd.toml -> system-path ->
+# nixos-system-plo and took plo's LOGIN SCREEN out of the build, leaving the
+# node gitops-DEGRADED for 47 reconcile cycles (2026-08-28).
+#
+# mado carries the same rmcp 0.15 and builds fine, because it is built by
+# `substrate.rust.tool`; this workspace uses
+# `rust-library-workspace-flake.nix`, which does not set the variable. So the
+# defect is a builder gap, and the durable fix belongs in substrate.
+#
+# ★ WHY A FEATURE AND NOT A REVERT. Pinning the consumer back was tried and
+# is NOT durable: the next routine `nix flake update` anywhere in the fleet
+# re-bumps mukae and re-breaks plo, which is exactly what happened. A default
+# that cannot build is a fleet-wide hazard no consumer can defend against.
+# Gating it here makes the default build safe for every consumer while the
+# code stays present and buildable with `--features mcp`.
+#
+# pending-mukae-mcp: substrate's library-workspace builder sets no CARGO_CRATE_NAME
+rmcp = { version = "0.15", features = ["server", "transport-io"], optional = true }
+tokio = { version = "1", features = ["rt", "io-util", "macros", "sync", "time"], optional = true }
+schemars = { version = "1", optional = true }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
@@ -41,6 +65,8 @@ mukae-greetd = { path = "../mukae-greetd", version = "0.1.0" }
 mukae-host = { path = "../mukae-host", version = "0.1.0", optional = true }
 
 [features]
+# The MCP sidecar. OFF by default — see the dependency block above.
+mcp = ["dep:rmcp", "dep:tokio", "dep:schemars"]
 # ★ DEFAULT IS EMPTY, SO THE SHIPPED BINARY LINKS NO libpam.
 #
 # `--greetd` — the mode that actually seats a person — speaks a socket and
