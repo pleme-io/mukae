@@ -3849,9 +3849,9 @@
         "preBuild": "export CARGO_CRATE_NAME=mio;"
       }
     },
-    "mukae-0.1.19": {
+    "mukae-0.1.20": {
       "name": "mukae",
-      "version": "0.1.19",
+      "version": "0.1.20",
       "edition": "2024",
       "source": {
         "kind": "path",
@@ -3879,7 +3879,7 @@
         },
         {
           "name": "mukae_spec",
-          "package_key": "mukae-spec-0.1.19",
+          "package_key": "mukae-spec-0.1.20",
           "kind": "normal",
           "features": [],
           "uses_default_features": true,
@@ -3902,19 +3902,19 @@
       "crate_renames": {
         "mukae-spec": [
           {
-            "version": "0.1.19",
+            "version": "0.1.20",
             "rename": "mukae_spec"
           }
         ]
       },
       "build_rust_crate_args": {
         "crateName": "mukae",
-        "version": "0.1.19",
+        "version": "0.1.20",
         "edition": "2024",
         "crateRenames": {
           "mukae-spec": [
             {
-              "version": "0.1.19",
+              "version": "0.1.20",
               "rename": "mukae_spec"
             }
           ]
@@ -3925,9 +3925,9 @@
         "preBuild": "export CARGO_CRATE_NAME=mukae;"
       }
     },
-    "mukae-face-0.1.19": {
+    "mukae-face-0.1.20": {
       "name": "mukae-face",
-      "version": "0.1.19",
+      "version": "0.1.20",
       "edition": "2024",
       "source": {
         "kind": "path",
@@ -3965,7 +3965,7 @@
         },
         {
           "name": "mukae_spec",
-          "package_key": "mukae-spec-0.1.19",
+          "package_key": "mukae-spec-0.1.20",
           "kind": "normal",
           "features": [],
           "uses_default_features": true,
@@ -3984,14 +3984,14 @@
         ],
         "mukae-spec": [
           {
-            "version": "0.1.19",
+            "version": "0.1.20",
             "rename": "mukae_spec"
           }
         ]
       },
       "build_rust_crate_args": {
         "crateName": "mukae-face",
-        "version": "0.1.19",
+        "version": "0.1.20",
         "edition": "2024",
         "crateRenames": {
           "egaku-term": [
@@ -4002,7 +4002,7 @@
           ],
           "mukae-spec": [
             {
-              "version": "0.1.19",
+              "version": "0.1.20",
               "rename": "mukae_spec"
             }
           ]
@@ -4013,9 +4013,9 @@
         "preBuild": "export CARGO_CRATE_NAME=mukae_face;"
       }
     },
-    "mukae-greetd-0.1.19": {
+    "mukae-greetd-0.1.20": {
       "name": "mukae-greetd",
-      "version": "0.1.19",
+      "version": "0.1.20",
       "edition": "2024",
       "source": {
         "kind": "path",
@@ -4033,7 +4033,7 @@
       "runtime_dependencies": [
         {
           "name": "mukae_spec",
-          "package_key": "mukae-spec-0.1.19",
+          "package_key": "mukae-spec-0.1.20",
           "kind": "normal",
           "features": [],
           "uses_default_features": true,
@@ -4068,19 +4068,19 @@
       "crate_renames": {
         "mukae-spec": [
           {
-            "version": "0.1.19",
+            "version": "0.1.20",
             "rename": "mukae_spec"
           }
         ]
       },
       "build_rust_crate_args": {
         "crateName": "mukae-greetd",
-        "version": "0.1.19",
+        "version": "0.1.20",
         "edition": "2024",
         "crateRenames": {
           "mukae-spec": [
             {
-              "version": "0.1.19",
+              "version": "0.1.20",
               "rename": "mukae_spec"
             }
           ]
@@ -4091,9 +4091,9 @@
         "preBuild": "export CARGO_CRATE_NAME=mukae_greetd;"
       }
     },
-    "mukae-greeter-0.1.19": {
+    "mukae-greeter-0.1.20": {
       "name": "mukae-greeter",
-      "version": "0.1.19",
+      "version": "0.1.20",
       "edition": "2024",
       "source": {
         "kind": "path",
@@ -4146,7 +4146,7 @@
         },
         {
           "name": "mukae",
-          "package_key": "mukae-0.1.19",
+          "package_key": "mukae-0.1.20",
           "kind": "normal",
           "features": [],
           "uses_default_features": true,
@@ -4156,7 +4156,7 @@
         },
         {
           "name": "mukae_face",
-          "package_key": "mukae-face-0.1.19",
+          "package_key": "mukae-face-0.1.20",
           "kind": "normal",
           "features": [],
           "uses_default_features": true,
@@ -4166,7 +4166,7 @@
         },
         {
           "name": "mukae_greetd",
-          "package_key": "mukae-greetd-0.1.19",
+          "package_key": "mukae-greetd-0.1.20",
           "kind": "normal",
           "features": [],
           "uses_default_features": true,
@@ -4186,7 +4186,7 @@
         },
         {
           "name": "mukae_spec",
-          "package_key": "mukae-spec-0.1.19",
+          "package_key": "mukae-spec-0.1.20",
           "kind": "normal",
           "features": [],
           "uses_default_features": true,
@@ -4227,13 +4227,13 @@
         ],
         "mukae-face": [
           {
-            "version": "0.1.19",
+            "version": "0.1.20",
             "rename": "mukae_face"
           }
         ],
         "mukae-greetd": [
           {
-            "version": "0.1.19",
+            "version": "0.1.20",
             "rename": "mukae_greetd"
           }
         ],
@@ -4245,14 +4245,14 @@
         ],
         "mukae-spec": [
           {
-            "version": "0.1.19",
+            "version": "0.1.20",
             "rename": "mukae_spec"
           }
         ]
       },
       "build_rust_crate_args": {
         "crateName": "mukae-greeter",
-        "version": "0.1.19",
+        "version": "0.1.20",
         "edition": "2024",
         "features": [
           "default",
@@ -4267,13 +4267,13 @@
           ],
           "mukae-face": [
             {
-              "version": "0.1.19",
+              "version": "0.1.20",
               "rename": "mukae_face"
             }
           ],
           "mukae-greetd": [
             {
-              "version": "0.1.19",
+              "version": "0.1.20",
               "rename": "mukae_greetd"
             }
           ],
@@ -4285,7 +4285,7 @@
           ],
           "mukae-spec": [
             {
-              "version": "0.1.19",
+              "version": "0.1.20",
               "rename": "mukae_spec"
             }
           ]
@@ -4294,9 +4294,9 @@
         "preBuild": "export CARGO_CRATE_NAME=mukae_greeter;"
       }
     },
-    "mukae-host-0.1.19": {
+    "mukae-host-0.1.20": {
       "name": "mukae-host",
-      "version": "0.1.19",
+      "version": "0.1.20",
       "edition": "2024",
       "source": {
         "kind": "path",
@@ -4324,7 +4324,7 @@
         },
         {
           "name": "mukae_spec",
-          "package_key": "mukae-spec-0.1.19",
+          "package_key": "mukae-spec-0.1.20",
           "kind": "normal",
           "features": [],
           "uses_default_features": true,
@@ -4347,19 +4347,19 @@
       "crate_renames": {
         "mukae-spec": [
           {
-            "version": "0.1.19",
+            "version": "0.1.20",
             "rename": "mukae_spec"
           }
         ]
       },
       "build_rust_crate_args": {
         "crateName": "mukae-host",
-        "version": "0.1.19",
+        "version": "0.1.20",
         "edition": "2024",
         "crateRenames": {
           "mukae-spec": [
             {
-              "version": "0.1.19",
+              "version": "0.1.20",
               "rename": "mukae_spec"
             }
           ]
@@ -4370,9 +4370,9 @@
         "preBuild": "export CARGO_CRATE_NAME=mukae_host;"
       }
     },
-    "mukae-lisp-0.1.19": {
+    "mukae-lisp-0.1.20": {
       "name": "mukae-lisp",
-      "version": "0.1.19",
+      "version": "0.1.20",
       "edition": "2024",
       "source": {
         "kind": "path",
@@ -4390,7 +4390,7 @@
       "runtime_dependencies": [
         {
           "name": "mukae_spec",
-          "package_key": "mukae-spec-0.1.19",
+          "package_key": "mukae-spec-0.1.20",
           "kind": "normal",
           "features": [],
           "uses_default_features": true,
@@ -4435,7 +4435,7 @@
       "crate_renames": {
         "mukae-spec": [
           {
-            "version": "0.1.19",
+            "version": "0.1.20",
             "rename": "mukae_spec"
           }
         ],
@@ -4448,12 +4448,12 @@
       },
       "build_rust_crate_args": {
         "crateName": "mukae-lisp",
-        "version": "0.1.19",
+        "version": "0.1.20",
         "edition": "2024",
         "crateRenames": {
           "mukae-spec": [
             {
-              "version": "0.1.19",
+              "version": "0.1.20",
               "rename": "mukae_spec"
             }
           ],
@@ -4470,9 +4470,9 @@
         "preBuild": "export CARGO_CRATE_NAME=mukae_lisp;"
       }
     },
-    "mukae-native-0.1.19": {
+    "mukae-native-0.1.20": {
       "name": "mukae-native",
-      "version": "0.1.19",
+      "version": "0.1.20",
       "edition": "2024",
       "source": {
         "kind": "path",
@@ -4490,7 +4490,7 @@
       "runtime_dependencies": [
         {
           "name": "mukae_spec",
-          "package_key": "mukae-spec-0.1.19",
+          "package_key": "mukae-spec-0.1.20",
           "kind": "normal",
           "features": [],
           "uses_default_features": true,
@@ -4560,19 +4560,19 @@
       "crate_renames": {
         "mukae-spec": [
           {
-            "version": "0.1.19",
+            "version": "0.1.20",
             "rename": "mukae_spec"
           }
         ]
       },
       "build_rust_crate_args": {
         "crateName": "mukae-native",
-        "version": "0.1.19",
+        "version": "0.1.20",
         "edition": "2024",
         "crateRenames": {
           "mukae-spec": [
             {
-              "version": "0.1.19",
+              "version": "0.1.20",
               "rename": "mukae_spec"
             }
           ]
@@ -4618,7 +4618,7 @@
         },
         {
           "name": "mukae_native",
-          "package_key": "mukae-native-0.1.19",
+          "package_key": "mukae-native-0.1.20",
           "kind": "normal",
           "features": [],
           "uses_default_features": true,
@@ -4628,7 +4628,7 @@
         },
         {
           "name": "mukae_spec",
-          "package_key": "mukae-spec-0.1.19",
+          "package_key": "mukae-spec-0.1.20",
           "kind": "normal",
           "features": [],
           "uses_default_features": true,
@@ -4685,13 +4685,13 @@
       "crate_renames": {
         "mukae-native": [
           {
-            "version": "0.1.19",
+            "version": "0.1.20",
             "rename": "mukae_native"
           }
         ],
         "mukae-spec": [
           {
-            "version": "0.1.19",
+            "version": "0.1.20",
             "rename": "mukae_spec"
           }
         ]
@@ -4703,13 +4703,13 @@
         "crateRenames": {
           "mukae-native": [
             {
-              "version": "0.1.19",
+              "version": "0.1.20",
               "rename": "mukae_native"
             }
           ],
           "mukae-spec": [
             {
-              "version": "0.1.19",
+              "version": "0.1.20",
               "rename": "mukae_spec"
             }
           ]
@@ -4720,9 +4720,9 @@
         "preBuild": "export CARGO_CRATE_NAME=mukae_seat;"
       }
     },
-    "mukae-spec-0.1.19": {
+    "mukae-spec-0.1.20": {
       "name": "mukae-spec",
-      "version": "0.1.19",
+      "version": "0.1.20",
       "edition": "2024",
       "source": {
         "kind": "path",
@@ -4765,7 +4765,7 @@
       "crate_renames": {},
       "build_rust_crate_args": {
         "crateName": "mukae-spec",
-        "version": "0.1.19",
+        "version": "0.1.20",
         "edition": "2024",
         "release": true,
         "libName": "mukae_spec",
@@ -10533,14 +10533,14 @@
   "root_crate": "mukae-seat-0.1.0",
   "workspace_members": [
     "mukae-seat-0.1.0",
-    "mukae-native-0.1.19",
-    "mukae-spec-0.1.19",
-    "mukae-0.1.19",
-    "mukae-face-0.1.19",
-    "mukae-greetd-0.1.19",
-    "mukae-greeter-0.1.19",
-    "mukae-host-0.1.19",
-    "mukae-lisp-0.1.19"
+    "mukae-native-0.1.20",
+    "mukae-spec-0.1.20",
+    "mukae-0.1.20",
+    "mukae-face-0.1.20",
+    "mukae-greetd-0.1.20",
+    "mukae-greeter-0.1.20",
+    "mukae-host-0.1.20",
+    "mukae-lisp-0.1.20"
   ],
   "flake_metadata": {
     "mukae": {
@@ -11759,7 +11759,7 @@
           "os-poll"
         ]
       },
-      "mukae-0.1.19": {
+      "mukae-0.1.20": {
         "runtime_dependencies": [
           {
             "name": "kanshou",
@@ -11773,7 +11773,7 @@
           },
           {
             "name": "mukae_spec",
-            "package_key": "mukae-spec-0.1.19",
+            "package_key": "mukae-spec-0.1.20",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -11795,7 +11795,7 @@
         "build_dependencies": [],
         "features": []
       },
-      "mukae-face-0.1.19": {
+      "mukae-face-0.1.20": {
         "runtime_dependencies": [
           {
             "name": "egaku",
@@ -11819,7 +11819,7 @@
           },
           {
             "name": "mukae_spec",
-            "package_key": "mukae-spec-0.1.19",
+            "package_key": "mukae-spec-0.1.20",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -11831,11 +11831,11 @@
         "build_dependencies": [],
         "features": []
       },
-      "mukae-greetd-0.1.19": {
+      "mukae-greetd-0.1.20": {
         "runtime_dependencies": [
           {
             "name": "mukae_spec",
-            "package_key": "mukae-spec-0.1.19",
+            "package_key": "mukae-spec-0.1.20",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -11869,7 +11869,7 @@
         "build_dependencies": [],
         "features": []
       },
-      "mukae-host-0.1.19": {
+      "mukae-host-0.1.20": {
         "runtime_dependencies": [
           {
             "name": "libc",
@@ -11883,7 +11883,7 @@
           },
           {
             "name": "mukae_spec",
-            "package_key": "mukae-spec-0.1.19",
+            "package_key": "mukae-spec-0.1.20",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -11905,11 +11905,11 @@
         "build_dependencies": [],
         "features": []
       },
-      "mukae-lisp-0.1.19": {
+      "mukae-lisp-0.1.20": {
         "runtime_dependencies": [
           {
             "name": "mukae_spec",
-            "package_key": "mukae-spec-0.1.19",
+            "package_key": "mukae-spec-0.1.20",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -11967,7 +11967,7 @@
           },
           {
             "name": "mukae_native",
-            "package_key": "mukae-native-0.1.19",
+            "package_key": "mukae-native-0.1.20",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -11977,7 +11977,7 @@
           },
           {
             "name": "mukae_spec",
-            "package_key": "mukae-spec-0.1.19",
+            "package_key": "mukae-spec-0.1.20",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -12033,7 +12033,7 @@
         "build_dependencies": [],
         "features": []
       },
-      "mukae-spec-0.1.19": {
+      "mukae-spec-0.1.20": {
         "runtime_dependencies": [
           {
             "name": "serde",
@@ -14107,7 +14107,7 @@
             "build_dependencies": [],
             "features": []
           },
-          "mukae-greeter-0.1.19": {
+          "mukae-greeter-0.1.20": {
             "runtime_dependencies": [
               {
                 "name": "egaku",
@@ -14141,7 +14141,7 @@
               },
               {
                 "name": "mukae",
-                "package_key": "mukae-0.1.19",
+                "package_key": "mukae-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -14151,7 +14151,7 @@
               },
               {
                 "name": "mukae_face",
-                "package_key": "mukae-face-0.1.19",
+                "package_key": "mukae-face-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -14161,7 +14161,7 @@
               },
               {
                 "name": "mukae_spec",
-                "package_key": "mukae-spec-0.1.19",
+                "package_key": "mukae-spec-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -14198,11 +14198,11 @@
               "mukaed"
             ]
           },
-          "mukae-native-0.1.19": {
+          "mukae-native-0.1.20": {
             "runtime_dependencies": [
               {
                 "name": "mukae_spec",
-                "package_key": "mukae-spec-0.1.19",
+                "package_key": "mukae-spec-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -14869,7 +14869,7 @@
               "no_std"
             ]
           },
-          "mukae-greeter-0.1.19": {
+          "mukae-greeter-0.1.20": {
             "runtime_dependencies": [
               {
                 "name": "egaku",
@@ -14903,7 +14903,7 @@
               },
               {
                 "name": "mukae",
-                "package_key": "mukae-0.1.19",
+                "package_key": "mukae-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -14913,7 +14913,7 @@
               },
               {
                 "name": "mukae_face",
-                "package_key": "mukae-face-0.1.19",
+                "package_key": "mukae-face-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -14923,7 +14923,7 @@
               },
               {
                 "name": "mukae_greetd",
-                "package_key": "mukae-greetd-0.1.19",
+                "package_key": "mukae-greetd-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -14943,7 +14943,7 @@
               },
               {
                 "name": "mukae_spec",
-                "package_key": "mukae-spec-0.1.19",
+                "package_key": "mukae-spec-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -14980,11 +14980,11 @@
               "mukaed"
             ]
           },
-          "mukae-native-0.1.19": {
+          "mukae-native-0.1.20": {
             "runtime_dependencies": [
               {
                 "name": "mukae_spec",
-                "package_key": "mukae-spec-0.1.19",
+                "package_key": "mukae-spec-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16561,7 +16561,7 @@
               "no_std"
             ]
           },
-          "mukae-greeter-0.1.19": {
+          "mukae-greeter-0.1.20": {
             "runtime_dependencies": [
               {
                 "name": "egaku",
@@ -16595,7 +16595,7 @@
               },
               {
                 "name": "mukae",
-                "package_key": "mukae-0.1.19",
+                "package_key": "mukae-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16605,7 +16605,7 @@
               },
               {
                 "name": "mukae_face",
-                "package_key": "mukae-face-0.1.19",
+                "package_key": "mukae-face-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16615,7 +16615,7 @@
               },
               {
                 "name": "mukae_greetd",
-                "package_key": "mukae-greetd-0.1.19",
+                "package_key": "mukae-greetd-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16635,7 +16635,7 @@
               },
               {
                 "name": "mukae_spec",
-                "package_key": "mukae-spec-0.1.19",
+                "package_key": "mukae-spec-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -16672,11 +16672,11 @@
               "mukaed"
             ]
           },
-          "mukae-native-0.1.19": {
+          "mukae-native-0.1.20": {
             "runtime_dependencies": [
               {
                 "name": "mukae_spec",
-                "package_key": "mukae-spec-0.1.19",
+                "package_key": "mukae-spec-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -17788,7 +17788,7 @@
             "build_dependencies": [],
             "features": []
           },
-          "mukae-greeter-0.1.19": {
+          "mukae-greeter-0.1.20": {
             "runtime_dependencies": [
               {
                 "name": "egaku",
@@ -17822,7 +17822,7 @@
               },
               {
                 "name": "mukae",
-                "package_key": "mukae-0.1.19",
+                "package_key": "mukae-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -17832,7 +17832,7 @@
               },
               {
                 "name": "mukae_face",
-                "package_key": "mukae-face-0.1.19",
+                "package_key": "mukae-face-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -17842,7 +17842,7 @@
               },
               {
                 "name": "mukae_spec",
-                "package_key": "mukae-spec-0.1.19",
+                "package_key": "mukae-spec-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -17879,11 +17879,11 @@
               "mukaed"
             ]
           },
-          "mukae-native-0.1.19": {
+          "mukae-native-0.1.20": {
             "runtime_dependencies": [
               {
                 "name": "mukae_spec",
-                "package_key": "mukae-spec-0.1.19",
+                "package_key": "mukae-spec-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -18478,7 +18478,7 @@
               "no_std"
             ]
           },
-          "mukae-greeter-0.1.19": {
+          "mukae-greeter-0.1.20": {
             "runtime_dependencies": [
               {
                 "name": "egaku",
@@ -18512,7 +18512,7 @@
               },
               {
                 "name": "mukae",
-                "package_key": "mukae-0.1.19",
+                "package_key": "mukae-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -18522,7 +18522,7 @@
               },
               {
                 "name": "mukae_face",
-                "package_key": "mukae-face-0.1.19",
+                "package_key": "mukae-face-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -18532,7 +18532,7 @@
               },
               {
                 "name": "mukae_greetd",
-                "package_key": "mukae-greetd-0.1.19",
+                "package_key": "mukae-greetd-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -18552,7 +18552,7 @@
               },
               {
                 "name": "mukae_spec",
-                "package_key": "mukae-spec-0.1.19",
+                "package_key": "mukae-spec-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -18589,11 +18589,11 @@
               "mukaed"
             ]
           },
-          "mukae-native-0.1.19": {
+          "mukae-native-0.1.20": {
             "runtime_dependencies": [
               {
                 "name": "mukae_spec",
-                "package_key": "mukae-spec-0.1.19",
+                "package_key": "mukae-spec-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -20098,7 +20098,7 @@
               "no_std"
             ]
           },
-          "mukae-greeter-0.1.19": {
+          "mukae-greeter-0.1.20": {
             "runtime_dependencies": [
               {
                 "name": "egaku",
@@ -20132,7 +20132,7 @@
               },
               {
                 "name": "mukae",
-                "package_key": "mukae-0.1.19",
+                "package_key": "mukae-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -20142,7 +20142,7 @@
               },
               {
                 "name": "mukae_face",
-                "package_key": "mukae-face-0.1.19",
+                "package_key": "mukae-face-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -20152,7 +20152,7 @@
               },
               {
                 "name": "mukae_greetd",
-                "package_key": "mukae-greetd-0.1.19",
+                "package_key": "mukae-greetd-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -20172,7 +20172,7 @@
               },
               {
                 "name": "mukae_spec",
-                "package_key": "mukae-spec-0.1.19",
+                "package_key": "mukae-spec-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -20209,11 +20209,11 @@
               "mukaed"
             ]
           },
-          "mukae-native-0.1.19": {
+          "mukae-native-0.1.20": {
             "runtime_dependencies": [
               {
                 "name": "mukae_spec",
-                "package_key": "mukae-spec-0.1.19",
+                "package_key": "mukae-spec-0.1.20",
                 "kind": "normal",
                 "features": [],
                 "uses_default_features": true,
@@ -21245,9 +21245,9 @@
       }
     }
   },
-  "cargo_lock_sha256": "7b1657901b862f7333de671cdf27dff9befc379c89ab60db7c9627fa6a5f9f41",
+  "cargo_lock_sha256": "5c30d068acc88818cb79cae4bbf71a6066e654e58ed6a695294b7bd727dcd680",
   "manifest_sha256": {
-    "Cargo.toml": "693e1515b5836b575317e6088a0e1754a2103a0c6de0b1dd22629bbe3becc8a8",
+    "Cargo.toml": "3787d1621e71056c729896ea90c61945faf1436b06936f30b85e8f538e063653",
     "mukae-face/Cargo.toml": "549b7d0878dd664f34e8c1659eab3ecac6406c1cc8d2a4d65f5cb5c08271427a",
     "mukae-greetd/Cargo.toml": "a5d3a3bd16bda1596bd65b484d416d99431c7bf71bc90a720ae972c61ffc4ed5",
     "mukae-greeter/Cargo.toml": "b800fdc5e7266ba4bd0bc4b9bfa05c4969c5a421b7bbc46be8a0090a3c1541ca",
