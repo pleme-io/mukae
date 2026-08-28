@@ -30,6 +30,30 @@ const KDSETMODE: libc::c_ulong = 0x4B3A;
 const KDGKBMODE: libc::c_ulong = 0x4B44;
 const KDSKBMODE: libc::c_ulong = 0x4B45;
 
+/// What the console is FOR while it is claimed.
+///
+/// ── ★ THE MODE MUST MATCH WHAT IS DRAWING, AND GETTING IT WRONG IS SILENT ─
+/// Measured on plo 2026-08-28: mukaed claimed tty1 in `Graphics` and the
+/// greeter — which draws TEXT with egaku-term — rendered nothing. The
+/// operator saw an underscore cursor in the corner of a black screen. Every
+/// component reported healthy: the daemon was active, the greeter was
+/// running as its own user with tty1 on fds 0/1/2 and its socket on fd 3, and
+/// the escape sequences were written successfully. In `KD_GRAPHICS` the
+/// kernel's text console is simply switched off, so a correct program writing
+/// correct bytes produces a blank screen and no error anywhere.
+///
+/// So the mode is a required argument rather than a constant. `Graphics` is
+/// what a compositor wants and a compositor sets it for ITSELF when it takes
+/// the DRM device; a text face needs the console left as a console.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Mode {
+    /// The kernel console keeps drawing. What a TUI face needs.
+    Text,
+    /// The kernel console is switched off and something else owns the pixels.
+    /// What a compositor needs, and what it should set for itself.
+    Graphics,
+}
+
 /// A claimed console. Dropping it restores what was found.
 #[derive(Debug)]
 pub struct Console {
@@ -65,7 +89,7 @@ impl Console {
     /// mode — pointing this at the wrong path and getting a generic error is
     /// how an operator ends up with a blank screen and no idea which device
     /// they broke.
-    pub fn claim(vtnr: u32) -> Result<Self, VtError> {
+    pub fn claim(vtnr: u32, mode: Mode) -> Result<Self, VtError> {
         let path = format!("/dev/tty{vtnr}");
         let tty = std::fs::OpenOptions::new()
             .read(true)
@@ -91,7 +115,11 @@ impl Console {
             });
         }
 
-        if unsafe { libc::ioctl(fd, KDSETMODE, KD_GRAPHICS) } < 0 {
+        // Only touch the mode when the caller asked for the other one. A
+        // claim that leaves a text console as a text console should be a
+        // no-op on the device, not a set-to-the-same-value that could still
+        // fail on a tty in an unusual state.
+        if mode == Mode::Graphics && unsafe { libc::ioctl(fd, KDSETMODE, KD_GRAPHICS) } < 0 {
             return Err(VtError::SetMode(errno()));
         }
 
@@ -154,7 +182,7 @@ mod tests {
     #[test]
     fn a_non_console_is_refused_by_name_and_left_untouched() {
         // /dev/null is openable read-write and is not a console.
-        let e = Console::claim_path("/dev/null").unwrap_err();
+        let e = Console::claim_path("/dev/null", Mode::Text).unwrap_err();
         assert!(
             matches!(e, VtError::NotATty(_)),
             "expected a named refusal, got {e:?}"
@@ -163,7 +191,7 @@ mod tests {
 
     #[test]
     fn a_missing_device_reports_the_path_it_could_not_open() {
-        let e = Console::claim_path("/dev/tty-nonexistent-mukae").unwrap_err();
+        let e = Console::claim_path("/dev/tty-nonexistent-mukae", Mode::Text).unwrap_err();
         match e {
             VtError::Open { path, .. } => assert!(path.contains("nonexistent")),
             other => panic!("expected an open failure naming the path, got {other:?}"),
@@ -177,7 +205,7 @@ impl Console {
     ///
     /// # Errors
     /// As [`Console::claim`].
-    pub fn claim_path(path: &str) -> Result<Self, VtError> {
+    pub fn claim_path(path: &str, mode: Mode) -> Result<Self, VtError> {
         let tty = std::fs::OpenOptions::new()
             .read(true)
             .write(true)
@@ -196,7 +224,7 @@ impl Console {
                 VtError::ReadMode(e)
             });
         }
-        if unsafe { libc::ioctl(fd, KDSETMODE, KD_GRAPHICS) } < 0 {
+        if mode == Mode::Graphics && unsafe { libc::ioctl(fd, KDSETMODE, KD_GRAPHICS) } < 0 {
             return Err(VtError::SetMode(errno()));
         }
         Ok(Self {

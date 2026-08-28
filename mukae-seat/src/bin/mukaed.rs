@@ -110,6 +110,11 @@ fn greeter_login(
     genv.0.insert("MUKAE_SOCK_FD".into(), GREETER_FD.to_string());
     genv.0
         .insert("PATH".into(), "/run/current-system/sw/bin:/usr/bin:/bin".into());
+    // ★ crossterm reads TERM to decide what it may emit. Unset, it takes the
+    // most conservative path it has and a face that looks fine under a
+    // terminal emulator renders as very little on a bare VT. `linux` is what
+    // a Linux console IS, and it is what agetty would have exported.
+    genv.0.insert("TERM".into(), "linux".into());
 
     let gplan = SessionPlan {
         argv: Argv::new(vec![program.into()]).map_err(|e| format!("bad greeter: {e}"))?,
@@ -306,7 +311,14 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
     // which is exactly when a half-claimed console is most likely and most
     // damaging. See `vt::Console`: the give-back is Drop, not a call site.
     let _console = match vt {
-        Some(n) => Some(mukae_seat::vt::Console::claim(n.get()).map_err(|e| format!("{e}"))?),
+        Some(n) => Some(
+            // ★ TEXT. The greeter is a TUI and the kernel console must keep
+            // drawing for it. A compositor that wants the pixels sets
+            // graphics mode itself when it takes the DRM device — doing it
+            // here blanks the screen for the face that runs FIRST.
+            mukae_seat::vt::Console::claim(n.get(), mukae_seat::vt::Mode::Text)
+                .map_err(|e| format!("{e}"))?,
+        ),
         None => None,
     };
 
