@@ -1,0 +1,22 @@
+[package]
+name = "mukae-seat"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "mukae-seat — the login environment with NO libpam. Pure-Rust credential verification, logind over D-Bus, and the privilege drop."
+
+# ── ★ WHAT THIS CRATE MAY LINK, AND WHAT IT MAY NOT ────────────────────
+# `libc` — YES. It is the kernel's ABI, and a login manager that cannot
+# fork, setuid or exec is not a login manager. Every use is a syscall.
+#
+# `libpam` — NO, and that is the point of this crate existing beside
+# `mukae-host`. libpam is not a wire: it is a C library that dlopens
+# third-party policy modules into our address space. mukae-native already
+# measured what the fleet's own stack actually asks of it — five file-I/O
+# steps, one hash check, and one D-Bus call — and rebuilt all three
+# categories in Rust.
+[dependencies]
+mukae-spec = { path = "../mukae-spec", version = "0.1.0" }
+mukae-native = { path = "../mukae-native", version = "0.1.0" }
+libc = "0.2"
+zeroize = { version = "1", features = ["zeroize_derive"] }

@@ -62,7 +62,6 @@ pub use mukae_spec::bridge;
 pub mod bridging_conv;
 pub mod conv;
 pub mod ffi;
-mod spawn;
 
 use mukae_spec::env::{
     AcctVerdict, CredFlag, EnvPair, EnvSet, Instant, PamAnswer, PamClass, PamError, PamStep,

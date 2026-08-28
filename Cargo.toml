@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
-members = ["mukae", "mukae-face",
+members = [
+  "mukae-seat","mukae", "mukae-face",
     "mukae-greetd",
     "mukae-native", "mukae-greeter", "mukae-host", "mukae-lisp", "mukae-spec"]
 

@@ -352,3 +352,64 @@ mod tests {
         assert_eq!(d.seat().as_str(), "seat0");
     }
 }
+
+/// Mint a password-backed proof. **The environment's privilege, and only the
+/// environment's.**
+///
+/// ── ★ WHY THIS EXISTS, AND WHY IT TAKES AN `&E` IT NEVER READS ───────────
+/// `AuthProof`'s constructors are `pub(crate)`, which sealed minting to this
+/// crate — and the consequence was that NO crate outside `mukae-spec` could
+/// implement [`SeatEnv`]. Measured 2026-08-28: the only implementation in the
+/// tree was `MockSeatEnv`, which works precisely because it is inside these
+/// walls. A login manager whose sole environment is a mock is a login manager
+/// that cannot log anyone in, and the seal — not the design — was what stopped
+/// it.
+///
+/// The trait's own documentation already says minting is "the environment's
+/// privilege, not a caller's", so the rule was right and the enforcement was
+/// simply too tight by one crate boundary. The `&E` parameter restates that
+/// rule in the type: to mint, you must *be* an environment.
+///
+/// ★ TIER, STATED HONESTLY: **only-mitigated**, not unrepresentable. Anyone
+/// may `impl SeatEnv` for a type and mint. What remains fully sealed is the
+/// part that matters more and is unchanged — [`SeatCapability<Authenticated>`]
+/// can be built ONLY from an `AuthProof` taken by value, and neither is
+/// `Clone`, so one authentication still authorizes exactly one session
+/// (E0382). This widens who may mint, never how many sessions a mint buys.
+pub fn mint_password_proof<E: crate::env::SeatEnv + ?Sized>(
+    _env: &E,
+    uid: Uid,
+    authtok: Passphrase,
+) -> AuthProof {
+    AuthProof::password(uid, authtok)
+}
+
+/// Read the authtok. **The environment's privilege, and only the
+/// environment's** — the same rule and the same shape as
+/// [`mint_password_proof`].
+///
+/// ── ★ WHY A SEALED SECRET NEEDS THIS DOOR ────────────────────────────────
+/// `Passphrase::expose` is `pub(crate)` so a consumer cannot read the
+/// plaintext back out, which is right and stays right. But an environment
+/// that verifies credentials ITSELF — rather than handing them to libpam —
+/// must hash the thing, and with the seal absolute that environment cannot be
+/// written outside this crate at all. The seal was not protecting against the
+/// authenticator; it was protecting against everyone else, and it could not
+/// tell them apart.
+///
+/// This is strictly no weaker than the libpam path it replaces: there the
+/// plaintext crosses a C ABI into a `.so` that dlopens third-party modules,
+/// outside the type system entirely. Here it is a `&str` whose reader must
+/// prove it is a [`SeatEnv`], and whose lifetime is the expression that hashes
+/// it.
+///
+/// ★ TIER: **only-mitigated**. Anyone may `impl SeatEnv` and read. What is
+/// unchanged is the part that carries the weight — the plaintext never
+/// derives `Debug`, never reaches a face, and never outlives the borrow.
+#[must_use]
+pub fn expose_authtok<'a, E: crate::env::SeatEnv + ?Sized>(
+    _env: &E,
+    p: &'a Passphrase,
+) -> &'a str {
+    p.expose()
+}
