@@ -20,3 +20,7 @@ mukae-spec = { path = "../mukae-spec", version = "0.1.0" }
 mukae-native = { path = "../mukae-native", version = "0.1.0" }
 libc = "0.2"
 zeroize = { version = "1", features = ["zeroize_derive"] }
+
+[[bin]]
+name = "mukaed"
+path = "src/bin/mukaed.rs"

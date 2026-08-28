@@ -80,9 +80,32 @@ struct Txn {
     authtok: Option<Passphrase>,
 }
 
+/// Where the session is attached, and the two are NOT independent.
+///
+/// ── ★ logind ENFORCES THE PAIRING, AND THE ERROR IS OPAQUE ───────────────
+/// Measured on plo 2026-08-28: `CreateSession` with `seat="seat0"` and
+/// `vtnr=0` fails with `org.freedesktop.DBus.Error.InvalidArgs: VT number out
+/// of range`. A seat that HAS VTs demands one; a seatless session forbids
+/// one. mukae-native's own comment recorded half of that rule — "must be 0
+/// for a session with no VT" — and the other half is what this type closes.
+///
+/// Two independent fields let a caller write the illegal combination and
+/// learn about it from a D-Bus error mentioning neither the seat nor which
+/// of the two was wrong. A sum type makes it unconstructible.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Console {
+    /// No seat and no VT — what a login over ssh or a socket produces.
+    /// `seat` is empty and `vtnr` is 0, together, always.
+    Seatless,
+    /// A seat with VTs. The VT number is REQUIRED and must be the one this
+    /// session actually occupies; logind refuses 0 here.
+    Vt { seat: String, vtnr: std::num::NonZeroU32 },
+}
+
 /// The production login environment.
 pub struct NativeSeatEnv {
     shadow: std::path::PathBuf,
+    console: Console,
     txns: HashMap<u64, Txn>,
     next: u64,
 }
@@ -103,9 +126,22 @@ impl NativeSeatEnv {
     pub fn with_shadow(shadow: std::path::PathBuf) -> Self {
         Self {
             shadow,
+            // Seatless by default, and that is the honest default for a
+            // process that has not claimed a console: registering against
+            // seat0 without owning a VT is how two owners end up fighting for
+            // the keyboard.
+            console: Console::Seatless,
             txns: HashMap::new(),
             next: 1,
         }
+    }
+
+    /// Attach sessions to a console. See [`Console`] for why the seat and the
+    /// VT travel together.
+    #[must_use]
+    pub fn on_console(mut self, console: Console) -> Self {
+        self.console = console;
+        self
     }
 
     fn txn(&mut self, h: PamHandleId) -> Result<&mut Txn, PamError> {
@@ -271,6 +307,11 @@ impl SeatEnv for NativeSeatEnv {
     }
 
     fn pam_open_session(&mut self, h: PamHandleId) -> Result<(), PamError> {
+        // Read the console before the mutable borrow of the transaction.
+        let (seat, vtnr) = match &self.console {
+            Console::Seatless => (String::new(), 0u32),
+            Console::Vt { seat, vtnr } => (seat.clone(), vtnr.get()),
+        };
         let t = self.txn(h)?;
         if !t.authenticated {
             return Err(PamError::OutOfOrder(
@@ -285,20 +326,27 @@ impl SeatEnv for NativeSeatEnv {
             kind: mukae_native::logind::Kind::Tty,
             class: mukae_native::logind::Class::User,
             desktop: String::new(),
-            seat: "seat0".to_string(),
-            // ★ 0, not a VT number. logind REJECTS a nonzero vtnr on a seat
-            // with no VTs, and the error names the seat rather than the
-            // number. The daemon that owns a console sets this; this
-            // environment does not claim one.
-            vtnr: 0,
+            // ★ FROM THE TYPE, so the illegal pairing cannot be written. See
+            // `Console`: seat0 with vtnr 0 is refused by logind with an error
+            // that names neither field.
+            seat,
+            vtnr,
             tty: String::new(),
             display: String::new(),
             remote: false,
             remote_user: String::new(),
             remote_host: String::new(),
         };
-        let sess = mukae_native::logind::create_session(&req)
-            .map_err(|_| PamError::OutOfOrder("logind refused the session"))?;
+        let sess = mukae_native::logind::create_session(&req).map_err(|e| {
+            // ★ THE REASON IS PRINTED BECAUSE THE TYPE CANNOT CARRY IT.
+            // `PamError::OutOfOrder` takes a `&'static str`, so mapping into
+            // it discards logind's own message — and "logind refused the
+            // session" is exactly the useless error this codebase refuses
+            // everywhere else. Until the border grows an owned arm, the
+            // reason goes to stderr rather than nowhere.
+            eprintln!("mukae-seat: logind refused CreateSession: {e}");
+            PamError::OutOfOrder("logind refused the session")
+        })?;
         // logind is what creates /run/user/<uid>, and it reports back the
         // values the session must carry. Read them from the reply rather than
         // deriving them here, so the two cannot disagree.
