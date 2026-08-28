@@ -73,6 +73,33 @@ fn main() -> std::process::ExitCode {
 /// unprivileged user, and the ONLY thing it can reach is one end of a
 /// socketpair created here before the fork. It never sees /etc/shadow, never
 /// talks to logind, and cannot start a session.
+/// The environment mukaed CONTRIBUTES to a session.
+///
+/// ── ★ WHAT IS AND IS NOT DECIDED HERE ───────────────────────────────────
+/// Policy only. HOME, USER, LOGNAME and SHELL are NOT here: they are facts
+/// about the account, and `mukae_seat::spawn` derives them from the passwd
+/// record at the point of exec, where they cannot be forgotten. Setting them
+/// here as well would put one fact in two places, which is the shape that
+/// produced today's other two defects.
+///
+/// This function exists because both login paths were assembling PATH by hand
+/// and had already drifted -- one of them silently shipping a session with
+/// nine environment variables and no HOME.
+fn session_env_for(_uid: u32) -> mukae_spec::env::EnvSet {
+    let mut env = mukae_spec::env::EnvSet::default();
+    env.0.insert(
+        "PATH".into(),
+        "/run/current-system/sw/bin:/usr/bin:/bin".into(),
+    );
+    // Not a class the session can choose: mukaed only ever starts one after
+    // authenticating a person. XDG_SESSION_TYPE is deliberately NOT set --
+    // mukaed cannot know whether the command it is about to exec is graphical,
+    // and guessing "tty" for a Wayland seat would be a confident wrong answer
+    // that display-backend autodetection would then act on.
+    env.0.insert("XDG_SESSION_CLASS".into(), "user".into());
+    env
+}
+
 /// The logind attachment implied by a VT selection.
 ///
 /// ── ★ ONE DERIVATION, BECAUSE TWO DISAGREED ─────────────────────────────
@@ -281,12 +308,10 @@ fn greeter_login(
     let seat = SeatId::parse("seat0").map_err(|e| format!("{e}"))?;
     let cap = SeatCapability::mint(proof, seat, h);
 
-    let mut base = mukae_spec::env::EnvSet::default();
-    base.0.insert(
-        "PATH".into(),
-        "/run/current-system/sw/bin:/usr/bin:/bin".into(),
-    );
-    let plan = SessionPlan { argv, env: base };
+    let plan = SessionPlan {
+        argv,
+        env: session_env_for(uid.0),
+    };
     let session = mukae_spec::session::start_session(&mut env, cap, plan)
         .map_err(|e| format!("starting the session: {e}"))?;
 
@@ -507,15 +532,10 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
     // as it does under any login manager. HOME, USER, LOGNAME and SHELL for
     // the same reason — a session missing them is one where `~` does not
     // expand and `su` reports the wrong user.
-    let mut base = mukae_spec::env::EnvSet::default();
-    for (k, v) in [
-        ("PATH", "/run/current-system/sw/bin:/usr/bin:/bin"),
-        ("USER", user.as_str()),
-        ("LOGNAME", user.as_str()),
-    ] {
-        base.0.insert(k.to_string(), v.to_string());
-    }
-    let plan = SessionPlan { argv, env: base };
+    let plan = SessionPlan {
+        argv,
+        env: session_env_for(uid.0),
+    };
     let session = mukae_spec::session::start_session(&mut env, cap, plan)
         .map_err(|e| format!("starting the session: {e}"))?;
 

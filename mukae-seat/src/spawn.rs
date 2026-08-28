@@ -115,6 +115,14 @@ pub(crate) fn prepare(
 ///
 /// # Errors
 /// As [`prepare`].
+/// The passwd fields every exec'd process is entitled to, taken from NSS at
+/// the point of exec so no caller can omit them.
+struct PosixIdentity {
+    name: String,
+    home: String,
+    shell: String,
+}
+
 pub(crate) fn prepare_inheriting(
     plan: &SessionPlan,
     env: &EnvSet,
@@ -157,7 +165,10 @@ pub(crate) fn prepare_inheriting(
 
     // SAFETY: `out` is non-null, so `entry` was filled and its char pointers
     // point into `buf`, which outlives every copy taken here.
-    let (gid, home, user) = unsafe {
+    let (gid, home, user, identity) = unsafe {
+        let as_str = |p: *const libc::c_char| -> String {
+            std::ffi::CStr::from_ptr(p).to_string_lossy().into_owned()
+        };
         (
             entry.pw_gid,
             CString::from_vec_unchecked(
@@ -166,6 +177,11 @@ pub(crate) fn prepare_inheriting(
             CString::from_vec_unchecked(
                 std::ffi::CStr::from_ptr(entry.pw_name).to_bytes().to_vec(),
             ),
+            PosixIdentity {
+                name: as_str(entry.pw_name),
+                home: as_str(entry.pw_dir),
+                shell: as_str(entry.pw_shell),
+            },
         )
     };
 
@@ -177,8 +193,38 @@ pub(crate) fn prepare_inheriting(
         .collect::<Result<Vec<_>, _>>()
         .map_err(|_| SpawnError::Refused)?;
 
-    let envp = env
-        .0
+    // ── ★ THE IDENTITY VARIABLES ARE NOT THE CALLER'S TO FORGET ────────────
+    // Every process this crate execs goes through here, and here is the one
+    // place the passwd record is already resolved -- so HOME, USER, LOGNAME and
+    // SHELL are derived from it rather than accepted from a map the caller
+    // assembled by hand.
+    //
+    // They were the caller's job until 2026-08-28, and both callers got it
+    // wrong in different ways: the greeter path passed PATH alone, the stdin
+    // path passed PATH + USER + LOGNAME under a comment promising all four, and
+    // neither ever set HOME. Measured by dumping a real session's environ: nine
+    // variables, no HOME, no SHELL. A compositor finds its config through HOME,
+    // so omoya came up on prescribed defaults and the operator's configured
+    // layout was never in effect; a terminal finds its shell through SHELL, so
+    // mado fell back to /bin/sh. The login SUCCEEDED and handed back a machine
+    // that was not theirs.
+    //
+    // `EnvSet` is a BTreeMap with a public field, so "a session environment with
+    // no HOME" was an ordinary legal value and nothing could have objected. A
+    // helper both callers must remember to call would only have made the two
+    // agree; deriving it at the exec boundary means a process WITHOUT these
+    // cannot be constructed at all.
+    //
+    // Passwd wins over the caller deliberately. These are facts about the
+    // account, not preferences, and a caller that disagrees with NSS about
+    // where a person's home is would be wrong by definition.
+    let mut merged: std::collections::BTreeMap<String, String> = env.0.clone();
+    merged.insert("HOME".to_string(), identity.home.clone());
+    merged.insert("USER".to_string(), identity.name.clone());
+    merged.insert("LOGNAME".to_string(), identity.name.clone());
+    merged.insert("SHELL".to_string(), identity.shell.clone());
+
+    let envp = merged
         .iter()
         .map(|(k, v)| {
             let mut kv = Vec::with_capacity(k.len() + v.len() + 1);
@@ -496,5 +542,66 @@ mod tests {
             matches!(spawn(&p), Err(SpawnError::ExecFailed(_))),
             "a child that never exec'd must not read as a started session"
         );
+    }
+
+    // ── ★ THE GUARANTEE, TESTED AT ITS WEAKEST POINT ────────────────────
+    // An EMPTY caller env is not a hypothetical: it is what the greeter login
+    // path actually shipped, and it is why a successful login produced a
+    // session with no HOME. If the identity variables survive this, they
+    // survive every richer case.
+    #[test]
+    fn identity_variables_are_present_even_when_the_caller_passes_nothing() {
+        let uid = unsafe { libc::getuid() };
+        let plan = SessionPlan {
+            argv: mukae_spec::session::Argv::new(vec!["/bin/sh".into()]).expect("argv"),
+            env: EnvSet::default(),
+        };
+        let prepared = match prepare(&plan, &EnvSet::default(), mukae_spec::ids::Uid(uid)) {
+            Ok(p) => p,
+            // A machine with no passwd entry for the running uid cannot answer
+            // the question; skipping is honest, asserting would be theatre.
+            Err(_) => return,
+        };
+        let seen: Vec<String> = prepared
+            .envp
+            .iter()
+            .map(|c| c.to_string_lossy().into_owned())
+            .collect();
+        for key in ["HOME=", "USER=", "LOGNAME=", "SHELL="] {
+            assert!(
+                seen.iter().any(|kv| kv.starts_with(key)),
+                "{key} missing from a spawn whose caller supplied an empty env; \
+                 got {seen:?}"
+            );
+        }
+        // Non-empty, not merely present: HOME= with nothing after it would
+        // pass a bare starts_with and break every ~ expansion just the same.
+        let home = seen.iter().find(|kv| kv.starts_with("HOME=")).expect("HOME");
+        assert!(home.len() > "HOME=".len(), "HOME is present but empty: {home:?}");
+    }
+
+    #[test]
+    fn the_passwd_record_wins_over_a_caller_that_disagrees() {
+        // HOME is a fact about the account, not a preference. A caller passing
+        // its own must not be able to send a session somewhere the account
+        // does not live.
+        let uid = unsafe { libc::getuid() };
+        let plan = SessionPlan {
+            argv: mukae_spec::session::Argv::new(vec!["/bin/sh".into()]).expect("argv"),
+            env: EnvSet::default(),
+        };
+        let mut lying = EnvSet::default();
+        lying.0.insert("HOME".into(), "/nowhere".into());
+        let prepared = match prepare(&plan, &lying, mukae_spec::ids::Uid(uid)) {
+            Ok(p) => p,
+            Err(_) => return,
+        };
+        let home = prepared
+            .envp
+            .iter()
+            .map(|c| c.to_string_lossy().into_owned())
+            .find(|kv| kv.starts_with("HOME="))
+            .expect("HOME");
+        assert_ne!(home, "HOME=/nowhere", "a caller overrode the passwd home");
     }
 }
