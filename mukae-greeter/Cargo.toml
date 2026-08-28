@@ -63,6 +63,9 @@ mukae-greetd = { path = "../mukae-greetd", version = "0.1.0" }
 # ★ OPTIONAL, AND OFF BY DEFAULT — this is the only thing in the binary that
 # would link a `.so`. See the `pam` feature below.
 mukae-host = { path = "../mukae-host", version = "0.1.0", optional = true }
+# The daemon transport. Optional for the same reason mukae-host is: a face
+# built for greetd should not carry the seat crate, and vice versa.
+mukae-seat = { path = "../mukae-seat", version = "0.1.0", optional = true }
 
 [features]
 # The MCP sidecar. OFF by default — see the dependency block above.
@@ -80,6 +83,9 @@ mcp = ["dep:rmcp", "dep:tokio", "dep:schemars"]
 # removed — reviving it is a flag, not a rewrite.
 default = []
 pam = ["dep:mukae-host"]
+# Run as mukaed's face. ON by default is deliberate: mukaed IS the intended
+# transport now, and a greeter that cannot speak to it has to be asked for.
+mukaed = ["dep:mukae-seat"]
 
 [lints.clippy]
 pedantic = "warn"

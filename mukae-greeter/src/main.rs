@@ -66,8 +66,73 @@ mukae (迎え) — the pleme-io login face
 With no flags this draws the face and exits on Esc, which is what makes the
 UI testable on a machine that has no PAM at all.";
 
+/// Run as mukaed's face: adopt the inherited socket and drive the same
+/// `Session` every other transport drives.
+///
+/// ── ★ THE THIRD TRANSPORT, AND THE FACE DOES NOT KNOW ────────────────────
+/// libpam, greetd, and now mukaed. `Session::from_bridge` takes a
+/// conversation from anywhere and everything downstream is byte-identical —
+/// the same face, the same routing by `MsgStyle`, the same undifferentiated
+/// failure message, the same published surface. That claim was written when
+/// there were two sources; this is the one that tests it.
+#[cfg(feature = "mukaed")]
+fn run_under_mukaed() -> ExitCode {
+    use std::os::unix::io::FromRawFd as _;
+    use std::sync::Arc;
+
+    use mukae::introspect::{Drivable, LoginFlow};
+    use session::Session;
+
+    let Ok(fd) = std::env::var("MUKAE_SOCK_FD") else {
+        eprintln!(
+            "mukae: MUKAE_SOCK_FD is unset — this is not running under mukaed.\n\
+             mukae: the daemon sets it to the descriptor it passed through the fork."
+        );
+        return ExitCode::FAILURE;
+    };
+    let Ok(fd) = fd.parse::<i32>() else {
+        eprintln!("mukae: MUKAE_SOCK_FD is not a descriptor number");
+        return ExitCode::FAILURE;
+    };
+    // SAFETY: mukaed dup2'd its end of the socketpair onto this number before
+    // exec, and nothing in this process has touched it since.
+    let sock = unsafe { std::os::unix::net::UnixStream::from_raw_fd(fd) };
+
+    let flow = Arc::new(LoginFlow::new(Drivable::Observable));
+    match kanshou::Server::spawn_sidecar("mukae", Arc::clone(&flow)) {
+        Some(p) => eprintln!("mukae: introspection at {}", p.display()),
+        None => eprintln!("mukae: introspection sidecar did NOT start — the login still works."),
+    }
+
+    let bridge = match mukae_seat::ipc::connect(sock) {
+        Ok(b) => b,
+        Err(e) => {
+            eprintln!("mukae: {e}");
+            return ExitCode::FAILURE;
+        }
+    };
+
+    let face = Face::new(Palette::default());
+    let mut sess = Session::from_bridge(face, bridge, flow);
+    if let Err(e) = egaku_term::run(&mut sess) {
+        eprintln!("mukae: {e}");
+        return ExitCode::FAILURE;
+    }
+    // ★ The daemon owns the verdict, not the face. mukaed decides whether a
+    // session starts; this process only drew the conversation, so it exits 0
+    // for "I finished drawing" and says nothing about whether the login
+    // succeeded. Reporting a verdict here would be a second authority on the
+    // one question that must have exactly one.
+    ExitCode::SUCCESS
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
+
+    #[cfg(feature = "mukaed")]
+    if args.first().map(String::as_str) == Some("--mukaed") {
+        return run_under_mukaed();
+    }
 
     // ── ★ THE MCP BRANCH RUNS FIRST, AND TAKES NO VT ────────────────────
     // `mukae mcp` is a stdio sidecar that OBSERVES the greeter already
