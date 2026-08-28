@@ -810,7 +810,7 @@ dependencies = [
 
 [[package]]
 name = "mukae"
-version = "0.1.13"
+version = "0.1.14"
 dependencies = [
  "kanshou",
  "mukae-spec",
@@ -819,7 +819,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-face"
-version = "0.1.13"
+version = "0.1.14"
 dependencies = [
  "egaku",
  "egaku-term",
@@ -828,7 +828,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-greetd"
-version = "0.1.13"
+version = "0.1.14"
 dependencies = [
  "mukae-spec",
  "serde",
@@ -837,7 +837,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-greeter"
-version = "0.1.13"
+version = "0.1.14"
 dependencies = [
  "egaku",
  "egaku-term",
@@ -846,6 +846,7 @@ dependencies = [
  "mukae-face",
  "mukae-greetd",
  "mukae-host",
+ "mukae-seat",
  "mukae-spec",
  "rmcp",
  "schemars",
@@ -856,7 +857,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-host"
-version = "0.1.13"
+version = "0.1.14"
 dependencies = [
  "libc",
  "mukae-spec",
@@ -865,7 +866,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-lisp"
-version = "0.1.13"
+version = "0.1.14"
 dependencies = [
  "mukae-spec",
  "serde",
@@ -875,7 +876,7 @@ dependencies = [
 
 [[package]]
 name = "mukae-native"
-version = "0.1.13"
+version = "0.1.14"
 dependencies = [
  "libc",
  "mukae-spec",
@@ -893,12 +894,15 @@ dependencies = [
  "libc",
  "mukae-native",
  "mukae-spec",
+ "serde",
+ "serde_json",
+ "thiserror",
  "zeroize",
 ]
 
 [[package]]
 name = "mukae-spec"
-version = "0.1.13"
+version = "0.1.14"
 dependencies = [
  "serde",
  "thiserror",
