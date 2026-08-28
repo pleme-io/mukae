@@ -73,6 +73,35 @@ fn main() -> std::process::ExitCode {
 /// unprivileged user, and the ONLY thing it can reach is one end of a
 /// socketpair created here before the fork. It never sees /etc/shadow, never
 /// talks to logind, and cannot start a session.
+/// The logind attachment implied by a VT selection.
+///
+/// ── ★ ONE DERIVATION, BECAUSE TWO DISAGREED ─────────────────────────────
+/// The console and the logind attachment are ONE fact: a session on a VT
+/// registers against seat0 with that VT, and a session without one is
+/// seatless. `run` derived it correctly and `greeter_login` did not derive it
+/// at all -- it took `NativeSeatEnv::new()`, whose default is `Seatless`.
+///
+/// Measured on plo 2026-08-28: that made every greeter login on tty1 produce
+/// a SEATLESS session -- `XDG_SEAT=""`, `XDG_VTNR=0` -- on the one path that
+/// actually runs the machine's seat. logind grants device access per seat, so
+/// the compositor started by that session is the thing it breaks, several
+/// steps away from here and with nothing pointing back.
+///
+/// The invariant had already been written down, in a comment on the path that
+/// got it right, saying that deriving both from `vt` "is what stops them
+/// disagreeing". It stopped nothing, because the other path did not call it.
+/// A rule stated in a comment binds one call site; a function binds every
+/// caller, including the next one somebody adds.
+fn console_for(vt: Option<std::num::NonZeroU32>) -> mukae_seat::Console {
+    match vt {
+        Some(vtnr) => mukae_seat::Console::Vt {
+            seat: "seat0".to_string(),
+            vtnr,
+        },
+        None => mukae_seat::Console::Seatless,
+    }
+}
+
 fn greeter_login(
     program: &str,
     greeter_user: &str,
@@ -179,7 +208,7 @@ fn greeter_login(
     eprintln!("mukaed: greeter running as {greeter_user} (pid {})", gpid.0);
 
     // ── the conversation, over our own wire ─────────────────────────────
-    let mut env = NativeSeatEnv::new();
+    let mut env = NativeSeatEnv::new().on_console(console_for(vt));
     let svc = ServiceName::parse("mukae").map_err(|e| format!("{e}"))?;
     let h = env
         .pam_start(&svc, None)
@@ -355,13 +384,7 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
     // registers against seat0 with that VT, and a session without one is
     // seatless. Deriving both from `vt` is what stops them disagreeing — see
     // `mukae_seat::Console` for the refusal logind gives when they do.
-    let mut env = match vt {
-        Some(n) => NativeSeatEnv::new().on_console(mukae_seat::Console::Vt {
-            seat: "seat0".to_string(),
-            vtnr: n,
-        }),
-        None => NativeSeatEnv::new(),
-    };
+    let mut env = NativeSeatEnv::new().on_console(console_for(vt));
     let svc = ServiceName::parse("mukae").map_err(|e| format!("{e}"))?;
     let h = env
         .pam_start(&svc, Some(&user))
@@ -485,4 +508,36 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
     env.pam_end(h).map_err(|e| format!("{e}"))?;
     eprintln!("mukaed: session closed");
     Ok(std::process::ExitCode::SUCCESS)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::console_for;
+    use mukae_seat::Console;
+
+    // ── ★ THE ASYMMETRY THIS FUNCTION EXISTS TO REMOVE ──────────────────
+    // Before it, `run` derived the attachment from `vt` and `greeter_login`
+    // took the `Seatless` default, so the path that runs the machine's actual
+    // seat produced XDG_SEAT="" on a real VT. Both call this now; these pin
+    // what it must return so a third caller cannot quietly reintroduce the
+    // split.
+    #[test]
+    fn a_vt_attaches_to_seat0_with_that_vt() {
+        let c = console_for(std::num::NonZeroU32::new(1));
+        match c {
+            Console::Vt { seat, vtnr } => {
+                assert_eq!(seat, "seat0");
+                assert_eq!(vtnr.get(), 1, "the VT must be the one claimed, never 0");
+            }
+            Console::Seatless => panic!("a VT login must not be seatless"),
+        }
+    }
+
+    #[test]
+    fn no_vt_is_seatless() {
+        // Not "seat0 with vtnr 0": logind refuses that pairing outright, which
+        // is the refusal `mukae_seat::Console` was introduced to make
+        // unrepresentable rather than diagnose three steps later.
+        assert!(matches!(console_for(None), Console::Seatless));
+    }
 }
