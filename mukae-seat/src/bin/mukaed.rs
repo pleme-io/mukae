@@ -117,7 +117,13 @@ fn greeter_login(
     genv.0.insert("TERM".into(), "linux".into());
 
     let gplan = SessionPlan {
-        argv: Argv::new(vec![program.into()]).map_err(|e| format!("bad greeter: {e}"))?,
+        // ★ `--mukaed` IS LOAD-BEARING, not decoration. Without it the
+        // greeter takes its STANDALONE path: it opens the tty, draws a face,
+        // and never reads the socket we just handed it -- a login screen that
+        // cannot log anyone in, with no error on either side. Measured on plo
+        // 2026-08-28.
+        argv: Argv::new(vec![program.into(), "--mukaed".into()])
+            .map_err(|e| format!("bad greeter: {e}"))?,
         // ★ EMPTY, AND THE ENV GOES IN THE OTHER ARGUMENT. `SessionPlan::env`
         // is what a session CONTRIBUTES to PAM before the session modules
         // run; the environment a child is actually exec'd with is the second
@@ -390,11 +396,20 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
             PamStep::Info { msg, .. } => eprintln!("{}", msg.0),
             PamStep::Complete => break,
             PamStep::Failed { class } => {
-                // ★ ONE MESSAGE FOR EVERY DENIAL. `class` is recorded and not
-                // rendered: telling the person at the keyboard whether the
-                // USER was wrong or the PASSPHRASE was is the oracle that
-                // turns a guess into an enumeration.
-                eprintln!("mukaed: login incorrect");
+                // ★ ONE MESSAGE AT THE FACE, THE CLASS IN THE JOURNAL.
+                // Telling the person at the keyboard whether the USER was
+                // wrong or the PASSPHRASE was is the oracle that turns a
+                // guess into an enumeration, so the face gets one
+                // undifferentiated denial. The operator needs the
+                // distinction to debug a seat, and this is the DAEMON's
+                // stderr -- the journal, which they read and the person at
+                // the keyboard cannot see. `PamClass` is a closed enum of
+                // failure kinds carrying no name and no secret.
+                //
+                // This said "recorded" while the binding was dropped on the
+                // floor -- the same comment-outruns-code defect that cost
+                // this seat its login screen. Now it records.
+                eprintln!("mukaed: login incorrect (class: {class:?})");
                 let _ = env.pam_end(h);
                 return Ok(std::process::ExitCode::FAILURE);
             }

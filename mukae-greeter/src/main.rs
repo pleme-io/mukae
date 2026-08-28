@@ -179,6 +179,28 @@ fn main() -> ExitCode {
         }
     }
 
+    // ── ★ A SOCKET WITH NO DAEMON MODE IS A WIRING FAULT, NOT A FACE ────
+    // Reaching here with MUKAE_SOCK_FD set means mukaed spawned us and we are
+    // about to run the STANDALONE face instead: either this binary was built
+    // without the `mukaed` feature, or the daemon did not pass `--mukaed`.
+    // Both happened at once on plo (2026-08-28) and the symptom was a black
+    // screen with a cursor -- the greeter drew a face that spoke to nobody
+    // while every process reported healthy.
+    //
+    // Refusing is the whole point. A face on a seat that cannot authenticate
+    // is worse than no face: it invites someone to type a passphrase into a
+    // program with no way to check it.
+    if std::env::var_os("MUKAE_SOCK_FD").is_some() {
+        eprintln!(
+            "mukae: MUKAE_SOCK_FD is set, so mukaed spawned this greeter, but \n\
+             mukae: this process is NOT in daemon mode. Either the binary was \n\
+             mukae: built without the `mukaed` feature, or the daemon did not \n\
+             mukae: pass `--mukaed`. Refusing to draw a face that cannot \n\
+             mukae: authenticate anyone."
+        );
+        return ExitCode::FAILURE;
+    }
+
     if args.iter().any(|a| a == "-h" || a == "--help") {
         eprintln!("{HELP}");
         return ExitCode::SUCCESS;

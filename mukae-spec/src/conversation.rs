@@ -26,7 +26,7 @@
 
 use crate::capability::{AuthProof, Authenticated, Denied, KeyringUnlock, SeatCapability};
 use crate::env::{AcctVerdict, PamAnswer, PamClass, PamError, PamStep, PromptText, SeatEnv};
-use crate::ids::{PamHandleId, SeatId, ServiceName, Uid, UserName};
+use crate::ids::{PamHandleId, SeatId, ServiceName, UserName};
 
 /// What a face is being asked, in mukae's vocabulary rather than PAM's.
 #[derive(Debug, Clone, PartialEq, Eq)]

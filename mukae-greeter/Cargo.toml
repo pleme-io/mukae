@@ -81,9 +81,28 @@ mcp = ["dep:rmcp", "dep:tokio", "dep:schemars"]
 # MODULARIZE, DON'T DELETE: the PAM path keeps working, keeps its tests, and
 # keeps being buildable with `--features pam`. It is configured off, not
 # removed — reviving it is a flag, not a rewrite.
-default = []
+# ★ `mukaed` IS in the default set, and the comment on it below explains
+# why. It was NOT, for as long as mukaed has existed, while that comment
+# claimed it was -- see the note there. Adding it costs no C library:
+# mukae-seat is Rust over libc syscalls, so the "binary a machine boots
+# carries libc and nothing else" property below is unchanged.
+default = ["mukaed"]
 pam = ["dep:mukae-host"]
-# Run as mukaed's face. ON by default is deliberate: mukaed IS the intended
+# Run as mukaed's face.
+#
+# ── ★ THIS COMMENT WAS TRUE OF THE INTENT AND FALSE OF THE CODE ──────────
+# It said "ON by default" while `default = []` sat six lines above, and the
+# two disagreed for as long as mukaed existed. What that bought, measured on
+# plo 2026-08-28: the shipped greeter contained no daemon mode at all -- zero
+# occurrences of MUKAE_SOCK_FD in the binary -- so mukaed spawned it, passed
+# it a socket on fd 3, and it drew a standalone face that spoke to nobody.
+# Every process was alive and the screen stayed black.
+#
+# The lesson is not "keep comments in sync". It is that a comment asserting
+# a fact about the code NEXT TO IT is the one place a reader will never
+# think to check, so it must be the thing you check first.
+#
+# ON by default is deliberate: mukaed IS the intended
 # transport now, and a greeter that cannot speak to it has to be asked for.
 mukaed = ["dep:mukae-seat"]
 
