@@ -82,6 +82,21 @@ pub(crate) struct Prepared {
     user: CString,
     uid: u32,
     gid: u32,
+    /// One descriptor the child should KEEP, duplicated onto a known number.
+    ///
+    /// ── ★ WHY THIS IS AN EXPLICIT OPT-IN AND NOT A LOOSENING ────────────
+    /// Every other fd is closed on exec, and that is the correct default for
+    /// a session: a leaked descriptor is a capability the user's programs
+    /// inherit without anyone deciding they should. A greeter is the one
+    /// caller that needs the opposite — it must hold its end of the
+    /// socketpair to the daemon — and the honest shape is to name that one
+    /// descriptor rather than to relax CLOEXEC for everyone.
+    ///
+    /// `dup2` is what makes it work AND what makes it safe: it clears
+    /// CLOEXEC on the target as a side effect, so the child keeps exactly
+    /// the fd that was asked for and nothing else, at a number the program
+    /// can be told about.
+    inherit: Option<(libc::c_int, libc::c_int)>,
 }
 
 /// Resolve the identity and marshal argv/envp. Parent side only.
@@ -92,6 +107,19 @@ pub(crate) fn prepare(
     plan: &SessionPlan,
     env: &EnvSet,
     to: Uid,
+) -> Result<Prepared, SpawnError> {
+    prepare_inheriting(plan, env, to, None)
+}
+
+/// [`prepare`] with one descriptor the child keeps. See [`Prepared::inherit`].
+///
+/// # Errors
+/// As [`prepare`].
+pub(crate) fn prepare_inheriting(
+    plan: &SessionPlan,
+    env: &EnvSet,
+    to: Uid,
+    inherit: Option<(libc::c_int, libc::c_int)>,
 ) -> Result<Prepared, SpawnError> {
     // ── the passwd lookup, via NSS and never /etc/passwd ────────────────
     // `getpwuid_r` so an LDAP or SSSD user resolves exactly as a local one
@@ -169,6 +197,7 @@ pub(crate) fn prepare(
         user,
         uid: to.0,
         gid,
+        inherit,
     })
 }
 
@@ -248,6 +277,18 @@ pub(crate) fn spawn(p: &Prepared) -> Result<ChildPid, SpawnError> {
             }
             if p.uid != 0 && libc::setuid(0) == 0 {
                 die(wr, ChildFail::RootRegainable);
+            }
+
+            // ── the one inherited descriptor, if any ───────────────────
+            // AFTER the drop, so a failure to become the user cannot leave a
+            // privileged process holding a duplicated fd, and BEFORE exec so
+            // the program finds it in place. `dup2` clears CLOEXEC on the
+            // target, which is precisely why the fd survives the exec while
+            // every other one does not.
+            if let Some((from, to_fd)) = p.inherit
+                && libc::dup2(from, to_fd) < 0
+            {
+                die(wr, ChildFail::Exec);
             }
 
             // Best-effort: a missing home is not a reason to refuse a

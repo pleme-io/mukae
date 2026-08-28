@@ -65,6 +65,165 @@ fn main() -> std::process::ExitCode {
     }
 }
 
+/// Supervise an unprivileged greeter and authenticate what it collects.
+///
+/// ── ★ THE PRIVILEGE SPLIT, MADE STRUCTURAL ───────────────────────────────
+/// The greeter draws — fonts, a terminal, input parsing — and that surface
+/// must not run as root. So it is a separate process, dropped to its own
+/// unprivileged user, and the ONLY thing it can reach is one end of a
+/// socketpair created here before the fork. It never sees /etc/shadow, never
+/// talks to logind, and cannot start a session.
+fn greeter_login(
+    program: &str,
+    greeter_user: &str,
+    session_cmd: Vec<std::ffi::OsString>,
+) -> Result<std::process::ExitCode, String> {
+    use std::os::unix::io::AsRawFd as _;
+
+    if session_cmd.is_empty() {
+        return Err("--cmd is required: there is nothing to start on success".into());
+    }
+    let argv = Argv::new(session_cmd).map_err(|e| format!("bad session command: {e}"))?;
+
+    let guid = uid_of_name(greeter_user)
+        .ok_or_else(|| format!("no passwd entry for the greeter user `{greeter_user}`"))?;
+    if guid == 0 {
+        // ★ THE GREETER MUST NOT BE ROOT, and this is the one place that can
+        // still be true by accident — an operator naming the wrong user in a
+        // unit file. The greeter parses fonts, terminal escapes and keyboard
+        // input; it is the largest attack surface in a login and the reason
+        // the daemon is split in two at all.
+        return Err("the greeter user must not be root — that is the whole point of the split".into());
+    }
+
+    // Created BEFORE the fork so the child can inherit its end. Never a
+    // filesystem path: a socketpair is reachable by exactly these two
+    // processes and by nothing else on the machine.
+    let (mine, theirs) =
+        std::os::unix::net::UnixStream::pair().map_err(|e| format!("socketpair: {e}"))?;
+
+    // fd 3 in the child, by convention and stated in the environment so the
+    // greeter does not have to guess.
+    const GREETER_FD: i32 = 3;
+    let mut genv = mukae_spec::env::EnvSet::default();
+    genv.0.insert("MUKAE_SOCK_FD".into(), GREETER_FD.to_string());
+    genv.0
+        .insert("PATH".into(), "/run/current-system/sw/bin:/usr/bin:/bin".into());
+
+    let gplan = SessionPlan {
+        argv: Argv::new(vec![program.into()]).map_err(|e| format!("bad greeter: {e}"))?,
+        // ★ EMPTY, AND THE ENV GOES IN THE OTHER ARGUMENT. `SessionPlan::env`
+        // is what a session CONTRIBUTES to PAM before the session modules
+        // run; the environment a child is actually exec'd with is the second
+        // argument to the spawn, which for a session is what `getenvlist`
+        // returned afterwards. They are different things and only one of them
+        // reaches `execve`.
+        //
+        // Getting this backwards cost a debugging round: the greeter spawned,
+        // dropped privilege correctly, inherited its socket — and died on
+        // `KeyError: MUKAE_SOCK_FD`, because the variable had been put in the
+        // half that never reaches the child.
+        env: mukae_spec::env::EnvSet::default(),
+    };
+
+    // The greeter goes through the SAME verified drop as a session. One
+    // implementation of "become this user" rather than a second, weaker one
+    // written for the unprivileged half.
+    let gpid = mukae_seat::spawn_inheriting(
+        &gplan,
+        &genv,
+        mukae_spec::ids::Uid(guid),
+        theirs.as_raw_fd(),
+        GREETER_FD,
+    )
+    .map_err(|e| format!("spawning the greeter: {e}"))?;
+    drop(theirs);
+
+    eprintln!("mukaed: greeter running as {greeter_user} (pid {})", gpid.0);
+
+    // ── the conversation, over our own wire ─────────────────────────────
+    let mut env = NativeSeatEnv::new();
+    let svc = ServiceName::parse("mukae").map_err(|e| format!("{e}"))?;
+    let h = env
+        .pam_start(&svc, None)
+        .map_err(|e| format!("starting the transaction: {e}"))?;
+
+    let mut sock = mine;
+    let outcome = mukae_seat::ipc::serve(&mut sock, &mut env, h)?;
+
+    if outcome.is_none() {
+        eprintln!("mukaed: login incorrect");
+        let _ = env.pam_end(h);
+        // Reap the greeter so it cannot outlive the attempt.
+        let mut st = 0;
+        unsafe { libc::waitpid(gpid.0, &raw mut st, 0) };
+        return Ok(std::process::ExitCode::FAILURE);
+    }
+
+    match env.pam_acct_mgmt(h).map_err(|e| format!("{e}"))? {
+        mukae_spec::env::AcctVerdict::Ok => {}
+        other => {
+            eprintln!("mukaed: the account is not permitted to log in: {other:?}");
+            let _ = env.pam_end(h);
+            return Ok(std::process::ExitCode::FAILURE);
+        }
+    }
+
+    // ★ THE GREETER GOES BEFORE THE SESSION COMES UP. Two processes drawing
+    // to one console is the artefact an operator sees as a flickering or
+    // half-painted screen, and the greeter has no reason to exist past the
+    // moment its answer was accepted.
+    unsafe { libc::kill(gpid.0, libc::SIGTERM) };
+    let mut st = 0;
+    unsafe { libc::waitpid(gpid.0, &raw mut st, 0) };
+
+    let uid = env.uid_for_handle(h).map_err(|e| format!("{e}"))?;
+    let proof = env.mint_proof(h, uid).map_err(|e| format!("{e}"))?;
+    let seat = SeatId::parse("seat0").map_err(|e| format!("{e}"))?;
+    let cap = SeatCapability::mint(proof, seat, h);
+
+    let mut base = mukae_spec::env::EnvSet::default();
+    base.0.insert(
+        "PATH".into(),
+        "/run/current-system/sw/bin:/usr/bin:/bin".into(),
+    );
+    let plan = SessionPlan { argv, env: base };
+    let session = mukae_spec::session::start_session(&mut env, cap, plan)
+        .map_err(|e| format!("starting the session: {e}"))?;
+
+    eprintln!(
+        "mukaed: session opened — pid {} uid {}",
+        session.pid.0, session.uid.0
+    );
+    let mut status = 0;
+    unsafe { libc::waitpid(session.pid.0, &raw mut status, 0) };
+    env.pam_close_session(h).map_err(|e| format!("{e}"))?;
+    env.pam_end(h).map_err(|e| format!("{e}"))?;
+    eprintln!("mukaed: session closed");
+    Ok(std::process::ExitCode::SUCCESS)
+}
+
+/// Resolve a username to a uid through NSS.
+fn uid_of_name(user: &str) -> Option<u32> {
+    let c = std::ffi::CString::new(user).ok()?;
+    let mut entry = unsafe { std::mem::zeroed::<libc::passwd>() };
+    let mut buf = vec![0i8; 4096];
+    let mut out = std::ptr::null_mut::<libc::passwd>();
+    let rc = unsafe {
+        libc::getpwnam_r(
+            c.as_ptr(),
+            &raw mut entry,
+            buf.as_mut_ptr(),
+            buf.len(),
+            &raw mut out,
+        )
+    };
+    if rc != 0 || out.is_null() {
+        return None;
+    }
+    Some(entry.pw_uid)
+}
+
 fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
     if args[0] != "login" {
         return Err(format!("unknown subcommand `{}`", args[0]));
@@ -72,6 +231,9 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
 
     let mut user: Option<String> = None;
     let mut cmd: Vec<std::ffi::OsString> = Vec::new();
+    let mut vt: Option<std::num::NonZeroU32> = None;
+    let mut greeter: Option<String> = None;
+    let mut greeter_user: Option<String> = None;
     let mut i = 1;
     while i < args.len() {
         match args[i].as_str() {
@@ -80,15 +242,28 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
                 user = Some(args.get(i).ok_or("--user needs a name")?.clone());
             }
             "--vt" => {
-                // ★ REFUSED, NOT IGNORED. Accepting a flag whose behaviour is
-                // absent is how an operator concludes the daemon took the
-                // console when it did not, and then spends an hour on the
-                // getty that is still holding it.
-                return Err(
-                    "--vt is not implemented: mukaed does not claim a console yet. \
-                     Run it on a VT that is already yours."
-                        .into(),
-                );
+                i += 1;
+                let n: u32 = args
+                    .get(i)
+                    .ok_or("--vt needs a number")?
+                    .parse()
+                    .map_err(|_| "--vt takes a VT number")?;
+                vt = std::num::NonZeroU32::new(n);
+                if vt.is_none() {
+                    // ★ 0 IS NOT "no VT" HERE. logind refuses vtnr=0 on a
+                    // seat that has VTs, and accepting it would produce that
+                    // refusal three steps later naming neither field. Omit
+                    // --vt for a seatless session; that is what it means.
+                    return Err("--vt 0 is not a VT — omit --vt for a seatless session".into());
+                }
+            }
+            "--greeter" => {
+                i += 1;
+                greeter = Some(args.get(i).ok_or("--greeter needs a program")?.clone());
+            }
+            "--greeter-user" => {
+                i += 1;
+                greeter_user = Some(args.get(i).ok_or("--greeter-user needs a name")?.clone());
             }
             "--cmd" => {
                 cmd = args[i + 1..].iter().map(Into::into).collect();
@@ -99,7 +274,23 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
         i += 1;
     }
 
-    let user = user.ok_or("--user is required")?;
+    // ── ★ THE CONSOLE, CLAIMED BEFORE ANYTHING IS DRAWN ────────────────
+    // Held in a binding that lives to the end of `run`, so the restore
+    // happens on EVERY exit from here — including the error paths below,
+    // which is exactly when a half-claimed console is most likely and most
+    // damaging. See `vt::Console`: the give-back is Drop, not a call site.
+    let _console = match vt {
+        Some(n) => Some(mukae_seat::vt::Console::claim(n.get()).map_err(|e| format!("{e}"))?),
+        None => None,
+    };
+
+    // ── the greeter path: supervise a face instead of reading stdin ─────
+    if let Some(program) = greeter {
+        let who = greeter_user.ok_or("--greeter requires --greeter-user")?;
+        return greeter_login(&program, &who, cmd);
+    }
+
+    let user = user.ok_or("--user is required (or use --greeter)")?;
     let user = UserName::parse(&user).map_err(|e| format!("bad username: {e}"))?;
     if cmd.is_empty() {
         return Err("--cmd is required and must name a program".into());
@@ -116,7 +307,17 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
         );
     }
 
-    let mut env = NativeSeatEnv::new();
+    // The console and the logind attachment are ONE fact: a session on a VT
+    // registers against seat0 with that VT, and a session without one is
+    // seatless. Deriving both from `vt` is what stops them disagreeing — see
+    // `mukae_seat::Console` for the refusal logind gives when they do.
+    let mut env = match vt {
+        Some(n) => NativeSeatEnv::new().on_console(mukae_seat::Console::Vt {
+            seat: "seat0".to_string(),
+            vtnr: n,
+        }),
+        None => NativeSeatEnv::new(),
+    };
     let svc = ServiceName::parse("mukae").map_err(|e| format!("{e}"))?;
     let h = env
         .pam_start(&svc, Some(&user))

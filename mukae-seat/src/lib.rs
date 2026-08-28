@@ -578,3 +578,24 @@ mod tests {
         assert!(e.pam_end(bogus).is_err());
     }
 }
+
+/// Spawn a process as `to`, letting it keep ONE descriptor at a known number.
+///
+/// The greeter's spawn. It goes through the same drop the session uses —
+/// `initgroups`/`setgid`/`setuid`, verified — rather than a second, weaker
+/// implementation written for the unprivileged half. See
+/// [`spawn::Prepared::inherit`] for why the descriptor is named rather than
+/// CLOEXEC being relaxed.
+///
+/// # Errors
+/// As [`mukae_spec::env::SeatEnv::fork_session`].
+pub fn spawn_inheriting(
+    plan: &SessionPlan,
+    env: &EnvSet,
+    to: Uid,
+    from_fd: i32,
+    child_fd: i32,
+) -> Result<ChildPid, SpawnError> {
+    let prepared = spawn::prepare_inheriting(plan, env, to, Some((from_fd, child_fd)))?;
+    spawn::spawn(&prepared)
+}
