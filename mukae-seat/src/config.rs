@@ -165,6 +165,16 @@ impl shikumi::TieredConfig for MukaeConfig {
     }
 }
 
+/// The env var naming an explicit config path.
+pub const DISCOVERY_VAR: &str = "MUKAE_CONFIG";
+
+/// The prefix under which individual FIELDS may be overridden by env.
+///
+/// ★ It must not be a prefix of [`DISCOVERY_VAR`] — see the note in [`load`]
+/// and the `the_discovery_var_is_not_a_field_override` test, which is the
+/// seal rather than the comment.
+pub const FIELD_ENV_PREFIX: &str = "MUKAE_OPT_";
+
 /// Load mukae's config through shikumi's discovery chain.
 ///
 /// Never fails: see the module docs. A missing file is normal and reported at
@@ -173,7 +183,7 @@ impl shikumi::TieredConfig for MukaeConfig {
 #[must_use]
 pub fn load() -> MukaeConfig {
     let Ok(path) = shikumi::ConfigDiscovery::new("mukae")
-        .env_override("MUKAE_CONFIG")
+        .env_override(DISCOVERY_VAR)
         .discover()
     else {
         // No config file is the NORMAL case, not a fault: the prescribed tier
@@ -182,7 +192,21 @@ pub fn load() -> MukaeConfig {
         // its output, which is the state you want least in a login manager.
         return MukaeConfig::prescribed();
     };
-    match shikumi::ConfigStore::<MukaeConfig>::load(&path, "MUKAE_") {
+        // ── ★ THE FIELD-OVERRIDE PREFIX MUST NOT CONTAIN THE DISCOVERY VAR ──
+    // `MUKAE_OPT_`, not `MUKAE_`. shikumi's env layer maps `<PREFIX><FIELD>`
+    // onto fields, so with the prefix `MUKAE_` the discovery variable
+    // `MUKAE_CONFIG` is itself read as a field named `config` -- which does
+    // not exist here, so `deny_unknown_fields` refuses the WHOLE load and
+    // this falls back to prescribed defaults with a warning.
+    //
+    // The documented way to point mukae at a config file was therefore the
+    // one way to guarantee it ignored the file.
+    //
+    // Latent since the surface was written: it fires only when someone
+    // actually uses the override, and nobody had. Found 2026-08-28 by RUNNING
+    // annai (which had copied this idiom) rather than by reading any of the
+    // three copies of it.
+    match shikumi::ConfigStore::<MukaeConfig>::load(&path, FIELD_ENV_PREFIX) {
         Ok(store) => MukaeConfig::clone(&store.get()),
         Err(e) => {
             eprintln!(
@@ -268,5 +292,23 @@ mod tests {
         // the VT is claimed, so the error can say what to do instead.
         let cfg: MukaeConfig = serde_yaml::from_str("vt: 0\n").expect("parse");
         assert_eq!(cfg.vt, Some(0));
+    }
+
+    #[test]
+    fn the_discovery_var_is_not_a_field_override() {
+        // THE SEAL for the collision found 2026-08-28. If FIELD_ENV_PREFIX is
+        // a prefix of DISCOVERY_VAR, shikumi reads `MUKAE_CONFIG` as a field
+        // named `config`; that field does not exist, `deny_unknown_fields`
+        // refuses the entire load, and mukae silently falls back to prescribed
+        // defaults -- making the documented way to supply a config the one way
+        // to guarantee it is ignored.
+        //
+        // Asserted against the CONSTANTS `load` actually uses, so the two
+        // cannot drift apart.
+        assert!(
+            !DISCOVERY_VAR.starts_with(FIELD_ENV_PREFIX),
+            "{DISCOVERY_VAR} is inside the {FIELD_ENV_PREFIX} namespace — \
+             the documented config override would disable itself"
+        );
     }
 }
