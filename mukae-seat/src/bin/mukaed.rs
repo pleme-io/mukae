@@ -115,7 +115,7 @@ fn passwd_name_of_uid(uid: u32) -> Option<String> {
 /// This function exists because both login paths were assembling PATH by hand
 /// and had already drifted -- one of them silently shipping a session with
 /// nine environment variables and no HOME.
-fn session_env_for(uid: u32) -> mukae_spec::env::EnvSet {
+fn session_env_for(uid: u32, cfg: &mukae_seat::config::MukaeConfig) -> mukae_spec::env::EnvSet {
     let mut env = mukae_spec::env::EnvSet::default();
     // ── ★ /run/wrappers/bin FIRST, OR THE SESSION HAS NO sudo ──────────
     // Every setuid binary on a NixOS host lives in /run/wrappers/bin --
@@ -139,15 +139,17 @@ fn session_env_for(uid: u32) -> mukae_spec::env::EnvSet {
     // ★ THIS IS NIXOS-SHAPED, AND THAT IS A KNOWN WART. mukaed should take
     // its session PATH from configuration rather than know a distribution's
     // layout; the hardcode predates this fix and is left as one line to
-    // change rather than widened into a second one.
-    let mut path = String::from("/run/wrappers/bin");
-    if let Some(name) = passwd_name_of_uid(uid) {
-        path.push_str(":/etc/profiles/per-user/");
-        path.push_str(&name);
-        path.push_str("/bin");
-    }
-    path.push_str(":/run/current-system/sw/bin:/usr/bin:/bin");
-    env.0.insert("PATH".into(), path);
+    // ★ RESOLVED 2026-08-28. The wart above is gone: the value now comes from
+    // `MukaeConfig::session_path`, so a distribution's layout is a declaration
+    // an operator can read and a Nix module can render, not a literal three
+    // call-frames deep. The prescribed tier is byte-identical to what this
+    // block used to build -- see `config::tests`, which pin the wrappers-first
+    // ordering that made the difference between a working sudo and an error
+    // blaming the installation.
+    env.0.insert(
+        "PATH".into(),
+        cfg.session_path_for(passwd_name_of_uid(uid).as_deref()),
+    );
     // Not a class the session can choose: mukaed only ever starts one after
     // authenticating a person. XDG_SESSION_TYPE is deliberately NOT set --
     // mukaed cannot know whether the command it is about to exec is graphical,
@@ -191,6 +193,7 @@ fn greeter_login(
     greeter_user: &str,
     session_cmd: Vec<std::ffi::OsString>,
     vt: Option<std::num::NonZeroU32>,
+    cfg: &mukae_seat::config::MukaeConfig,
 ) -> Result<std::process::ExitCode, String> {
     use std::os::unix::io::AsRawFd as _;
 
@@ -367,7 +370,7 @@ fn greeter_login(
 
     let plan = SessionPlan {
         argv,
-        env: session_env_for(uid.0),
+        env: session_env_for(uid.0, cfg),
     };
     let session = mukae_spec::session::start_session(&mut env, cap, plan)
         .map_err(|e| format!("starting the session: {e}"))?;
@@ -438,11 +441,33 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
         return Err(format!("unknown subcommand `{}`", args[0]));
     }
 
+    // ── ★ CONFIG FIRST, ARGV SECOND ────────────────────────────────────
+    // shikumi's sealed progressive fold, with argv as the last rung: the
+    // typed config supplies the defaults and a flag overrides one. Before
+    // this, argv WAS the config -- there was no other rung -- which meant
+    // mukae's behaviour could not be validated, defaulted or round-tripped,
+    // and the session PATH lived as a literal inside `session_env_for`.
+    //
+    // `load()` cannot fail; a broken file yields the prescribed tier and says
+    // so. See config.rs: refusing to start over a yaml typo would leave a
+    // machine with no way in that does not involve a second computer.
+    let cfg = mukae_seat::config::load();
+
     let mut user: Option<String> = None;
     let mut cmd: Vec<std::ffi::OsString> = Vec::new();
-    let mut vt: Option<std::num::NonZeroU32> = None;
-    let mut greeter: Option<String> = None;
-    let mut greeter_user: Option<String> = None;
+    // ★ A configured `vt: 0` is REJECTED here rather than silently becoming
+    // "seatless". Config carries what the operator wrote; this is the point
+    // where it means something, so it is the point that can say what to do
+    // instead. Same message as the flag, because it is the same mistake.
+    let mut vt: Option<std::num::NonZeroU32> = match cfg.vt {
+        Some(0) => {
+            return Err("config `vt: 0` is not a VT — omit it for a seatless session".into());
+        }
+        Some(n) => std::num::NonZeroU32::new(n),
+        None => None,
+    };
+    let mut greeter: Option<String> = cfg.greeter.clone();
+    let mut greeter_user: Option<String> = cfg.greeter_user.clone();
     let mut i = 1;
     while i < args.len() {
         match args[i].as_str() {
@@ -503,7 +528,7 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
     // ── the greeter path: supervise a face instead of reading stdin ─────
     if let Some(program) = greeter {
         let who = greeter_user.ok_or("--greeter requires --greeter-user")?;
-        return greeter_login(&program, &who, cmd, vt);
+        return greeter_login(&program, &who, cmd, vt, &cfg);
     }
 
     let user = user.ok_or("--user is required (or use --greeter)")?;
@@ -619,7 +644,7 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
     // expand and `su` reports the wrong user.
     let plan = SessionPlan {
         argv,
-        env: session_env_for(uid.0),
+        env: session_env_for(uid.0, &cfg),
     };
     let session = mukae_spec::session::start_session(&mut env, cap, plan)
         .map_err(|e| format!("starting the session: {e}"))?;
@@ -651,6 +676,7 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
 #[cfg(test)]
 mod tests {
     use super::{console_for, session_env_for};
+    use mukae_seat::config::MukaeConfig;
     use mukae_seat::Console;
 
     // ── ★ THE ASYMMETRY THIS FUNCTION EXISTS TO REMOVE ──────────────────
@@ -667,7 +693,7 @@ mod tests {
     // The operator hit exactly that from their own seat, trying to reboot.
     #[test]
     fn the_session_path_leads_with_the_setuid_wrappers() {
-        let env = session_env_for(unsafe { libc::getuid() });
+        let env = session_env_for(unsafe { libc::getuid() }, &MukaeConfig::prescribed());
         let path = env.0.get("PATH").expect("a session must have a PATH");
         assert!(
             path.starts_with("/run/wrappers/bin"),
@@ -680,7 +706,7 @@ mod tests {
     fn the_session_path_keeps_the_system_profile() {
         // Leading with the wrappers must not cost the system profile: that
         // is where everything else the session runs comes from.
-        let env = session_env_for(unsafe { libc::getuid() });
+        let env = session_env_for(unsafe { libc::getuid() }, &MukaeConfig::prescribed());
         let path = env.0.get("PATH").expect("a session must have a PATH");
         assert!(
             path.contains("/run/current-system/sw/bin"),

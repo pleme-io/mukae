@@ -44,6 +44,7 @@
 //!   environment authenticates and spawns.
 
 mod spawn;
+pub mod config;
 pub mod ipc;
 pub mod vt;
 

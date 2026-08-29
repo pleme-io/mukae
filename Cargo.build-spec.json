@@ -41,6 +41,44 @@
     ]
   },
   "crates": {
+    "arc-swap-1.9.2": {
+      "name": "arc-swap",
+      "version": "1.9.2",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/arc-swap/arc-swap-1.9.2.crate",
+        "sha256": "c049c0be4daef0b145cb3555416b3b8ef5b7888a38aea1a3a155801fe7b0810b",
+        "name_with_ext": "arc-swap-1.9.2.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "rustversion",
+          "package_key": "rustversion-1.0.23",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "host"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "arc-swap",
+        "version": "1.9.2",
+        "edition": "2018",
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=arc_swap;"
+      }
+    },
     "arrayref-0.3.9": {
       "name": "arrayref",
       "version": "0.3.9",
@@ -376,6 +414,33 @@
         "preBuild": "export CARGO_CRATE_NAME=async_trait;"
       }
     },
+    "autocfg-1.5.1": {
+      "name": "autocfg",
+      "version": "1.5.1",
+      "edition": "2015",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/autocfg/autocfg-1.5.1.crate",
+        "sha256": "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53",
+        "name_with_ext": "autocfg-1.5.1.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "autocfg",
+        "version": "1.5.1",
+        "edition": "2015",
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=autocfg;"
+      }
+    },
     "awase-0.1.10": {
       "name": "awase",
       "version": "0.1.10",
@@ -558,16 +623,6 @@
           "uses_default_features": false,
           "optional": false,
           "target": null,
-          "tree": "target"
-        },
-        {
-          "name": "cpufeatures",
-          "package_key": "cpufeatures-0.3.0",
-          "kind": "normal",
-          "features": [],
-          "uses_default_features": true,
-          "optional": false,
-          "target": "cfg(any(target_arch = \"x86\", target_arch = \"x86_64\"))",
           "tree": "target"
         }
       ],
@@ -954,6 +1009,122 @@
         "preBuild": "export CARGO_CRATE_NAME=cfg_if;"
       }
     },
+    "chrono-0.4.45": {
+      "name": "chrono",
+      "version": "0.4.45",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/chrono/chrono-0.4.45.crate",
+        "sha256": "1aa79e62e7697b8e29b513a68abacf485adcd1fe8284a4316c5ae868e6633327",
+        "name_with_ext": "chrono-0.4.45.tar.gz"
+      },
+      "features": [
+        "alloc",
+        "clock",
+        "default",
+        "iana-time-zone",
+        "js-sys",
+        "now",
+        "oldtime",
+        "serde",
+        "std",
+        "wasm-bindgen",
+        "wasmbind",
+        "winapi",
+        "windows-link"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "iana_time_zone",
+          "package_key": "iana-time-zone-0.1.65",
+          "kind": "normal",
+          "features": [
+            "fallback"
+          ],
+          "uses_default_features": true,
+          "optional": true,
+          "target": "cfg(unix)",
+          "tree": "target"
+        },
+        {
+          "name": "num_traits",
+          "package_key": "num-traits-0.2.19",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde",
+          "package_key": "serde-1.0.229",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "iana-time-zone": [
+          {
+            "version": "0.1.65",
+            "rename": "iana_time_zone"
+          }
+        ],
+        "num-traits": [
+          {
+            "version": "0.2.19",
+            "rename": "num_traits"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "chrono",
+        "version": "0.4.45",
+        "edition": "2021",
+        "features": [
+          "alloc",
+          "clock",
+          "default",
+          "iana-time-zone",
+          "js-sys",
+          "now",
+          "oldtime",
+          "serde",
+          "std",
+          "wasm-bindgen",
+          "wasmbind",
+          "winapi",
+          "windows-link"
+        ],
+        "crateRenames": {
+          "iana-time-zone": [
+            {
+              "version": "0.1.65",
+              "rename": "iana_time_zone"
+            }
+          ],
+          "num-traits": [
+            {
+              "version": "0.2.19",
+              "rename": "num_traits"
+            }
+          ]
+        },
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=chrono;"
+      }
+    },
     "cipher-0.2.5": {
       "name": "cipher",
       "version": "0.2.5",
@@ -1158,6 +1329,40 @@
         "preBuild": "export CARGO_CRATE_NAME=constant_time_eq;"
       }
     },
+    "core-foundation-sys-0.8.7": {
+      "name": "core-foundation-sys",
+      "version": "0.8.7",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/core-foundation-sys/core-foundation-sys-0.8.7.crate",
+        "sha256": "773648b94d0e5d620f64f280777445740e61fe701025087ec8b57f45c791888b",
+        "name_with_ext": "core-foundation-sys-0.8.7.tar.gz"
+      },
+      "features": [
+        "default",
+        "link"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "core-foundation-sys",
+        "version": "0.8.7",
+        "edition": "2018",
+        "features": [
+          "default",
+          "link"
+        ],
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=core_foundation_sys;"
+      }
+    },
     "cpufeatures-0.2.17": {
       "name": "cpufeatures",
       "version": "0.2.17",
@@ -1174,7 +1379,48 @@
       "links": null,
       "binaries": [],
       "lib_target": null,
-      "runtime_dependencies": [],
+      "runtime_dependencies": [
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "aarch64-linux-android",
+          "tree": "target"
+        },
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"aarch64\", target_os = \"linux\"))",
+          "tree": "target"
+        },
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"aarch64\", target_vendor = \"apple\"))",
+          "tree": "target"
+        },
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"loongarch64\", target_os = \"linux\"))",
+          "tree": "target"
+        }
+      ],
       "build_dependencies": [],
       "crate_renames": {},
       "build_rust_crate_args": {
@@ -1201,7 +1447,48 @@
       "links": null,
       "binaries": [],
       "lib_target": null,
-      "runtime_dependencies": [],
+      "runtime_dependencies": [
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"aarch64\", target_os = \"android\"))",
+          "tree": "target"
+        },
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"aarch64\", target_os = \"linux\"))",
+          "tree": "target"
+        },
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"aarch64\", target_vendor = \"apple\"))",
+          "tree": "target"
+        },
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"loongarch64\", target_os = \"linux\"))",
+          "tree": "target"
+        }
+      ],
       "build_dependencies": [],
       "crate_renames": {},
       "build_rust_crate_args": {
@@ -2359,6 +2646,111 @@
         "preBuild": "export CARGO_CRATE_NAME=fastrand;"
       }
     },
+    "figment-0.10.19": {
+      "name": "figment",
+      "version": "0.10.19",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/figment/figment-0.10.19.crate",
+        "sha256": "8cb01cd46b0cf372153850f4c6c272d9cbea2da513e07538405148f95bd789f3",
+        "name_with_ext": "figment-0.10.19.tar.gz"
+      },
+      "features": [
+        "env",
+        "parse-value",
+        "pear",
+        "serde_yaml",
+        "toml",
+        "yaml"
+      ],
+      "proc_macro": false,
+      "build_script": "build.rs",
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "pear",
+          "package_key": "pear-0.2.9",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde",
+          "package_key": "serde-1.0.229",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde_yaml",
+          "package_key": "serde_yaml-0.9.34+deprecated",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "toml",
+          "package_key": "toml-0.8.23",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "uncased",
+          "package_key": "uncased-0.9.10",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [
+        {
+          "name": "version_check",
+          "package_key": "version_check-0.9.5",
+          "kind": "build",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "host"
+        }
+      ],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "figment",
+        "version": "0.10.19",
+        "edition": "2018",
+        "features": [
+          "env",
+          "parse-value",
+          "pear",
+          "serde_yaml",
+          "toml",
+          "yaml"
+        ],
+        "release": true,
+        "build": "build.rs",
+        "preBuild": "export CARGO_CRATE_NAME=figment;"
+      }
+    },
     "find-msvc-tools-0.1.11": {
       "name": "find-msvc-tools",
       "version": "0.1.11",
@@ -2384,6 +2776,44 @@
         "edition": "2021",
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=find_msvc_tools;"
+      }
+    },
+    "fsevent-sys-4.1.0": {
+      "name": "fsevent-sys",
+      "version": "4.1.0",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/fsevent-sys/fsevent-sys-4.1.0.crate",
+        "sha256": "76ee7a02da4d231650c7cea31349b889be2f45ddb3ef3032d2ec8185f6313fd2",
+        "name_with_ext": "fsevent-sys-4.1.0.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "fsevent-sys",
+        "version": "4.1.0",
+        "edition": "2018",
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=fsevent_sys;"
       }
     },
     "futures-core-0.3.34": {
@@ -2584,6 +3014,304 @@
         },
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=futures_lite;"
+      }
+    },
+    "gen-macros-0.1.48": {
+      "name": "gen-macros",
+      "version": "0.1.48",
+      "edition": "2024",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/gen-macros/gen-macros-0.1.48.crate",
+        "sha256": "76f569af73a982a3f3617448e3116235692b635e7ff40dcdfbb4b1c0ccd07faf",
+        "name_with_ext": "gen-macros-0.1.48.tar.gz"
+      },
+      "features": [],
+      "proc_macro": true,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "proc_macro2",
+          "package_key": "proc-macro2-1.0.107",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "quote",
+          "package_key": "quote-1.0.47",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "syn",
+          "package_key": "syn-2.0.119",
+          "kind": "normal",
+          "features": [
+            "extra-traits",
+            "full"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "proc-macro2": [
+          {
+            "version": "1.0.107",
+            "rename": "proc_macro2"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "gen-macros",
+        "version": "0.1.48",
+        "edition": "2024",
+        "crateRenames": {
+          "proc-macro2": [
+            {
+              "version": "1.0.107",
+              "rename": "proc_macro2"
+            }
+          ]
+        },
+        "release": true,
+        "procMacro": true,
+        "preBuild": "export CARGO_CRATE_NAME=gen_macros;"
+      }
+    },
+    "gen-platform-0.1.48": {
+      "name": "gen-platform",
+      "version": "0.1.48",
+      "edition": "2024",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/gen-platform/gen-platform-0.1.48.crate",
+        "sha256": "5d2e881d0fe7758fa3f66ee7c5e34b6d1f3c0394bce214e4c620534e6c65e29f",
+        "name_with_ext": "gen-platform-0.1.48.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "gen_macros",
+          "package_key": "gen-macros-0.1.48",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "host"
+        },
+        {
+          "name": "gen_types",
+          "package_key": "gen-types-0.1.48",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "inventory",
+          "package_key": "inventory-0.3.24",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde",
+          "package_key": "serde-1.0.229",
+          "kind": "normal",
+          "features": [
+            "derive"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde_json",
+          "package_key": "serde_json-1.0.151",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "thiserror",
+          "package_key": "thiserror-2.0.20",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "gen-macros": [
+          {
+            "version": "0.1.48",
+            "rename": "gen_macros"
+          }
+        ],
+        "gen-types": [
+          {
+            "version": "0.1.48",
+            "rename": "gen_types"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "gen-platform",
+        "version": "0.1.48",
+        "edition": "2024",
+        "crateRenames": {
+          "gen-macros": [
+            {
+              "version": "0.1.48",
+              "rename": "gen_macros"
+            }
+          ],
+          "gen-types": [
+            {
+              "version": "0.1.48",
+              "rename": "gen_types"
+            }
+          ]
+        },
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=gen_platform;"
+      }
+    },
+    "gen-types-0.1.48": {
+      "name": "gen-types",
+      "version": "0.1.48",
+      "edition": "2024",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/gen-types/gen-types-0.1.48.crate",
+        "sha256": "9afe68a5ea6c3a74e4ed718b6a3cf8139bb19251a2772ece13b5689f13b1d9e5",
+        "name_with_ext": "gen-types-0.1.48.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "blake3",
+          "package_key": "blake3-1.8.6",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "chrono",
+          "package_key": "chrono-0.4.45",
+          "kind": "normal",
+          "features": [
+            "serde"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "indexmap",
+          "package_key": "indexmap-2.14.0",
+          "kind": "normal",
+          "features": [
+            "serde"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "inventory",
+          "package_key": "inventory-0.3.24",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde",
+          "package_key": "serde-1.0.229",
+          "kind": "normal",
+          "features": [
+            "derive"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde_json",
+          "package_key": "serde_json-1.0.151",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "thiserror",
+          "package_key": "thiserror-2.0.20",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "gen-types",
+        "version": "0.1.48",
+        "edition": "2024",
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=gen_types;"
       }
     },
     "generic-array-0.14.9": {
@@ -3071,6 +3799,64 @@
         "preBuild": "export CARGO_CRATE_NAME=hybrid_array;"
       }
     },
+    "iana-time-zone-0.1.65": {
+      "name": "iana-time-zone",
+      "version": "0.1.65",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/iana-time-zone/iana-time-zone-0.1.65.crate",
+        "sha256": "e31bc9ad994ba00e440a8aa5c9ef0ec67d5cb5e5cb0cc7f8b744a35b389cc470",
+        "name_with_ext": "iana-time-zone-0.1.65.tar.gz"
+      },
+      "features": [
+        "fallback"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "core_foundation_sys",
+          "package_key": "core-foundation-sys-0.8.7",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(target_vendor = \"apple\")",
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "core-foundation-sys": [
+          {
+            "version": "0.8.7",
+            "rename": "core_foundation_sys"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "iana-time-zone",
+        "version": "0.1.65",
+        "edition": "2021",
+        "features": [
+          "fallback"
+        ],
+        "crateRenames": {
+          "core-foundation-sys": [
+            {
+              "version": "0.8.7",
+              "rename": "core_foundation_sys"
+            }
+          ]
+        },
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=iana_time_zone;"
+      }
+    },
     "indexmap-2.14.0": {
       "name": "indexmap",
       "version": "2.14.0",
@@ -3083,6 +3869,7 @@
       },
       "features": [
         "default",
+        "serde",
         "std"
       ],
       "proc_macro": false,
@@ -3110,6 +3897,16 @@
           "optional": false,
           "target": null,
           "tree": "target"
+        },
+        {
+          "name": "serde_core",
+          "package_key": "serde_core-1.0.229",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": true,
+          "target": null,
+          "tree": "target"
         }
       ],
       "build_dependencies": [],
@@ -3120,10 +3917,150 @@
         "edition": "2024",
         "features": [
           "default",
+          "serde",
           "std"
         ],
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=indexmap;"
+      }
+    },
+    "inlinable_string-0.1.15": {
+      "name": "inlinable_string",
+      "version": "0.1.15",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/inlinable_string/inlinable_string-0.1.15.crate",
+        "sha256": "c8fae54786f62fb2918dcfae3d568594e50eb9b5c25bf04371af6fe7516452fb",
+        "name_with_ext": "inlinable_string-0.1.15.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "inlinable_string",
+        "version": "0.1.15",
+        "edition": "2018",
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=inlinable_string;"
+      }
+    },
+    "inotify-0.11.5": {
+      "name": "inotify",
+      "version": "0.11.5",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/inotify/inotify-0.11.5.crate",
+        "sha256": "4cc00ea907cab49550b7da656f80ebb97be1b997d931fbcd28d39734e17ce592",
+        "name_with_ext": "inotify-0.11.5.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "bitflags",
+          "package_key": "bitflags-2.13.1",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "inotify_sys",
+          "package_key": "inotify-sys-0.1.8",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "inotify-sys": [
+          {
+            "version": "0.1.8",
+            "rename": "inotify_sys"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "inotify",
+        "version": "0.11.5",
+        "edition": "2018",
+        "crateRenames": {
+          "inotify-sys": [
+            {
+              "version": "0.1.8",
+              "rename": "inotify_sys"
+            }
+          ]
+        },
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=inotify;"
+      }
+    },
+    "inotify-sys-0.1.8": {
+      "name": "inotify-sys",
+      "version": "0.1.8",
+      "edition": "2015",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/inotify-sys/inotify-sys-0.1.8.crate",
+        "sha256": "c033f80b2c113cdf91ab7a33faa9cbc014726dcad99880c8609af2a370edf37d",
+        "name_with_ext": "inotify-sys-0.1.8.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": "build.rs",
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "inotify-sys",
+        "version": "0.1.8",
+        "edition": "2015",
+        "release": true,
+        "build": "build.rs",
+        "preBuild": "export CARGO_CRATE_NAME=inotify_sys;"
       }
     },
     "inout-0.2.2": {
@@ -3177,6 +4114,33 @@
         },
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=inout;"
+      }
+    },
+    "inventory-0.3.24": {
+      "name": "inventory",
+      "version": "0.3.24",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/inventory/inventory-0.3.24.crate",
+        "sha256": "a4f0c30c76f2f4ccee3fe55a2435f691ca00c0e4bd87abe4f4a851b1d4dac39b",
+        "name_with_ext": "inventory-0.3.24.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "inventory",
+        "version": "0.3.24",
+        "edition": "2021",
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=inventory;"
       }
     },
     "itoa-1.0.18": {
@@ -4165,26 +5129,6 @@
           "tree": "target"
         },
         {
-          "name": "mukae_greetd",
-          "package_key": "mukae-greetd-0.1.23",
-          "kind": "normal",
-          "features": [],
-          "uses_default_features": true,
-          "optional": false,
-          "target": "cfg(target_os = \"linux\")",
-          "tree": "target"
-        },
-        {
-          "name": "mukae_seat",
-          "package_key": "mukae-seat-0.1.0",
-          "kind": "normal",
-          "features": [],
-          "uses_default_features": true,
-          "optional": true,
-          "target": "cfg(target_os = \"linux\")",
-          "tree": "target"
-        },
-        {
           "name": "mukae_spec",
           "package_key": "mukae-spec-0.1.23",
           "kind": "normal",
@@ -4521,19 +5465,6 @@
           "tree": "target"
         },
         {
-          "name": "zbus",
-          "package_key": "zbus-5.19.0",
-          "kind": "normal",
-          "features": [
-            "blocking-api",
-            "tokio"
-          ],
-          "uses_default_features": false,
-          "optional": false,
-          "target": "cfg(target_os = \"linux\")",
-          "tree": "target"
-        },
-        {
           "name": "zeroize",
           "package_key": "zeroize-1.9.0",
           "kind": "normal",
@@ -4543,16 +5474,6 @@
           "uses_default_features": true,
           "optional": false,
           "target": null,
-          "tree": "target"
-        },
-        {
-          "name": "zvariant",
-          "package_key": "zvariant-5.15.0",
-          "kind": "normal",
-          "features": [],
-          "uses_default_features": true,
-          "optional": false,
-          "target": "cfg(target_os = \"linux\")",
           "tree": "target"
         }
       ],
@@ -4651,6 +5572,26 @@
         {
           "name": "serde_json",
           "package_key": "serde_json-1.0.151",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde_yaml",
+          "package_key": "serde_yaml-0.9.34+deprecated",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "shikumi",
+          "package_key": "shikumi-0.1.731",
           "kind": "normal",
           "features": [],
           "uses_default_features": true,
@@ -4771,6 +5712,205 @@
         "libName": "mukae_spec",
         "libPath": "src/lib.rs",
         "preBuild": "export CARGO_CRATE_NAME=mukae_spec;"
+      }
+    },
+    "notify-8.2.0": {
+      "name": "notify",
+      "version": "8.2.0",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/notify/notify-8.2.0.crate",
+        "sha256": "4d3d07927151ff8575b7087f245456e549fea62edf0ec4e565a5ee50c8402bc3",
+        "name_with_ext": "notify-8.2.0.tar.gz"
+      },
+      "features": [
+        "fsevent-sys",
+        "macos_fsevent"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "bitflags",
+          "package_key": "bitflags-2.13.1",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(target_os = \"macos\")",
+          "tree": "target"
+        },
+        {
+          "name": "fsevent_sys",
+          "package_key": "fsevent-sys-4.1.0",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": "cfg(target_os = \"macos\")",
+          "tree": "target"
+        },
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "log",
+          "package_key": "log-0.4.33",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "notify_types",
+          "package_key": "notify-types-2.1.0",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "walkdir",
+          "package_key": "walkdir-2.5.0",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "fsevent-sys": [
+          {
+            "version": "4.1.0",
+            "rename": "fsevent_sys"
+          }
+        ],
+        "notify-types": [
+          {
+            "version": "2.1.0",
+            "rename": "notify_types"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "notify",
+        "version": "8.2.0",
+        "edition": "2021",
+        "features": [
+          "fsevent-sys",
+          "macos_fsevent"
+        ],
+        "crateRenames": {
+          "fsevent-sys": [
+            {
+              "version": "4.1.0",
+              "rename": "fsevent_sys"
+            }
+          ],
+          "notify-types": [
+            {
+              "version": "2.1.0",
+              "rename": "notify_types"
+            }
+          ]
+        },
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=notify;"
+      }
+    },
+    "notify-types-2.1.0": {
+      "name": "notify-types",
+      "version": "2.1.0",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/notify-types/notify-types-2.1.0.crate",
+        "sha256": "42b8cfee0e339a0337359f3c88165702ac6e600dc01c0cc9579a92d62b08477a",
+        "name_with_ext": "notify-types-2.1.0.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "bitflags",
+          "package_key": "bitflags-2.13.1",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "notify-types",
+        "version": "2.1.0",
+        "edition": "2021",
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=notify_types;"
+      }
+    },
+    "num-traits-0.2.19": {
+      "name": "num-traits",
+      "version": "0.2.19",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/num-traits/num-traits-0.2.19.crate",
+        "sha256": "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841",
+        "name_with_ext": "num-traits-0.2.19.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": "build.rs",
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [
+        {
+          "name": "autocfg",
+          "package_key": "autocfg-1.5.1",
+          "kind": "build",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "host"
+        }
+      ],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "num-traits",
+        "version": "0.2.19",
+        "edition": "2021",
+        "release": true,
+        "build": "build.rs",
+        "preBuild": "export CARGO_CRATE_NAME=num_traits;"
       }
     },
     "okiba-0.2.1": {
@@ -5192,6 +6332,173 @@
         "preBuild": "export CARGO_CRATE_NAME=pbkdf2;"
       }
     },
+    "pear-0.2.9": {
+      "name": "pear",
+      "version": "0.2.9",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/pear/pear-0.2.9.crate",
+        "sha256": "bdeeaa00ce488657faba8ebf44ab9361f9365a97bd39ffb8a60663f57ff4b467",
+        "name_with_ext": "pear-0.2.9.tar.gz"
+      },
+      "features": [
+        "color",
+        "default",
+        "yansi"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "inlinable_string",
+          "package_key": "inlinable_string-0.1.15",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "pear_codegen",
+          "package_key": "pear_codegen-0.2.9",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "host"
+        },
+        {
+          "name": "yansi",
+          "package_key": "yansi-1.0.1",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "pear",
+        "version": "0.2.9",
+        "edition": "2018",
+        "features": [
+          "color",
+          "default",
+          "yansi"
+        ],
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=pear;"
+      }
+    },
+    "pear_codegen-0.2.9": {
+      "name": "pear_codegen",
+      "version": "0.2.9",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/pear_codegen/pear_codegen-0.2.9.crate",
+        "sha256": "4bab5b985dc082b345f812b7df84e1bef27e7207b39e448439ba8bd69c93f147",
+        "name_with_ext": "pear_codegen-0.2.9.tar.gz"
+      },
+      "features": [],
+      "proc_macro": true,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "proc_macro2",
+          "package_key": "proc-macro2-1.0.107",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "proc_macro2_diagnostics",
+          "package_key": "proc-macro2-diagnostics-0.10.1",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "quote",
+          "package_key": "quote-1.0.47",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "syn",
+          "package_key": "syn-2.0.119",
+          "kind": "normal",
+          "features": [
+            "extra-traits",
+            "full",
+            "visit-mut"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "proc-macro2": [
+          {
+            "version": "1.0.107",
+            "rename": "proc_macro2"
+          }
+        ],
+        "proc-macro2-diagnostics": [
+          {
+            "version": "0.10.1",
+            "rename": "proc_macro2_diagnostics"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "pear_codegen",
+        "version": "0.2.9",
+        "edition": "2018",
+        "crateRenames": {
+          "proc-macro2": [
+            {
+              "version": "1.0.107",
+              "rename": "proc_macro2"
+            }
+          ],
+          "proc-macro2-diagnostics": [
+            {
+              "version": "0.10.1",
+              "rename": "proc_macro2_diagnostics"
+            }
+          ]
+        },
+        "release": true,
+        "procMacro": true,
+        "preBuild": "export CARGO_CRATE_NAME=pear_codegen;"
+      }
+    },
     "phc-0.6.1": {
       "name": "phc",
       "version": "0.6.1",
@@ -5428,6 +6735,110 @@
         "release": true,
         "build": "build.rs",
         "preBuild": "export CARGO_CRATE_NAME=proc_macro2;"
+      }
+    },
+    "proc-macro2-diagnostics-0.10.1": {
+      "name": "proc-macro2-diagnostics",
+      "version": "0.10.1",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/proc-macro2-diagnostics/proc-macro2-diagnostics-0.10.1.crate",
+        "sha256": "af066a9c399a26e020ada66a034357a868728e72cd426f3adcd35f80d88d88c8",
+        "name_with_ext": "proc-macro2-diagnostics-0.10.1.tar.gz"
+      },
+      "features": [
+        "colors",
+        "default",
+        "yansi"
+      ],
+      "proc_macro": false,
+      "build_script": "build.rs",
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "proc_macro2",
+          "package_key": "proc-macro2-1.0.107",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "quote",
+          "package_key": "quote-1.0.47",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "syn",
+          "package_key": "syn-2.0.119",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "yansi",
+          "package_key": "yansi-1.0.1",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [
+        {
+          "name": "version_check",
+          "package_key": "version_check-0.9.5",
+          "kind": "build",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "host"
+        }
+      ],
+      "crate_renames": {
+        "proc-macro2": [
+          {
+            "version": "1.0.107",
+            "rename": "proc_macro2"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "proc-macro2-diagnostics",
+        "version": "0.10.1",
+        "edition": "2018",
+        "features": [
+          "colors",
+          "default",
+          "yansi"
+        ],
+        "crateRenames": {
+          "proc-macro2": [
+            {
+              "version": "1.0.107",
+              "rename": "proc_macro2"
+            }
+          ]
+        },
+        "release": true,
+        "build": "build.rs",
+        "preBuild": "export CARGO_CRATE_NAME=proc_macro2_diagnostics;"
       }
     },
     "pwhash-1.0.0": {
@@ -5892,36 +7303,6 @@
           "optional": false,
           "target": "cfg(all(not(windows), any(rustix_use_libc, miri, not(all(target_os = \"linux\", any(target_endian = \"little\", target_arch = \"s390x\"), any(target_arch = \"arm\", all(target_arch = \"aarch64\", target_pointer_width = \"64\"), target_arch = \"riscv64\", all(rustix_use_experimental_asm, target_arch = \"powerpc64\"), all(rustix_use_experimental_asm, target_arch = \"s390x\"), all(rustix_use_experimental_asm, target_arch = \"mips\"), all(rustix_use_experimental_asm, target_arch = \"mips32r6\"), all(rustix_use_experimental_asm, target_arch = \"mips64\"), all(rustix_use_experimental_asm, target_arch = \"mips64r6\"), target_arch = \"x86\", all(target_arch = \"x86_64\", target_pointer_width = \"64\")))))))",
           "tree": "target"
-        },
-        {
-          "name": "linux_raw_sys",
-          "package_key": "linux-raw-sys-0.4.15",
-          "kind": "normal",
-          "features": [
-            "general",
-            "ioctl",
-            "no_std"
-          ],
-          "uses_default_features": false,
-          "optional": false,
-          "target": "cfg(all(any(target_os = \"android\", target_os = \"linux\"), any(rustix_use_libc, miri, not(all(target_os = \"linux\", any(target_endian = \"little\", target_arch = \"s390x\"), any(target_arch = \"arm\", all(target_arch = \"aarch64\", target_pointer_width = \"64\"), target_arch = \"riscv64\", all(rustix_use_experimental_asm, target_arch = \"powerpc64\"), all(rustix_use_experimental_asm, target_arch = \"s390x\"), all(rustix_use_experimental_asm, target_arch = \"mips\"), all(rustix_use_experimental_asm, target_arch = \"mips32r6\"), all(rustix_use_experimental_asm, target_arch = \"mips64\"), all(rustix_use_experimental_asm, target_arch = \"mips64r6\"), target_arch = \"x86\", all(target_arch = \"x86_64\", target_pointer_width = \"64\")))))))",
-          "tree": "target"
-        },
-        {
-          "name": "linux_raw_sys",
-          "package_key": "linux-raw-sys-0.4.15",
-          "kind": "normal",
-          "features": [
-            "elf",
-            "errno",
-            "general",
-            "ioctl",
-            "no_std"
-          ],
-          "uses_default_features": false,
-          "optional": false,
-          "target": "cfg(all(not(rustix_use_libc), not(miri), target_os = \"linux\", any(target_endian = \"little\", target_arch = \"s390x\"), any(target_arch = \"arm\", all(target_arch = \"aarch64\", target_pointer_width = \"64\"), target_arch = \"riscv64\", all(rustix_use_experimental_asm, target_arch = \"powerpc64\"), all(rustix_use_experimental_asm, target_arch = \"s390x\"), all(rustix_use_experimental_asm, target_arch = \"mips\"), all(rustix_use_experimental_asm, target_arch = \"mips32r6\"), all(rustix_use_experimental_asm, target_arch = \"mips64\"), all(rustix_use_experimental_asm, target_arch = \"mips64r6\"), target_arch = \"x86\", all(target_arch = \"x86_64\", target_pointer_width = \"64\"))))",
-          "tree": "target"
         }
       ],
       "build_dependencies": [],
@@ -5941,10 +7322,6 @@
           }
         ],
         "linux-raw-sys": [
-          {
-            "version": "0.4.15",
-            "rename": "linux_raw_sys"
-          },
           {
             "version": "0.4.15",
             "rename": "linux_raw_sys"
@@ -5978,10 +7355,6 @@
             }
           ],
           "linux-raw-sys": [
-            {
-              "version": "0.4.15",
-              "rename": "linux_raw_sys"
-            },
             {
               "version": "0.4.15",
               "rename": "linux_raw_sys"
@@ -6179,6 +7552,62 @@
         "preBuild": "export CARGO_CRATE_NAME=rustix;"
       }
     },
+    "rustversion-1.0.23": {
+      "name": "rustversion",
+      "version": "1.0.23",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/rustversion/rustversion-1.0.23.crate",
+        "sha256": "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f",
+        "name_with_ext": "rustversion-1.0.23.tar.gz"
+      },
+      "features": [],
+      "proc_macro": true,
+      "build_script": "build/build.rs",
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "rustversion",
+        "version": "1.0.23",
+        "edition": "2018",
+        "release": true,
+        "procMacro": true,
+        "build": "build/build.rs",
+        "preBuild": "export CARGO_CRATE_NAME=rustversion;"
+      }
+    },
+    "ryu-1.0.23": {
+      "name": "ryu",
+      "version": "1.0.23",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/ryu/ryu-1.0.23.crate",
+        "sha256": "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f",
+        "name_with_ext": "ryu-1.0.23.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "ryu",
+        "version": "1.0.23",
+        "edition": "2021",
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=ryu;"
+      }
+    },
     "salsa20-0.11.0": {
       "name": "salsa20",
       "version": "0.11.0",
@@ -6242,6 +7671,33 @@
         },
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=salsa20;"
+      }
+    },
+    "same-file-1.0.6": {
+      "name": "same-file",
+      "version": "1.0.6",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/same-file/same-file-1.0.6.crate",
+        "sha256": "93fc1dc3aaa9bfed95e02e6eadabb4baf7e3078b0bd1b4d7b6b0b68378900502",
+        "name_with_ext": "same-file-1.0.6.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "same-file",
+        "version": "1.0.6",
+        "edition": "2018",
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=same_file;"
       }
     },
     "scopeguard-1.2.0": {
@@ -6609,6 +8065,49 @@
         "preBuild": "export CARGO_CRATE_NAME=serde_repr;"
       }
     },
+    "serde_spanned-0.6.9": {
+      "name": "serde_spanned",
+      "version": "0.6.9",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/serde_spanned/serde_spanned-0.6.9.crate",
+        "sha256": "bf41e0cfaf7226dca15e8197172c295a782857fcb97fad1808a166870dee75a3",
+        "name_with_ext": "serde_spanned-0.6.9.tar.gz"
+      },
+      "features": [
+        "serde"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "serde",
+          "package_key": "serde-1.0.229",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "serde_spanned",
+        "version": "0.6.9",
+        "edition": "2021",
+        "features": [
+          "serde"
+        ],
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=serde_spanned;"
+      }
+    },
     "serde_spanned-1.1.1": {
       "name": "serde_spanned",
       "version": "1.1.1",
@@ -6654,6 +8153,99 @@
         ],
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=serde_spanned;"
+      }
+    },
+    "serde_yaml-0.9.34+deprecated": {
+      "name": "serde_yaml",
+      "version": "0.9.34+deprecated",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/serde_yaml/serde_yaml-0.9.34+deprecated.crate",
+        "sha256": "6a8b1a1a2ebf674015cc02edccce75287f1a0130d394307b36743c2f5d504b47",
+        "name_with_ext": "serde_yaml-0.9.34+deprecated.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "indexmap",
+          "package_key": "indexmap-2.14.0",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "itoa",
+          "package_key": "itoa-1.0.18",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "ryu",
+          "package_key": "ryu-1.0.23",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde",
+          "package_key": "serde-1.0.229",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "unsafe_libyaml",
+          "package_key": "unsafe-libyaml-0.2.11",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "unsafe-libyaml": [
+          {
+            "version": "0.2.11",
+            "rename": "unsafe_libyaml"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "serde_yaml",
+        "version": "0.9.34+deprecated",
+        "edition": "2021",
+        "crateRenames": {
+          "unsafe-libyaml": [
+            {
+              "version": "0.2.11",
+              "rename": "unsafe_libyaml"
+            }
+          ]
+        },
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=serde_yaml;"
       }
     },
     "sha-1-0.9.8": {
@@ -7007,6 +8599,218 @@
         "edition": "2024",
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=shibori;"
+      }
+    },
+    "shikumi-0.1.731": {
+      "name": "shikumi",
+      "version": "0.1.731",
+      "edition": "2024",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/shikumi/shikumi-0.1.731.crate",
+        "sha256": "b6460524aabeadd6d3fd433f40291d5e4287d0fd02a86e1336217d10c9d64bf4",
+        "name_with_ext": "shikumi-0.1.731.tar.gz"
+      },
+      "features": [
+        "default"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "arc_swap",
+          "package_key": "arc-swap-1.9.2",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "async_trait",
+          "package_key": "async-trait-0.1.92",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "host"
+        },
+        {
+          "name": "figment",
+          "package_key": "figment-0.10.19",
+          "kind": "normal",
+          "features": [
+            "env",
+            "toml",
+            "yaml"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "gen_platform",
+          "package_key": "gen-platform-0.1.48",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "gen_types",
+          "package_key": "gen-types-0.1.48",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "notify",
+          "package_key": "notify-8.2.0",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "notify",
+          "package_key": "notify-8.2.0",
+          "kind": "normal",
+          "features": [
+            "macos_fsevent"
+          ],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(target_os = \"macos\")",
+          "tree": "target"
+        },
+        {
+          "name": "serde",
+          "package_key": "serde-1.0.229",
+          "kind": "normal",
+          "features": [
+            "derive"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde_json",
+          "package_key": "serde_json-1.0.151",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde_yaml",
+          "package_key": "serde_yaml-0.9.34+deprecated",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "thiserror",
+          "package_key": "thiserror-2.0.20",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "tracing",
+          "package_key": "tracing-0.1.44",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "arc-swap": [
+          {
+            "version": "1.9.2",
+            "rename": "arc_swap"
+          }
+        ],
+        "async-trait": [
+          {
+            "version": "0.1.92",
+            "rename": "async_trait"
+          }
+        ],
+        "gen-platform": [
+          {
+            "version": "0.1.48",
+            "rename": "gen_platform"
+          }
+        ],
+        "gen-types": [
+          {
+            "version": "0.1.48",
+            "rename": "gen_types"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "shikumi",
+        "version": "0.1.731",
+        "edition": "2024",
+        "features": [
+          "default"
+        ],
+        "crateRenames": {
+          "arc-swap": [
+            {
+              "version": "1.9.2",
+              "rename": "arc_swap"
+            }
+          ],
+          "async-trait": [
+            {
+              "version": "0.1.92",
+              "rename": "async_trait"
+            }
+          ],
+          "gen-platform": [
+            {
+              "version": "0.1.48",
+              "rename": "gen_platform"
+            }
+          ],
+          "gen-types": [
+            {
+              "version": "0.1.48",
+              "rename": "gen_types"
+            }
+          ]
+        },
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=shikumi;"
       }
     },
     "shlex-2.0.1": {
@@ -8376,6 +10180,89 @@
         "preBuild": "export CARGO_CRATE_NAME=tokio_macros;"
       }
     },
+    "toml-0.8.23": {
+      "name": "toml",
+      "version": "0.8.23",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/toml/toml-0.8.23.crate",
+        "sha256": "dc1beb996b9d83529a9e75c17a1686767d148d70663143c7854d8b4a09ced362",
+        "name_with_ext": "toml-0.8.23.tar.gz"
+      },
+      "features": [
+        "default",
+        "display",
+        "parse"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "serde",
+          "package_key": "serde-1.0.229",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde_spanned",
+          "package_key": "serde_spanned-0.6.9",
+          "kind": "normal",
+          "features": [
+            "serde"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "toml_datetime",
+          "package_key": "toml_datetime-0.6.11",
+          "kind": "normal",
+          "features": [
+            "serde"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "toml_edit",
+          "package_key": "toml_edit-0.22.27",
+          "kind": "normal",
+          "features": [
+            "serde"
+          ],
+          "uses_default_features": false,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "toml",
+        "version": "0.8.23",
+        "edition": "2021",
+        "features": [
+          "default",
+          "display",
+          "parse"
+        ],
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=toml;"
+      }
+    },
     "toml-1.1.4+spec-1.1.0": {
       "name": "toml",
       "version": "1.1.4+spec-1.1.0",
@@ -8487,6 +10374,49 @@
         "preBuild": "export CARGO_CRATE_NAME=toml;"
       }
     },
+    "toml_datetime-0.6.11": {
+      "name": "toml_datetime",
+      "version": "0.6.11",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/toml_datetime/toml_datetime-0.6.11.crate",
+        "sha256": "22cddaf88f4fbc13c51aebbf5f8eceb5c7c5a9da2ac40a13519eb5b0a0e8f11c",
+        "name_with_ext": "toml_datetime-0.6.11.tar.gz"
+      },
+      "features": [
+        "serde"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "serde",
+          "package_key": "serde-1.0.229",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "toml_datetime",
+        "version": "0.6.11",
+        "edition": "2021",
+        "features": [
+          "serde"
+        ],
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=toml_datetime;"
+      }
+    },
     "toml_datetime-1.1.1+spec-1.1.0": {
       "name": "toml_datetime",
       "version": "1.1.1+spec-1.1.0",
@@ -8534,6 +10464,107 @@
         ],
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=toml_datetime;"
+      }
+    },
+    "toml_edit-0.22.27": {
+      "name": "toml_edit",
+      "version": "0.22.27",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/toml_edit/toml_edit-0.22.27.crate",
+        "sha256": "41fe8c660ae4257887cf66394862d21dbca4a6ddd26f04a3560410406a2f819a",
+        "name_with_ext": "toml_edit-0.22.27.tar.gz"
+      },
+      "features": [
+        "display",
+        "parse",
+        "serde"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "indexmap",
+          "package_key": "indexmap-2.14.0",
+          "kind": "normal",
+          "features": [
+            "std"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde",
+          "package_key": "serde-1.0.229",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde_spanned",
+          "package_key": "serde_spanned-0.6.9",
+          "kind": "normal",
+          "features": [
+            "serde"
+          ],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "toml_datetime",
+          "package_key": "toml_datetime-0.6.11",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "toml_write",
+          "package_key": "toml_write-0.1.2",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "winnow",
+          "package_key": "winnow-0.7.15",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "toml_edit",
+        "version": "0.22.27",
+        "edition": "2021",
+        "features": [
+          "display",
+          "parse",
+          "serde"
+        ],
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=toml_edit;"
       }
     },
     "toml_edit-0.25.13+spec-1.1.0": {
@@ -8656,6 +10687,42 @@
         ],
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=toml_parser;"
+      }
+    },
+    "toml_write-0.1.2": {
+      "name": "toml_write",
+      "version": "0.1.2",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/toml_write/toml_write-0.1.2.crate",
+        "sha256": "5d99f8c9a7727884afe522e9bd5edbfc91a3312b36a77b5fb8926e4c31a41801",
+        "name_with_ext": "toml_write-0.1.2.tar.gz"
+      },
+      "features": [
+        "alloc",
+        "default",
+        "std"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "toml_write",
+        "version": "0.1.2",
+        "edition": "2021",
+        "features": [
+          "alloc",
+          "default",
+          "std"
+        ],
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=toml_write;"
       }
     },
     "toml_writer-1.1.2+spec-1.1.0": {
@@ -9072,6 +11139,52 @@
         "preBuild": "export CARGO_CRATE_NAME=typenum;"
       }
     },
+    "uncased-0.9.10": {
+      "name": "uncased",
+      "version": "0.9.10",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/uncased/uncased-0.9.10.crate",
+        "sha256": "e1b88fcfe09e89d3866a5c11019378088af2d24c3fbd4f0543f96b479ec90697",
+        "name_with_ext": "uncased-0.9.10.tar.gz"
+      },
+      "features": [
+        "alloc",
+        "default"
+      ],
+      "proc_macro": false,
+      "build_script": "build.rs",
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [
+        {
+          "name": "version_check",
+          "package_key": "version_check-0.9.5",
+          "kind": "build",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "host"
+        }
+      ],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "uncased",
+        "version": "0.9.10",
+        "edition": "2018",
+        "features": [
+          "alloc",
+          "default"
+        ],
+        "release": true,
+        "build": "build.rs",
+        "preBuild": "export CARGO_CRATE_NAME=uncased;"
+      }
+    },
     "unicode-ident-1.0.24": {
       "name": "unicode-ident",
       "version": "1.0.24",
@@ -9160,6 +11273,42 @@
         "preBuild": "export CARGO_CRATE_NAME=unicode_width;"
       }
     },
+    "unsafe-libyaml-0.2.11": {
+      "name": "unsafe-libyaml",
+      "version": "0.2.11",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/unsafe-libyaml/unsafe-libyaml-0.2.11.crate",
+        "sha256": "673aac59facbab8a9007c7f6108d11f63b603f7cabff99fabf650fea5c32b861",
+        "name_with_ext": "unsafe-libyaml-0.2.11.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [
+        {
+          "name": "run-emitter-test-suite",
+          "path": "src/bin/run-emitter-test-suite.rs"
+        },
+        {
+          "name": "run-parser-test-suite",
+          "path": "src/bin/run-parser-test-suite.rs"
+        }
+      ],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "unsafe-libyaml",
+        "version": "0.2.11",
+        "edition": "2021",
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=unsafe_libyaml;"
+      }
+    },
     "uuid-1.24.1": {
       "name": "uuid",
       "version": "1.24.1",
@@ -9234,6 +11383,95 @@
         "preBuild": "export CARGO_CRATE_NAME=version_check;"
       }
     },
+    "walkdir-2.5.0": {
+      "name": "walkdir",
+      "version": "2.5.0",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/walkdir/walkdir-2.5.0.crate",
+        "sha256": "29790946404f91d9c5d06f9874efddea1dc06c5efe94541a7d6863108e3a5e4b",
+        "name_with_ext": "walkdir-2.5.0.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "same_file",
+          "package_key": "same-file-1.0.6",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "same-file": [
+          {
+            "version": "1.0.6",
+            "rename": "same_file"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "walkdir",
+        "version": "2.5.0",
+        "edition": "2018",
+        "crateRenames": {
+          "same-file": [
+            {
+              "version": "1.0.6",
+              "rename": "same_file"
+            }
+          ]
+        },
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=walkdir;"
+      }
+    },
+    "winnow-0.7.15": {
+      "name": "winnow",
+      "version": "0.7.15",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/winnow/winnow-0.7.15.crate",
+        "sha256": "df79d97927682d2fd8adb29682d1140b343be4ac0f08fd68b7765d9c059d3945",
+        "name_with_ext": "winnow-0.7.15.tar.gz"
+      },
+      "features": [
+        "alloc",
+        "default",
+        "std"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "winnow",
+        "version": "0.7.15",
+        "edition": "2021",
+        "features": [
+          "alloc",
+          "default",
+          "std"
+        ],
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=winnow;"
+      }
+    },
     "winnow-1.0.4": {
       "name": "winnow",
       "version": "1.0.4",
@@ -9274,6 +11512,42 @@
         ],
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=winnow;"
+      }
+    },
+    "yansi-1.0.1": {
+      "name": "yansi",
+      "version": "1.0.1",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/yansi/yansi-1.0.1.crate",
+        "sha256": "cfe53a6657fd280eaa890a3bc59152892ffa3e30101319d168b781ed6529b049",
+        "name_with_ext": "yansi-1.0.1.tar.gz"
+      },
+      "features": [
+        "alloc",
+        "default",
+        "std"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "yansi",
+        "version": "1.0.1",
+        "edition": "2021",
+        "features": [
+          "alloc",
+          "default",
+          "std"
+        ],
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=yansi;"
       }
     },
     "yescrypt-0.1.0": {
@@ -10582,12 +12856,76 @@
   },
   "target_resolves": {
     "base": {
+      "arc-swap-1.9.2": {
+        "runtime_dependencies": [
+          {
+            "name": "rustversion",
+            "package_key": "rustversion-1.0.23",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "host"
+          }
+        ],
+        "build_dependencies": [],
+        "features": []
+      },
       "arrayref-0.3.9": {
         "runtime_dependencies": [],
         "build_dependencies": [],
         "features": []
       },
       "arrayvec-0.7.8": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": []
+      },
+      "async-trait-0.1.92": {
+        "runtime_dependencies": [
+          {
+            "name": "proc_macro2",
+            "package_key": "proc-macro2-1.0.107",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "quote",
+            "package_key": "quote-1.0.47",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "syn",
+            "package_key": "syn-3.0.3",
+            "kind": "normal",
+            "features": [
+              "clone-impls",
+              "full",
+              "parsing",
+              "printing",
+              "proc-macro",
+              "visit-mut"
+            ],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": []
+      },
+      "autocfg-1.5.1": {
         "runtime_dependencies": [],
         "build_dependencies": [],
         "features": []
@@ -10760,6 +13098,58 @@
         "runtime_dependencies": [],
         "build_dependencies": [],
         "features": []
+      },
+      "chrono-0.4.45": {
+        "runtime_dependencies": [
+          {
+            "name": "iana_time_zone",
+            "package_key": "iana-time-zone-0.1.65",
+            "kind": "normal",
+            "features": [
+              "fallback"
+            ],
+            "uses_default_features": true,
+            "optional": true,
+            "target": "cfg(unix)",
+            "tree": "target"
+          },
+          {
+            "name": "num_traits",
+            "package_key": "num-traits-0.2.19",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde",
+            "package_key": "serde-1.0.229",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "alloc",
+          "clock",
+          "default",
+          "iana-time-zone",
+          "js-sys",
+          "now",
+          "oldtime",
+          "serde",
+          "std",
+          "wasm-bindgen",
+          "wasmbind",
+          "winapi",
+          "windows-link"
+        ]
       },
       "cipher-0.2.5": {
         "runtime_dependencies": [
@@ -11224,8 +13614,271 @@
           "std"
         ]
       },
+      "figment-0.10.19": {
+        "runtime_dependencies": [
+          {
+            "name": "pear",
+            "package_key": "pear-0.2.9",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde",
+            "package_key": "serde-1.0.229",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde_yaml",
+            "package_key": "serde_yaml-0.9.34+deprecated",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "toml",
+            "package_key": "toml-0.8.23",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "uncased",
+            "package_key": "uncased-0.9.10",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [
+          {
+            "name": "version_check",
+            "package_key": "version_check-0.9.5",
+            "kind": "build",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "host"
+          }
+        ],
+        "features": [
+          "env",
+          "parse-value",
+          "pear",
+          "serde_yaml",
+          "toml",
+          "yaml"
+        ]
+      },
       "find-msvc-tools-0.1.11": {
         "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": []
+      },
+      "gen-macros-0.1.48": {
+        "runtime_dependencies": [
+          {
+            "name": "proc_macro2",
+            "package_key": "proc-macro2-1.0.107",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "quote",
+            "package_key": "quote-1.0.47",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "syn",
+            "package_key": "syn-2.0.119",
+            "kind": "normal",
+            "features": [
+              "extra-traits",
+              "full"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": []
+      },
+      "gen-platform-0.1.48": {
+        "runtime_dependencies": [
+          {
+            "name": "gen_macros",
+            "package_key": "gen-macros-0.1.48",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "host"
+          },
+          {
+            "name": "gen_types",
+            "package_key": "gen-types-0.1.48",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "inventory",
+            "package_key": "inventory-0.3.24",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde",
+            "package_key": "serde-1.0.229",
+            "kind": "normal",
+            "features": [
+              "derive"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde_json",
+            "package_key": "serde_json-1.0.151",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "thiserror",
+            "package_key": "thiserror-2.0.20",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": []
+      },
+      "gen-types-0.1.48": {
+        "runtime_dependencies": [
+          {
+            "name": "blake3",
+            "package_key": "blake3-1.8.6",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "chrono",
+            "package_key": "chrono-0.4.45",
+            "kind": "normal",
+            "features": [
+              "serde"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "indexmap",
+            "package_key": "indexmap-2.14.0",
+            "kind": "normal",
+            "features": [
+              "serde"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "inventory",
+            "package_key": "inventory-0.3.24",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde",
+            "package_key": "serde-1.0.229",
+            "kind": "normal",
+            "features": [
+              "derive"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde_json",
+            "package_key": "serde_json-1.0.151",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "thiserror",
+            "package_key": "thiserror-2.0.20",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
         "build_dependencies": [],
         "features": []
       },
@@ -11473,13 +14126,29 @@
             "optional": false,
             "target": null,
             "tree": "target"
+          },
+          {
+            "name": "serde_core",
+            "package_key": "serde_core-1.0.229",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": true,
+            "target": null,
+            "tree": "target"
           }
         ],
         "build_dependencies": [],
         "features": [
           "default",
+          "serde",
           "std"
         ]
+      },
+      "inlinable_string-0.1.15": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": []
       },
       "inout-0.2.2": {
         "runtime_dependencies": [
@@ -11494,6 +14163,11 @@
             "tree": "target"
           }
         ],
+        "build_dependencies": [],
+        "features": []
+      },
+      "inventory-0.3.24": {
+        "runtime_dependencies": [],
         "build_dependencies": [],
         "features": []
       },
@@ -12008,6 +14682,26 @@
             "tree": "target"
           },
           {
+            "name": "serde_yaml",
+            "package_key": "serde_yaml-0.9.34+deprecated",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "shikumi",
+            "package_key": "shikumi-0.1.731",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
             "name": "thiserror",
             "package_key": "thiserror-2.0.20",
             "kind": "normal",
@@ -12059,6 +14753,38 @@
           }
         ],
         "build_dependencies": [],
+        "features": []
+      },
+      "notify-types-2.1.0": {
+        "runtime_dependencies": [
+          {
+            "name": "bitflags",
+            "package_key": "bitflags-2.13.1",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": []
+      },
+      "num-traits-0.2.19": {
+        "runtime_dependencies": [],
+        "build_dependencies": [
+          {
+            "name": "autocfg",
+            "package_key": "autocfg-1.5.1",
+            "kind": "build",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "host"
+          }
+        ],
         "features": []
       },
       "okiba-0.2.1": {
@@ -12193,6 +14919,96 @@
           "hmac"
         ]
       },
+      "pear-0.2.9": {
+        "runtime_dependencies": [
+          {
+            "name": "inlinable_string",
+            "package_key": "inlinable_string-0.1.15",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "pear_codegen",
+            "package_key": "pear_codegen-0.2.9",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "host"
+          },
+          {
+            "name": "yansi",
+            "package_key": "yansi-1.0.1",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "color",
+          "default",
+          "yansi"
+        ]
+      },
+      "pear_codegen-0.2.9": {
+        "runtime_dependencies": [
+          {
+            "name": "proc_macro2",
+            "package_key": "proc-macro2-1.0.107",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "proc_macro2_diagnostics",
+            "package_key": "proc-macro2-diagnostics-0.10.1",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "quote",
+            "package_key": "quote-1.0.47",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "syn",
+            "package_key": "syn-2.0.119",
+            "kind": "normal",
+            "features": [
+              "extra-traits",
+              "full",
+              "visit-mut"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": []
+      },
       "phc-0.6.1": {
         "runtime_dependencies": [
           {
@@ -12274,6 +15090,67 @@
         "features": [
           "default",
           "proc-macro"
+        ]
+      },
+      "proc-macro2-diagnostics-0.10.1": {
+        "runtime_dependencies": [
+          {
+            "name": "proc_macro2",
+            "package_key": "proc-macro2-1.0.107",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "quote",
+            "package_key": "quote-1.0.47",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "syn",
+            "package_key": "syn-2.0.119",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "yansi",
+            "package_key": "yansi-1.0.1",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [
+          {
+            "name": "version_check",
+            "package_key": "version_check-0.9.5",
+            "kind": "build",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "host"
+          }
+        ],
+        "features": [
+          "colors",
+          "default",
+          "yansi"
         ]
       },
       "pwhash-1.0.0": {
@@ -12467,6 +15344,16 @@
           "std"
         ]
       },
+      "rustversion-1.0.23": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": []
+      },
+      "ryu-1.0.23": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": []
+      },
       "salsa20-0.11.0": {
         "runtime_dependencies": [
           {
@@ -12492,6 +15379,11 @@
             "tree": "target"
           }
         ],
+        "build_dependencies": [],
+        "features": []
+      },
+      "same-file-1.0.6": {
+        "runtime_dependencies": [],
         "build_dependencies": [],
         "features": []
       },
@@ -12639,6 +15531,24 @@
           "std"
         ]
       },
+      "serde_spanned-0.6.9": {
+        "runtime_dependencies": [
+          {
+            "name": "serde",
+            "package_key": "serde-1.0.229",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "serde"
+        ]
+      },
       "serde_spanned-1.1.1": {
         "runtime_dependencies": [
           {
@@ -12658,6 +15568,62 @@
           "serde",
           "std"
         ]
+      },
+      "serde_yaml-0.9.34+deprecated": {
+        "runtime_dependencies": [
+          {
+            "name": "indexmap",
+            "package_key": "indexmap-2.14.0",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "itoa",
+            "package_key": "itoa-1.0.18",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "ryu",
+            "package_key": "ryu-1.0.23",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde",
+            "package_key": "serde-1.0.229",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "unsafe_libyaml",
+            "package_key": "unsafe-libyaml-0.2.11",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": []
       },
       "sha-1-0.9.8": {
         "runtime_dependencies": [
@@ -12817,6 +15783,142 @@
         "runtime_dependencies": [],
         "build_dependencies": [],
         "features": []
+      },
+      "shikumi-0.1.731": {
+        "runtime_dependencies": [
+          {
+            "name": "arc_swap",
+            "package_key": "arc-swap-1.9.2",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "async_trait",
+            "package_key": "async-trait-0.1.92",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "host"
+          },
+          {
+            "name": "figment",
+            "package_key": "figment-0.10.19",
+            "kind": "normal",
+            "features": [
+              "env",
+              "toml",
+              "yaml"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "gen_platform",
+            "package_key": "gen-platform-0.1.48",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "gen_types",
+            "package_key": "gen-types-0.1.48",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "notify",
+            "package_key": "notify-8.2.0",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "notify",
+            "package_key": "notify-8.2.0",
+            "kind": "normal",
+            "features": [
+              "macos_fsevent"
+            ],
+            "uses_default_features": false,
+            "optional": false,
+            "target": "cfg(target_os = \"macos\")",
+            "tree": "target"
+          },
+          {
+            "name": "serde",
+            "package_key": "serde-1.0.229",
+            "kind": "normal",
+            "features": [
+              "derive"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde_json",
+            "package_key": "serde_json-1.0.151",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde_yaml",
+            "package_key": "serde_yaml-0.9.34+deprecated",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "thiserror",
+            "package_key": "thiserror-2.0.20",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "tracing",
+            "package_key": "tracing-0.1.44",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "default"
+        ]
       },
       "shlex-2.0.1": {
         "runtime_dependencies": [],
@@ -13441,6 +16543,62 @@
         "build_dependencies": [],
         "features": []
       },
+      "toml-0.8.23": {
+        "runtime_dependencies": [
+          {
+            "name": "serde",
+            "package_key": "serde-1.0.229",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde_spanned",
+            "package_key": "serde_spanned-0.6.9",
+            "kind": "normal",
+            "features": [
+              "serde"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "toml_datetime",
+            "package_key": "toml_datetime-0.6.11",
+            "kind": "normal",
+            "features": [
+              "serde"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "toml_edit",
+            "package_key": "toml_edit-0.22.27",
+            "kind": "normal",
+            "features": [
+              "serde"
+            ],
+            "uses_default_features": false,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "default",
+          "display",
+          "parse"
+        ]
+      },
       "toml-1.1.4+spec-1.1.0": {
         "runtime_dependencies": [
           {
@@ -13523,6 +16681,24 @@
           "std"
         ]
       },
+      "toml_datetime-0.6.11": {
+        "runtime_dependencies": [
+          {
+            "name": "serde",
+            "package_key": "serde-1.0.229",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "serde"
+        ]
+      },
       "toml_datetime-1.1.1+spec-1.1.0": {
         "runtime_dependencies": [
           {
@@ -13544,6 +16720,80 @@
           "std"
         ]
       },
+      "toml_edit-0.22.27": {
+        "runtime_dependencies": [
+          {
+            "name": "indexmap",
+            "package_key": "indexmap-2.14.0",
+            "kind": "normal",
+            "features": [
+              "std"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde",
+            "package_key": "serde-1.0.229",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde_spanned",
+            "package_key": "serde_spanned-0.6.9",
+            "kind": "normal",
+            "features": [
+              "serde"
+            ],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "toml_datetime",
+            "package_key": "toml_datetime-0.6.11",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "toml_write",
+            "package_key": "toml_write-0.1.2",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "winnow",
+            "package_key": "winnow-0.7.15",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "display",
+          "parse",
+          "serde"
+        ]
+      },
       "toml_parser-1.1.3+spec-1.1.0": {
         "runtime_dependencies": [
           {
@@ -13557,6 +16807,15 @@
             "tree": "target"
           }
         ],
+        "build_dependencies": [],
+        "features": [
+          "alloc",
+          "default",
+          "std"
+        ]
+      },
+      "toml_write-0.1.2": {
+        "runtime_dependencies": [],
         "build_dependencies": [],
         "features": [
           "alloc",
@@ -13759,6 +17018,25 @@
           "const-generics"
         ]
       },
+      "uncased-0.9.10": {
+        "runtime_dependencies": [],
+        "build_dependencies": [
+          {
+            "name": "version_check",
+            "package_key": "version_check-0.9.5",
+            "kind": "build",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "host"
+          }
+        ],
+        "features": [
+          "alloc",
+          "default"
+        ]
+      },
       "unicode-ident-1.0.24": {
         "runtime_dependencies": [],
         "build_dependencies": [],
@@ -13777,10 +17055,40 @@
           "default"
         ]
       },
+      "unsafe-libyaml-0.2.11": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": []
+      },
       "version_check-0.9.5": {
         "runtime_dependencies": [],
         "build_dependencies": [],
         "features": []
+      },
+      "walkdir-2.5.0": {
+        "runtime_dependencies": [
+          {
+            "name": "same_file",
+            "package_key": "same-file-1.0.6",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": []
+      },
+      "winnow-0.7.15": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": [
+          "alloc",
+          "default",
+          "std"
+        ]
       },
       "winnow-1.0.4": {
         "runtime_dependencies": [],
@@ -13791,6 +17099,15 @@
           "binary",
           "default",
           "parser",
+          "std"
+        ]
+      },
+      "yansi-1.0.1": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": [
+          "alloc",
+          "default",
           "std"
         ]
       },
@@ -14015,6 +17332,14 @@
               "std"
             ]
           },
+          "core-foundation-sys-0.8.7": {
+            "runtime_dependencies": [],
+            "build_dependencies": [],
+            "features": [
+              "default",
+              "link"
+            ]
+          },
           "cpufeatures-0.2.17": {
             "runtime_dependencies": [
               {
@@ -14106,6 +17431,40 @@
             ],
             "build_dependencies": [],
             "features": []
+          },
+          "fsevent-sys-4.1.0": {
+            "runtime_dependencies": [
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": []
+          },
+          "iana-time-zone-0.1.65": {
+            "runtime_dependencies": [
+              {
+                "name": "core_foundation_sys",
+                "package_key": "core-foundation-sys-0.8.7",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": "cfg(target_vendor = \"apple\")",
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": [
+              "fallback"
+            ]
           },
           "mukae-greeter-0.1.23": {
             "runtime_dependencies": [
@@ -14247,6 +17606,75 @@
             ],
             "build_dependencies": [],
             "features": []
+          },
+          "notify-8.2.0": {
+            "runtime_dependencies": [
+              {
+                "name": "bitflags",
+                "package_key": "bitflags-2.13.1",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": "cfg(target_os = \"macos\")",
+                "tree": "target"
+              },
+              {
+                "name": "fsevent_sys",
+                "package_key": "fsevent-sys-4.1.0",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": true,
+                "target": "cfg(target_os = \"macos\")",
+                "tree": "target"
+              },
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "log",
+                "package_key": "log-0.4.33",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "notify_types",
+                "package_key": "notify-types-2.1.0",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "walkdir",
+                "package_key": "walkdir-2.5.0",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": [
+              "fsevent-sys",
+              "macos_fsevent"
+            ]
           },
           "rustix-0.38.44": {
             "runtime_dependencies": [
@@ -14395,49 +17823,6 @@
               {
                 "name": "syn",
                 "package_key": "syn-2.0.119",
-                "kind": "normal",
-                "features": [
-                  "clone-impls",
-                  "full",
-                  "parsing",
-                  "printing",
-                  "proc-macro",
-                  "visit-mut"
-                ],
-                "uses_default_features": false,
-                "optional": false,
-                "target": null,
-                "tree": "target"
-              }
-            ],
-            "build_dependencies": [],
-            "features": []
-          },
-          "async-trait-0.1.92": {
-            "runtime_dependencies": [
-              {
-                "name": "proc_macro2",
-                "package_key": "proc-macro2-1.0.107",
-                "kind": "normal",
-                "features": [],
-                "uses_default_features": true,
-                "optional": false,
-                "target": null,
-                "tree": "target"
-              },
-              {
-                "name": "quote",
-                "package_key": "quote-1.0.47",
-                "kind": "normal",
-                "features": [],
-                "uses_default_features": true,
-                "optional": false,
-                "target": null,
-                "tree": "target"
-              },
-              {
-                "name": "syn",
-                "package_key": "syn-3.0.3",
                 "kind": "normal",
                 "features": [
                   "clone-impls",
@@ -14841,6 +18226,65 @@
               "std"
             ]
           },
+          "iana-time-zone-0.1.65": {
+            "runtime_dependencies": [],
+            "build_dependencies": [],
+            "features": [
+              "fallback"
+            ]
+          },
+          "inotify-0.11.5": {
+            "runtime_dependencies": [
+              {
+                "name": "bitflags",
+                "package_key": "bitflags-2.13.1",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "inotify_sys",
+                "package_key": "inotify-sys-0.1.8",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": []
+          },
+          "inotify-sys-0.1.8": {
+            "runtime_dependencies": [
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": []
+          },
           "linux-raw-sys-0.12.1": {
             "runtime_dependencies": [],
             "build_dependencies": [],
@@ -15052,6 +18496,89 @@
             ],
             "build_dependencies": [],
             "features": []
+          },
+          "notify-8.2.0": {
+            "runtime_dependencies": [
+              {
+                "name": "inotify",
+                "package_key": "inotify-0.11.5",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": false,
+                "optional": false,
+                "target": "cfg(any(target_os = \"linux\", target_os = \"android\"))",
+                "tree": "target"
+              },
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "log",
+                "package_key": "log-0.4.33",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "mio",
+                "package_key": "mio-1.2.2",
+                "kind": "normal",
+                "features": [
+                  "os-ext"
+                ],
+                "uses_default_features": true,
+                "optional": false,
+                "target": "cfg(any(target_os = \"freebsd\", target_os = \"openbsd\", target_os = \"netbsd\", target_os = \"dragonflybsd\", target_os = \"ios\"))",
+                "tree": "target"
+              },
+              {
+                "name": "mio",
+                "package_key": "mio-1.2.2",
+                "kind": "normal",
+                "features": [
+                  "os-ext"
+                ],
+                "uses_default_features": true,
+                "optional": false,
+                "target": "cfg(any(target_os = \"linux\", target_os = \"android\"))",
+                "tree": "target"
+              },
+              {
+                "name": "notify_types",
+                "package_key": "notify-types-2.1.0",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "walkdir",
+                "package_key": "walkdir-2.5.0",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": [
+              "fsevent-sys",
+              "macos_fsevent"
+            ]
           },
           "ordered-stream-0.2.0": {
             "runtime_dependencies": [
@@ -16105,49 +19632,6 @@
             "build_dependencies": [],
             "features": []
           },
-          "async-trait-0.1.92": {
-            "runtime_dependencies": [
-              {
-                "name": "proc_macro2",
-                "package_key": "proc-macro2-1.0.107",
-                "kind": "normal",
-                "features": [],
-                "uses_default_features": true,
-                "optional": false,
-                "target": null,
-                "tree": "target"
-              },
-              {
-                "name": "quote",
-                "package_key": "quote-1.0.47",
-                "kind": "normal",
-                "features": [],
-                "uses_default_features": true,
-                "optional": false,
-                "target": null,
-                "tree": "target"
-              },
-              {
-                "name": "syn",
-                "package_key": "syn-3.0.3",
-                "kind": "normal",
-                "features": [
-                  "clone-impls",
-                  "full",
-                  "parsing",
-                  "printing",
-                  "proc-macro",
-                  "visit-mut"
-                ],
-                "uses_default_features": false,
-                "optional": false,
-                "target": null,
-                "tree": "target"
-              }
-            ],
-            "build_dependencies": [],
-            "features": []
-          },
           "blake3-1.8.6": {
             "runtime_dependencies": [
               {
@@ -16533,6 +20017,65 @@
               "std"
             ]
           },
+          "iana-time-zone-0.1.65": {
+            "runtime_dependencies": [],
+            "build_dependencies": [],
+            "features": [
+              "fallback"
+            ]
+          },
+          "inotify-0.11.5": {
+            "runtime_dependencies": [
+              {
+                "name": "bitflags",
+                "package_key": "bitflags-2.13.1",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "inotify_sys",
+                "package_key": "inotify-sys-0.1.8",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": []
+          },
+          "inotify-sys-0.1.8": {
+            "runtime_dependencies": [
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": []
+          },
           "linux-raw-sys-0.12.1": {
             "runtime_dependencies": [],
             "build_dependencies": [],
@@ -16744,6 +20287,89 @@
             ],
             "build_dependencies": [],
             "features": []
+          },
+          "notify-8.2.0": {
+            "runtime_dependencies": [
+              {
+                "name": "inotify",
+                "package_key": "inotify-0.11.5",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": false,
+                "optional": false,
+                "target": "cfg(any(target_os = \"linux\", target_os = \"android\"))",
+                "tree": "target"
+              },
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "log",
+                "package_key": "log-0.4.33",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "mio",
+                "package_key": "mio-1.2.2",
+                "kind": "normal",
+                "features": [
+                  "os-ext"
+                ],
+                "uses_default_features": true,
+                "optional": false,
+                "target": "cfg(any(target_os = \"freebsd\", target_os = \"openbsd\", target_os = \"netbsd\", target_os = \"dragonflybsd\", target_os = \"ios\"))",
+                "tree": "target"
+              },
+              {
+                "name": "mio",
+                "package_key": "mio-1.2.2",
+                "kind": "normal",
+                "features": [
+                  "os-ext"
+                ],
+                "uses_default_features": true,
+                "optional": false,
+                "target": "cfg(any(target_os = \"linux\", target_os = \"android\"))",
+                "tree": "target"
+              },
+              {
+                "name": "notify_types",
+                "package_key": "notify-types-2.1.0",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "walkdir",
+                "package_key": "walkdir-2.5.0",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": [
+              "fsevent-sys",
+              "macos_fsevent"
+            ]
           },
           "ordered-stream-0.2.0": {
             "runtime_dependencies": [
@@ -17778,6 +21404,14 @@
               "std"
             ]
           },
+          "core-foundation-sys-0.8.7": {
+            "runtime_dependencies": [],
+            "build_dependencies": [],
+            "features": [
+              "default",
+              "link"
+            ]
+          },
           "cpufeatures-0.2.17": {
             "runtime_dependencies": [],
             "build_dependencies": [],
@@ -17787,6 +21421,40 @@
             "runtime_dependencies": [],
             "build_dependencies": [],
             "features": []
+          },
+          "fsevent-sys-4.1.0": {
+            "runtime_dependencies": [
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": []
+          },
+          "iana-time-zone-0.1.65": {
+            "runtime_dependencies": [
+              {
+                "name": "core_foundation_sys",
+                "package_key": "core-foundation-sys-0.8.7",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": "cfg(target_vendor = \"apple\")",
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": [
+              "fallback"
+            ]
           },
           "mukae-greeter-0.1.23": {
             "runtime_dependencies": [
@@ -17928,6 +21596,75 @@
             ],
             "build_dependencies": [],
             "features": []
+          },
+          "notify-8.2.0": {
+            "runtime_dependencies": [
+              {
+                "name": "bitflags",
+                "package_key": "bitflags-2.13.1",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": "cfg(target_os = \"macos\")",
+                "tree": "target"
+              },
+              {
+                "name": "fsevent_sys",
+                "package_key": "fsevent-sys-4.1.0",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": true,
+                "target": "cfg(target_os = \"macos\")",
+                "tree": "target"
+              },
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "log",
+                "package_key": "log-0.4.33",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "notify_types",
+                "package_key": "notify-types-2.1.0",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "walkdir",
+                "package_key": "walkdir-2.5.0",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": [
+              "fsevent-sys",
+              "macos_fsevent"
+            ]
           },
           "rustix-0.38.44": {
             "runtime_dependencies": [
@@ -18076,49 +21813,6 @@
               {
                 "name": "syn",
                 "package_key": "syn-2.0.119",
-                "kind": "normal",
-                "features": [
-                  "clone-impls",
-                  "full",
-                  "parsing",
-                  "printing",
-                  "proc-macro",
-                  "visit-mut"
-                ],
-                "uses_default_features": false,
-                "optional": false,
-                "target": null,
-                "tree": "target"
-              }
-            ],
-            "build_dependencies": [],
-            "features": []
-          },
-          "async-trait-0.1.92": {
-            "runtime_dependencies": [
-              {
-                "name": "proc_macro2",
-                "package_key": "proc-macro2-1.0.107",
-                "kind": "normal",
-                "features": [],
-                "uses_default_features": true,
-                "optional": false,
-                "target": null,
-                "tree": "target"
-              },
-              {
-                "name": "quote",
-                "package_key": "quote-1.0.47",
-                "kind": "normal",
-                "features": [],
-                "uses_default_features": true,
-                "optional": false,
-                "target": null,
-                "tree": "target"
-              },
-              {
-                "name": "syn",
-                "package_key": "syn-3.0.3",
                 "kind": "normal",
                 "features": [
                   "clone-impls",
@@ -18450,6 +22144,65 @@
               "std"
             ]
           },
+          "iana-time-zone-0.1.65": {
+            "runtime_dependencies": [],
+            "build_dependencies": [],
+            "features": [
+              "fallback"
+            ]
+          },
+          "inotify-0.11.5": {
+            "runtime_dependencies": [
+              {
+                "name": "bitflags",
+                "package_key": "bitflags-2.13.1",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "inotify_sys",
+                "package_key": "inotify-sys-0.1.8",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": []
+          },
+          "inotify-sys-0.1.8": {
+            "runtime_dependencies": [
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": []
+          },
           "linux-raw-sys-0.12.1": {
             "runtime_dependencies": [],
             "build_dependencies": [],
@@ -18661,6 +22414,89 @@
             ],
             "build_dependencies": [],
             "features": []
+          },
+          "notify-8.2.0": {
+            "runtime_dependencies": [
+              {
+                "name": "inotify",
+                "package_key": "inotify-0.11.5",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": false,
+                "optional": false,
+                "target": "cfg(any(target_os = \"linux\", target_os = \"android\"))",
+                "tree": "target"
+              },
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "log",
+                "package_key": "log-0.4.33",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "mio",
+                "package_key": "mio-1.2.2",
+                "kind": "normal",
+                "features": [
+                  "os-ext"
+                ],
+                "uses_default_features": true,
+                "optional": false,
+                "target": "cfg(any(target_os = \"freebsd\", target_os = \"openbsd\", target_os = \"netbsd\", target_os = \"dragonflybsd\", target_os = \"ios\"))",
+                "tree": "target"
+              },
+              {
+                "name": "mio",
+                "package_key": "mio-1.2.2",
+                "kind": "normal",
+                "features": [
+                  "os-ext"
+                ],
+                "uses_default_features": true,
+                "optional": false,
+                "target": "cfg(any(target_os = \"linux\", target_os = \"android\"))",
+                "tree": "target"
+              },
+              {
+                "name": "notify_types",
+                "package_key": "notify-types-2.1.0",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "walkdir",
+                "package_key": "walkdir-2.5.0",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": [
+              "fsevent-sys",
+              "macos_fsevent"
+            ]
           },
           "ordered-stream-0.2.0": {
             "runtime_dependencies": [
@@ -19714,49 +23550,6 @@
             "build_dependencies": [],
             "features": []
           },
-          "async-trait-0.1.92": {
-            "runtime_dependencies": [
-              {
-                "name": "proc_macro2",
-                "package_key": "proc-macro2-1.0.107",
-                "kind": "normal",
-                "features": [],
-                "uses_default_features": true,
-                "optional": false,
-                "target": null,
-                "tree": "target"
-              },
-              {
-                "name": "quote",
-                "package_key": "quote-1.0.47",
-                "kind": "normal",
-                "features": [],
-                "uses_default_features": true,
-                "optional": false,
-                "target": null,
-                "tree": "target"
-              },
-              {
-                "name": "syn",
-                "package_key": "syn-3.0.3",
-                "kind": "normal",
-                "features": [
-                  "clone-impls",
-                  "full",
-                  "parsing",
-                  "printing",
-                  "proc-macro",
-                  "visit-mut"
-                ],
-                "uses_default_features": false,
-                "optional": false,
-                "target": null,
-                "tree": "target"
-              }
-            ],
-            "build_dependencies": [],
-            "features": []
-          },
           "blake3-1.8.6": {
             "runtime_dependencies": [
               {
@@ -20070,6 +23863,65 @@
               "std"
             ]
           },
+          "iana-time-zone-0.1.65": {
+            "runtime_dependencies": [],
+            "build_dependencies": [],
+            "features": [
+              "fallback"
+            ]
+          },
+          "inotify-0.11.5": {
+            "runtime_dependencies": [
+              {
+                "name": "bitflags",
+                "package_key": "bitflags-2.13.1",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "inotify_sys",
+                "package_key": "inotify-sys-0.1.8",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": []
+          },
+          "inotify-sys-0.1.8": {
+            "runtime_dependencies": [
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": []
+          },
           "linux-raw-sys-0.12.1": {
             "runtime_dependencies": [],
             "build_dependencies": [],
@@ -20281,6 +24133,89 @@
             ],
             "build_dependencies": [],
             "features": []
+          },
+          "notify-8.2.0": {
+            "runtime_dependencies": [
+              {
+                "name": "inotify",
+                "package_key": "inotify-0.11.5",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": false,
+                "optional": false,
+                "target": "cfg(any(target_os = \"linux\", target_os = \"android\"))",
+                "tree": "target"
+              },
+              {
+                "name": "libc",
+                "package_key": "libc-0.2.189",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "log",
+                "package_key": "log-0.4.33",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "mio",
+                "package_key": "mio-1.2.2",
+                "kind": "normal",
+                "features": [
+                  "os-ext"
+                ],
+                "uses_default_features": true,
+                "optional": false,
+                "target": "cfg(any(target_os = \"freebsd\", target_os = \"openbsd\", target_os = \"netbsd\", target_os = \"dragonflybsd\", target_os = \"ios\"))",
+                "tree": "target"
+              },
+              {
+                "name": "mio",
+                "package_key": "mio-1.2.2",
+                "kind": "normal",
+                "features": [
+                  "os-ext"
+                ],
+                "uses_default_features": true,
+                "optional": false,
+                "target": "cfg(any(target_os = \"linux\", target_os = \"android\"))",
+                "tree": "target"
+              },
+              {
+                "name": "notify_types",
+                "package_key": "notify-types-2.1.0",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "walkdir",
+                "package_key": "walkdir-2.5.0",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": false,
+                "target": null,
+                "tree": "target"
+              }
+            ],
+            "build_dependencies": [],
+            "features": [
+              "fsevent-sys",
+              "macos_fsevent"
+            ]
           },
           "ordered-stream-0.2.0": {
             "runtime_dependencies": [
@@ -21245,7 +25180,7 @@
       }
     }
   },
-  "cargo_lock_sha256": "214fe86da3e51d3454e180250df7d55dac6d91b3fe41e52970dde5d33dbf99d3",
+  "cargo_lock_sha256": "8598c6e290323825248420b419073781512e8d5d5f57d01e400cce9bae590670",
   "manifest_sha256": {
     "Cargo.toml": "ca9e734a3dc330832948ec2cfde88ae48879d9cc871b94ef95ed9cffc3c48103",
     "mukae-face/Cargo.toml": "549b7d0878dd664f34e8c1659eab3ecac6406c1cc8d2a4d65f5cb5c08271427a",
@@ -21254,7 +25189,7 @@
     "mukae-host/Cargo.toml": "abf55ec63f96a4b1c12099513cb86f658c3f788a678395110b162864be52da23",
     "mukae-lisp/Cargo.toml": "8b7207c9482b52a233534b5463490da6c8256a304ca801baadd87c4d7e27bdcd",
     "mukae-native/Cargo.toml": "0134450be74a762a62dd07569c969c52141022e4994af0b7ab1eb8c9ec19788f",
-    "mukae-seat/Cargo.toml": "903e911f8c8bbcc1cc3d6fb88b5d7916d74e69bf0a6ccf8571a1662d5858afd7",
+    "mukae-seat/Cargo.toml": "cfb797f55d81c7473a7fa9ac4c0bbeb94413fba6b1b0d40743c15addb35ed81e",
     "mukae-spec/Cargo.toml": "0c0f52e8b224da6259e2cc9f15fd3396c76e38fe3e6fba711ffba8ad1407ff53",
     "mukae/Cargo.toml": "da60d90283819361fad6d948b7ac8acb5ea37185ec71197d471ae71ef7a2af53"
   }
