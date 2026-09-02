@@ -202,6 +202,15 @@ impl DaemonState {
             "session_owner": g(&|f| serde_json::json!(f.session_owner)),
             "last_user": g(&|f| serde_json::json!(f.last_user)),
             "session_path": g(&|f| serde_json::json!(f.session_path)),
+            // ── static catalogs ────────────────────────────────────────
+            // Typed, tested, and until now reachable only from inside the
+            // process. Each is published as the constant it already is, not
+            // re-derived — `coverage` answers "which milestone is this
+            // machine actually running" as a QUERY rather than a doc read,
+            // which is the claim theory/MUKAE.md §8 currently gets wrong
+            // about plo.
+            "coverage": coverage_json(),
+            "drift_keys": drift_keys_json(),
             "uptime_s": self.started.elapsed().as_secs(),
             "version": env!("CARGO_PKG_VERSION"),
         })
@@ -217,6 +226,8 @@ impl DaemonState {
 /// grows a leaf nobody can discover.
 pub const LEAVES: &[&str] = &[
     "attempts",
+    "coverage",
+    "drift_keys",
     "echo",
     "failures",
     "greeter_pid",
@@ -236,6 +247,53 @@ pub const LEAVES: &[&str] = &[
     "version",
     "vt",
 ];
+
+/// The 31-action coverage catalog, as data.
+///
+/// `mukae_spec::coverage::COVERAGE` maps each catalog action to the phase
+/// that makes it live, and `Phase::milestone()` names the M-number. Both
+/// already exist and had no consumer outside the crate; this publishes them
+/// rather than restating them, so the catalog and the answer cannot drift.
+fn coverage_json() -> serde_json::Value {
+    serde_json::Value::Array(
+        mukae_spec::coverage::COVERAGE
+            .iter()
+            .map(|(action, phase)| {
+                serde_json::json!({
+                    "action": action,
+                    "live": phase.is_live(),
+                    "milestone": phase.milestone(),
+                })
+            })
+            .collect(),
+    )
+}
+
+/// The reconciler key catalog, with what a loop may DO to each.
+///
+/// ★ `SessionOpen` is `CloseOnly` — a reconciler may close a session and may
+/// never open one. That asymmetry is the interesting fact here and the reason
+/// this is worth publishing: it tells an agent what is even askable before it
+/// proposes anything.
+///
+/// The live `Gap` is deliberately NOT published. `Gap::is_converged()`
+/// requires `examined > 0` so a blind reconciler cannot report convergence,
+/// and computing a Gap needs a live `SeatEnv` the daemon only holds mid-login
+/// — a snapshot taken outside that window would be a convergence claim made
+/// from no observation, which is the exact hole that type closes.
+fn drift_keys_json() -> serde_json::Value {
+    serde_json::Value::Array(
+        mukae_spec::surface::Key::ALL
+            .iter()
+            .map(|k| {
+                serde_json::json!({
+                    "key": k.path(),
+                    "drivable": format!("{:?}", k.drivable()),
+                })
+            })
+            .collect(),
+    )
+}
 
 impl Introspect for DaemonState {
     fn query(&self, q: &Query) -> QueryResult {
@@ -327,6 +385,31 @@ mod tests {
             .unwrap();
         assert_eq!(owner, serde_json::Value::Null, "owner clears on end");
         assert_eq!(last, serde_json::json!("luis"), "last_user is sticky");
+    }
+
+    /// ★ THE DENOMINATOR IS INSIDE THE ASSERTION. A catalog that quietly
+    /// lost its entries would publish `[]` and every other test here would
+    /// stay green — the surface would answer confidently about nothing. The
+    /// floors are well under today's counts (31 actions, 3 keys) so adding an
+    /// entry never demands an edit here, while losing most of them fails.
+    #[test]
+    fn the_published_catalogs_are_not_empty() {
+        let st = DaemonState::new();
+        let cov = st
+            .query(&Query::field(vec!["coverage".to_string()]))
+            .unwrap();
+        assert!(
+            cov.as_array().is_some_and(|a| a.len() >= 20),
+            "the coverage catalog collapsed: {} entries",
+            cov.as_array().map_or(0, Vec::len)
+        );
+        let keys = st
+            .query(&Query::field(vec!["drift_keys".to_string()]))
+            .unwrap();
+        assert!(
+            keys.as_array().is_some_and(|a| !a.is_empty()),
+            "the drift-key catalog collapsed"
+        );
     }
 
     /// An unknown leaf is a typed refusal, never a null that reads as "no".
