@@ -75,7 +75,17 @@ UI testable on a machine that has no PAM at all.";
 /// the same face, the same routing by `MsgStyle`, the same undifferentiated
 /// failure message, the same published surface. That claim was written when
 /// there were two sources; this is the one that tests it.
-#[cfg(feature = "mukaed")]
+// ★ BOTH predicates, and the pair is the fix. `mukae-seat` and `mukae-host`
+// live in a `[target.'cfg(target_os = "linux")'.dependencies]` table and `mod
+// session` is `#[cfg(target_os = "linux")]`, so on darwin the `mukaed` feature
+// is ON while everything it needs is ABSENT — E0432 on `session` and E0433 on
+// `mukae_seat`. `default = ["mukaed"]` therefore made `cargo check -p
+// mukae-greeter` fail on every non-linux host, which is the host this crate is
+// usually written from and the only host its CI runs on (macos-15).
+//
+// On linux `target_os = "linux"` is true, so `all(...)` is logically identical
+// to the feature alone and nothing about plo's build changes.
+#[cfg(all(target_os = "linux", feature = "mukaed"))]
 fn run_under_mukaed() -> ExitCode {
     use std::os::unix::io::FromRawFd as _;
     use std::sync::Arc;
@@ -129,7 +139,7 @@ fn run_under_mukaed() -> ExitCode {
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
 
-    #[cfg(feature = "mukaed")]
+    #[cfg(all(target_os = "linux", feature = "mukaed"))]
     if args.first().map(String::as_str) == Some("--mukaed") {
         return run_under_mukaed();
     }
