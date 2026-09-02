@@ -43,27 +43,28 @@ kanshou = "0.1"
 # Gating it here makes the default build safe for every consumer while the
 # code stays present and buildable with `--features mcp`.
 #
-# ── ★ THE BUILDER HALF IS FIXED (2026-09-02, substrate 63acf13) ──────────
-# substrate now shares its CARGO_CRATE_NAME fixups between library.nix and
-# library-workspace.nix via lib/build/rust/crate-env-fixups.nix, so rmcp
-# compiles under THIS workspace's builder. Verified by forcing the feature on:
-# the `CARGO_CRATE_NAME not defined` error is gone and rmcp builds.
+# ── ★ BOTH BLOCKERS ARE NOW CLOSED (2026-09-02) ──────────────────────────
+# 1. The BUILDER half: substrate 63acf13 shares its CARGO_CRATE_NAME fixups
+#    between library.nix and library-workspace.nix
+#    (lib/build/rust/crate-env-fixups.nix), so rmcp compiles under the builder
+#    this workspace uses. Verified by forcing the feature on.
+# 2. The OTHER half was NOT a crate2nix defect, and an earlier revision of this
+#    note said it was. It was a plain cfg bug in this crate: `run_under_mukaed`
+#    was gated on the feature alone while its dependencies live in a
+#    `[target.'cfg(target_os = "linux")'.dependencies]` table. The control
+#    settles the mechanism — plain `cargo check -p mukae-greeter` outside nix
+#    failed identically, and `--no-default-features` succeeded. Fixed in
+#    mukae 21e41ba.
 #
-# The feature is still OFF here, because turning it on is blocked on a
-# SEPARATE and PRE-EXISTING defect that has nothing to do with rmcp:
-# `nix build .#mukae-greeter` fails on main, with the feature off, with
+# Measured after both: `cargo check -p mukae-greeter --features mcp` exit 0 and
+# `nix build .#mukae-greeter` green on aarch64-darwin.
 #
-#   error[E0433]: cannot find module or crate `mukae_seat`
+# The feature is STILL off by default here, deliberately. Turning it on changes
+# plo's login binary, and the sequencing that makes that safe is: the NIX repo's
+# substrate pin must already carry 63acf13 (it does — flake.lock, via
+# c81ab4bb), because plo builds mukae with `inputs.substrate.follows`. Flip it
+# as a deliberate step with that checked, not as a side effect.
 #
-# i.e. `mukaed = ["dep:mukae-seat"]` is in `default` but the dependency is not
-# reaching the compile under crate2nix. Measured as a control build with the
-# probe reverted, so it is not a consequence of enabling mcp — enabling mcp
-# merely adds a second error (`unresolved import session`) on top of it.
-# Flipping mcp on before that is fixed would re-run the 2026-08-28 cascade.
-#
-# pending-mukae-mcp: mukae-greeter does not build under crate2nix at all
-# (mukae_seat unresolved with default features); the CARGO_CRATE_NAME half
-# of this marker is CLOSED.
 rmcp = { version = "0.15", features = ["server", "transport-io"], optional = true }
 tokio = { version = "1", features = ["rt", "io-util", "macros", "sync", "time"], optional = true }
 schemars = { version = "1", optional = true }
