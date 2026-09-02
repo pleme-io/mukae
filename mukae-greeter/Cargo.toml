@@ -43,7 +43,27 @@ kanshou = "0.1"
 # Gating it here makes the default build safe for every consumer while the
 # code stays present and buildable with `--features mcp`.
 #
-# pending-mukae-mcp: substrate's library-workspace builder sets no CARGO_CRATE_NAME
+# ── ★ THE BUILDER HALF IS FIXED (2026-09-02, substrate 63acf13) ──────────
+# substrate now shares its CARGO_CRATE_NAME fixups between library.nix and
+# library-workspace.nix via lib/build/rust/crate-env-fixups.nix, so rmcp
+# compiles under THIS workspace's builder. Verified by forcing the feature on:
+# the `CARGO_CRATE_NAME not defined` error is gone and rmcp builds.
+#
+# The feature is still OFF here, because turning it on is blocked on a
+# SEPARATE and PRE-EXISTING defect that has nothing to do with rmcp:
+# `nix build .#mukae-greeter` fails on main, with the feature off, with
+#
+#   error[E0433]: cannot find module or crate `mukae_seat`
+#
+# i.e. `mukaed = ["dep:mukae-seat"]` is in `default` but the dependency is not
+# reaching the compile under crate2nix. Measured as a control build with the
+# probe reverted, so it is not a consequence of enabling mcp — enabling mcp
+# merely adds a second error (`unresolved import session`) on top of it.
+# Flipping mcp on before that is fixed would re-run the 2026-08-28 cascade.
+#
+# pending-mukae-mcp: mukae-greeter does not build under crate2nix at all
+# (mukae_seat unresolved with default features); the CARGO_CRATE_NAME half
+# of this marker is CLOSED.
 rmcp = { version = "0.15", features = ["server", "transport-io"], optional = true }
 tokio = { version = "1", features = ["rt", "io-util", "macros", "sync", "time"], optional = true }
 schemars = { version = "1", optional = true }
