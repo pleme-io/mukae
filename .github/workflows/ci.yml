@@ -9,8 +9,26 @@ on:
   workflow_dispatch: {}
 jobs:
   build:
-    name: build
-    runs-on: macos-15
+    # ★ LINUX FIRST, BECAUSE MUKAE IS A LINUX LOGIN MANAGER.
+    #
+    # This job ran only on `macos-15`, and `cargo test --workspace` there is
+    # RED and always has been: `mukae-seat` is the root daemon and calls
+    # `libc::pipe2`, `mukae_native::logind::create_session` and Linux's
+    # `initgroups` signature — none of which exist on darwin. So the one gate
+    # this repo has could never pass, on the crate that matters most.
+    #
+    # A permanently-red gate stops being read, and this one proved it: the
+    # `mcp` feature sat off for days behind a build error nobody could see
+    # past, and `exposes_no_write_surface` — a SECURITY test — was never once
+    # compiled, so nobody noticed it could not pass either.
+    #
+    # ubuntu is therefore the gate. darwin stays as a SEPARATE job because the
+    # greeter genuinely must keep building there (it is the machine this crate
+    # is usually written from), and it is scoped to the crates that can build
+    # there rather than the whole workspace — a job that lies is worse than no
+    # job.
+    name: build (linux)
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -22,3 +40,19 @@ jobs:
       run: cargo fmt --all -- --check
     - name: cargo test
       run: cargo test --workspace
+
+  darwin:
+    # The face must stay buildable on the operator's own machine. Scoped to
+    # what CAN build here: mukae-seat is Linux-only by nature, and pretending
+    # otherwise is what made the old job permanently red.
+    name: build (darwin, greeter only)
+    runs-on: macos-15
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install Nix
+      uses: DeterminateSystems/nix-installer-action@main
+    - name: cargo fmt
+      run: cargo fmt --all -- --check
+    - name: cargo test
+      run: cargo test -p mukae -p mukae-spec -p mukae-lisp -p mukae-greeter --features mukae-greeter/mcp
