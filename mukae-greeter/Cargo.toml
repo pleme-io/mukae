@@ -107,7 +107,7 @@ mcp = ["dep:rmcp", "dep:tokio", "dep:schemars"]
 # claimed it was -- see the note there. Adding it costs no C library:
 # mukae-seat is Rust over libc syscalls, so the "binary a machine boots
 # carries libc and nothing else" property below is unchanged.
-default = ["mukaed"]
+default = ["mukaed", "mcp"]
 pam = ["dep:mukae-host"]
 # Run as mukaed's face.
 #
