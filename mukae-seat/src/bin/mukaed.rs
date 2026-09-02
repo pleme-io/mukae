@@ -468,7 +468,7 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
     // `load()` cannot fail; a broken file yields the prescribed tier and says
     // so. See config.rs: refusing to start over a yaml typo would leave a
     // machine with no way in that does not involve a second computer.
-    let cfg = mukae_seat::config::load();
+    let (cfg, cfg_source) = mukae_seat::config::load_with_source();
 
     let mut user: Option<String> = None;
     let mut cmd: Vec<std::ffi::OsString> = Vec::new();
@@ -559,7 +559,7 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
         None => eprintln!("mukaed: introspection sidecar did NOT start — the login still works."),
     }
     state.console_claimed("seat0", vt.map(std::num::NonZeroU32::get));
-    state.session_path_resolved(&cfg.session_path_for(None));
+    state.session_path_resolved(&cfg.session_path_for(None), cfg_source);
 
     // ── the greeter path: supervise a face instead of reading stdin ─────
     if let Some(program) = greeter {

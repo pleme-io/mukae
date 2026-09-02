@@ -181,6 +181,65 @@ pub const FIELD_ENV_PREFIX: &str = "MUKAE_OPT_";
 /// info level; a malformed one is reported loudly and the prescribed tier is
 /// used, because the alternative is a machine nobody can log into.
 #[must_use]
+/// WHERE the running configuration came from.
+///
+/// ★ THIS EXISTS BECAUSE THE DAEMON COULD NOT ANSWER IT. `load()` returns a
+/// `MukaeConfig` and nothing else, so "which tier won" was unknowable from
+/// outside — and an introspection surface deliberately refused to publish a
+/// `config_tier` leaf rather than guess one, since a guessed provenance is
+/// indistinguishable from a measured one.
+///
+/// Three arms, because three things genuinely happen and they mean different
+/// things to an operator: no file at all is the NORMAL case, a file that
+/// loaded is the interesting one, and a file that FAILED to load is the one
+/// worth waking up for — the seat still comes up on prescribed defaults, so
+/// nothing else on the machine will ever say the operator's file was ignored.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ConfigSource {
+    /// No config file was discovered. The prescribed tier is a working login.
+    Prescribed,
+    /// A file was discovered and loaded.
+    File,
+    /// A file was discovered and REFUSED; prescribed defaults are in use.
+    FileRejected,
+}
+
+impl ConfigSource {
+    /// A stable name for publishing over an introspection surface.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Prescribed => "prescribed",
+            Self::File => "file",
+            Self::FileRejected => "file-rejected",
+        }
+    }
+}
+
+/// [`load`], plus where the result came from.
+///
+/// `load()` is kept as the ergonomic form for every caller that does not care;
+/// this is the one that lets the daemon publish an honest `config_source`.
+#[must_use]
+pub fn load_with_source() -> (MukaeConfig, ConfigSource) {
+    let Ok(path) = shikumi::ConfigDiscovery::new("mukae")
+        .env_override(DISCOVERY_VAR)
+        .discover()
+    else {
+        return (MukaeConfig::prescribed(), ConfigSource::Prescribed);
+    };
+    match shikumi::ConfigStore::<MukaeConfig>::load(&path, FIELD_ENV_PREFIX) {
+        Ok(store) => (MukaeConfig::clone(&store.get()), ConfigSource::File),
+        Err(e) => {
+            eprintln!(
+                "mukaed: config at {} could not be loaded ({e}) — using prescribed defaults so the seat still comes up",
+                path.display()
+            );
+            (MukaeConfig::prescribed(), ConfigSource::FileRejected)
+        }
+    }
+}
+
 pub fn load() -> MukaeConfig {
     let Ok(path) = shikumi::ConfigDiscovery::new("mukae")
         .env_override(DISCOVERY_VAR)

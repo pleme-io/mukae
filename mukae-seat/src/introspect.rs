@@ -74,6 +74,7 @@ struct Facts {
     session_owner: Option<String>,
     session_open: bool,
     session_path: Option<String>,
+    config_source: Option<String>,
 }
 
 /// The daemon's queryable state.
@@ -142,15 +143,20 @@ impl DaemonState {
 
     /// Record the resolved session PATH.
     ///
-    /// ★ There is deliberately no `config_tier` leaf. `MukaeConfig` keeps no
-    /// record of WHICH shikumi tier won its fold, so the daemon genuinely does
-    /// not know — and a surface whose whole value is being trustworthy must
-    /// not answer a question it cannot answer. Publishing a guessed tier would
-    /// be indistinguishable from a measured one, which is the failure mode
-    /// this file exists to avoid.
-    pub fn session_path_resolved(&self, session_path: &str) {
+    /// ★ `config_source` was ABSENT here until `ConfigSource` existed. The
+    /// daemon genuinely could not tell whether it was running an operator's
+    /// file or prescribed defaults, and a guessed provenance is
+    /// indistinguishable from a measured one — so this surface refused to
+    /// answer rather than guess. The fix was to make the fact knowable
+    /// upstream (config.rs) instead of inventing it here.
+    ///
+    /// `file-rejected` is the arm worth having: the seat still comes up on
+    /// prescribed defaults, so nothing else on the machine ever says the
+    /// operator's config was refused.
+    pub fn session_path_resolved(&self, session_path: &str, source: crate::config::ConfigSource) {
         if let Ok(mut f) = self.facts.lock() {
             f.session_path = Some(session_path.to_owned());
+            f.config_source = Some(source.as_str().to_owned());
         }
     }
 
@@ -202,6 +208,7 @@ impl DaemonState {
             "session_owner": g(&|f| serde_json::json!(f.session_owner)),
             "last_user": g(&|f| serde_json::json!(f.last_user)),
             "session_path": g(&|f| serde_json::json!(f.session_path)),
+            "config_source": g(&|f| serde_json::json!(f.config_source)),
             // ── static catalogs ────────────────────────────────────────
             // Typed, tested, and until now reachable only from inside the
             // process. Each is published as the constant it already is, not
@@ -226,6 +233,7 @@ impl DaemonState {
 /// grows a leaf nobody can discover.
 pub const LEAVES: &[&str] = &[
     "attempts",
+    "config_source",
     "coverage",
     "drift_keys",
     "echo",
@@ -410,6 +418,33 @@ mod tests {
             keys.as_array().is_some_and(|a| !a.is_empty()),
             "the drift-key catalog collapsed"
         );
+    }
+
+    /// The three config provenances stay distinguishable on the wire.
+    ///
+    /// They are published as strings, so two arms rendering the same bytes
+    /// would silently merge "your file is running" with "your file was
+    /// REFUSED and defaults are running" — the one pair an operator most
+    /// needs kept apart, since the seat comes up either way.
+    #[test]
+    fn every_config_source_renders_distinctly() {
+        use crate::config::ConfigSource;
+        let all = [
+            ConfigSource::Prescribed,
+            ConfigSource::File,
+            ConfigSource::FileRejected,
+        ];
+        let names: std::collections::HashSet<_> = all.iter().map(|s| s.as_str()).collect();
+        assert_eq!(names.len(), all.len(), "two ConfigSource arms render alike");
+        for s in all {
+            let st = DaemonState::new();
+            st.session_path_resolved("/bin", s);
+            assert_eq!(
+                st.query(&Query::field(vec!["config_source".to_string()]))
+                    .unwrap(),
+                serde_json::json!(s.as_str()),
+            );
+        }
     }
 
     /// An unknown leaf is a typed refusal, never a null that reads as "no".
