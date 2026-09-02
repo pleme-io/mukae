@@ -7,16 +7,16 @@
         "relative_path": "mukae-seat"
       },
       {
-        "name": "mukae-native",
-        "relative_path": "mukae-native"
+        "name": "mukae",
+        "relative_path": "mukae"
       },
       {
         "name": "mukae-spec",
         "relative_path": "mukae-spec"
       },
       {
-        "name": "mukae",
-        "relative_path": "mukae"
+        "name": "mukae-native",
+        "relative_path": "mukae-native"
       },
       {
         "name": "mukae-face",
@@ -501,6 +501,42 @@
         "preBuild": "export CARGO_CRATE_NAME=awase;"
       }
     },
+    "base64-0.22.1": {
+      "name": "base64",
+      "version": "0.22.1",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/base64/base64-0.22.1.crate",
+        "sha256": "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6",
+        "name_with_ext": "base64-0.22.1.tar.gz"
+      },
+      "features": [
+        "alloc",
+        "default",
+        "std"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "base64",
+        "version": "0.22.1",
+        "edition": "2018",
+        "features": [
+          "alloc",
+          "default",
+          "std"
+        ],
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=base64;"
+      }
+    },
     "base64ct-1.8.3": {
       "name": "base64ct",
       "version": "1.8.3",
@@ -623,16 +659,6 @@
           "uses_default_features": false,
           "optional": false,
           "target": null,
-          "tree": "target"
-        },
-        {
-          "name": "cpufeatures",
-          "package_key": "cpufeatures-0.3.0",
-          "kind": "normal",
-          "features": [],
-          "uses_default_features": true,
-          "optional": false,
-          "target": "cfg(any(target_arch = \"x86\", target_arch = \"x86_64\"))",
           "tree": "target"
         }
       ],
@@ -1389,7 +1415,48 @@
       "links": null,
       "binaries": [],
       "lib_target": null,
-      "runtime_dependencies": [],
+      "runtime_dependencies": [
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "aarch64-linux-android",
+          "tree": "target"
+        },
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"aarch64\", target_os = \"linux\"))",
+          "tree": "target"
+        },
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"aarch64\", target_vendor = \"apple\"))",
+          "tree": "target"
+        },
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"loongarch64\", target_os = \"linux\"))",
+          "tree": "target"
+        }
+      ],
       "build_dependencies": [],
       "crate_renames": {},
       "build_rust_crate_args": {
@@ -1416,7 +1483,48 @@
       "links": null,
       "binaries": [],
       "lib_target": null,
-      "runtime_dependencies": [],
+      "runtime_dependencies": [
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"aarch64\", target_os = \"android\"))",
+          "tree": "target"
+        },
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"aarch64\", target_os = \"linux\"))",
+          "tree": "target"
+        },
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"aarch64\", target_vendor = \"apple\"))",
+          "tree": "target"
+        },
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(all(target_arch = \"loongarch64\", target_os = \"linux\"))",
+          "tree": "target"
+        }
+      ],
       "build_dependencies": [],
       "crate_renames": {},
       "build_rust_crate_args": {
@@ -1715,6 +1823,223 @@
         "preBuild": "export CARGO_CRATE_NAME=ctutils;"
       }
     },
+    "darling-0.23.0": {
+      "name": "darling",
+      "version": "0.23.0",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/darling/darling-0.23.0.crate",
+        "sha256": "25ae13da2f202d56bd7f91c25fba009e7717a1e4a1cc98a76d844b65ae912e9d",
+        "name_with_ext": "darling-0.23.0.tar.gz"
+      },
+      "features": [
+        "default",
+        "suggestions"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "darling_core",
+          "package_key": "darling_core-0.23.0",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "darling_macro",
+          "package_key": "darling_macro-0.23.0",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "host"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "darling",
+        "version": "0.23.0",
+        "edition": "2021",
+        "features": [
+          "default",
+          "suggestions"
+        ],
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=darling;"
+      }
+    },
+    "darling_core-0.23.0": {
+      "name": "darling_core",
+      "version": "0.23.0",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/darling_core/darling_core-0.23.0.crate",
+        "sha256": "9865a50f7c335f53564bb694ef660825eb8610e0a53d3e11bf1b0d3df31e03b0",
+        "name_with_ext": "darling_core-0.23.0.tar.gz"
+      },
+      "features": [
+        "strsim",
+        "suggestions"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "ident_case",
+          "package_key": "ident_case-1.0.1",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "proc_macro2",
+          "package_key": "proc-macro2-1.0.107",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "quote",
+          "package_key": "quote-1.0.47",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "strsim",
+          "package_key": "strsim-0.11.1",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "syn",
+          "package_key": "syn-2.0.119",
+          "kind": "normal",
+          "features": [
+            "extra-traits",
+            "full"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "proc-macro2": [
+          {
+            "version": "1.0.107",
+            "rename": "proc_macro2"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "darling_core",
+        "version": "0.23.0",
+        "edition": "2021",
+        "features": [
+          "strsim",
+          "suggestions"
+        ],
+        "crateRenames": {
+          "proc-macro2": [
+            {
+              "version": "1.0.107",
+              "rename": "proc_macro2"
+            }
+          ]
+        },
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=darling_core;"
+      }
+    },
+    "darling_macro-0.23.0": {
+      "name": "darling_macro",
+      "version": "0.23.0",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/darling_macro/darling_macro-0.23.0.crate",
+        "sha256": "ac3984ec7bd6cfa798e62b4a642426a5be0e68f9401cfc2a01e3fa9ea2fcdb8d",
+        "name_with_ext": "darling_macro-0.23.0.tar.gz"
+      },
+      "features": [],
+      "proc_macro": true,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "darling_core",
+          "package_key": "darling_core-0.23.0",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "quote",
+          "package_key": "quote-1.0.47",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "syn",
+          "package_key": "syn-2.0.119",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "darling_macro",
+        "version": "0.23.0",
+        "edition": "2021",
+        "release": true,
+        "procMacro": true,
+        "preBuild": "export CARGO_CRATE_NAME=darling_macro;"
+      }
+    },
     "digest-0.11.3": {
       "name": "digest",
       "version": "0.11.3",
@@ -1867,6 +2192,33 @@
         },
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=digest;"
+      }
+    },
+    "dyn-clone-1.0.20": {
+      "name": "dyn-clone",
+      "version": "1.0.20",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/dyn-clone/dyn-clone-1.0.20.crate",
+        "sha256": "d0881ea181b1df73ff77ffaaf9c7544ecc11e82fba9b5f27b262a3c73a332555",
+        "name_with_ext": "dyn-clone-1.0.20.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "dyn-clone",
+        "version": "1.0.20",
+        "edition": "2018",
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=dyn_clone;"
       }
     },
     "egaku-0.1.14": {
@@ -2744,6 +3096,296 @@
         "preBuild": "export CARGO_CRATE_NAME=fsevent_sys;"
       }
     },
+    "futures-0.3.34": {
+      "name": "futures",
+      "version": "0.3.34",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/futures/futures-0.3.34.crate",
+        "sha256": "9a31d2a3fbaaeb2af2368bbdd904aa8e812d3c04a1ee10d3171f52d556e5d0a3",
+        "name_with_ext": "futures-0.3.34.tar.gz"
+      },
+      "features": [
+        "alloc",
+        "async-await",
+        "default",
+        "executor",
+        "futures-executor",
+        "std"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "futures_channel",
+          "package_key": "futures-channel-0.3.34",
+          "kind": "normal",
+          "features": [
+            "sink"
+          ],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "futures_core",
+          "package_key": "futures-core-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "futures_executor",
+          "package_key": "futures-executor-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "futures_io",
+          "package_key": "futures-io-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "futures_sink",
+          "package_key": "futures-sink-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "futures_task",
+          "package_key": "futures-task-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "futures_util",
+          "package_key": "futures-util-0.3.34",
+          "kind": "normal",
+          "features": [
+            "sink"
+          ],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "futures-channel": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_channel"
+          }
+        ],
+        "futures-core": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_core"
+          }
+        ],
+        "futures-executor": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_executor"
+          }
+        ],
+        "futures-io": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_io"
+          }
+        ],
+        "futures-sink": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_sink"
+          }
+        ],
+        "futures-task": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_task"
+          }
+        ],
+        "futures-util": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_util"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "futures",
+        "version": "0.3.34",
+        "edition": "2018",
+        "features": [
+          "alloc",
+          "async-await",
+          "default",
+          "executor",
+          "futures-executor",
+          "std"
+        ],
+        "crateRenames": {
+          "futures-channel": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_channel"
+            }
+          ],
+          "futures-core": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_core"
+            }
+          ],
+          "futures-executor": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_executor"
+            }
+          ],
+          "futures-io": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_io"
+            }
+          ],
+          "futures-sink": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_sink"
+            }
+          ],
+          "futures-task": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_task"
+            }
+          ],
+          "futures-util": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_util"
+            }
+          ]
+        },
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=futures;"
+      }
+    },
+    "futures-channel-0.3.34": {
+      "name": "futures-channel",
+      "version": "0.3.34",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/futures-channel/futures-channel-0.3.34.crate",
+        "sha256": "b1f9e3d69d39e4862ffed03ed071a76f9a13ba1d9109d355b0f0aa6b15e393c4",
+        "name_with_ext": "futures-channel-0.3.34.tar.gz"
+      },
+      "features": [
+        "alloc",
+        "futures-sink",
+        "sink",
+        "std"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "futures_core",
+          "package_key": "futures-core-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "futures_sink",
+          "package_key": "futures-sink-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "futures-core": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_core"
+          }
+        ],
+        "futures-sink": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_sink"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "futures-channel",
+        "version": "0.3.34",
+        "edition": "2018",
+        "features": [
+          "alloc",
+          "futures-sink",
+          "sink",
+          "std"
+        ],
+        "crateRenames": {
+          "futures-core": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_core"
+            }
+          ],
+          "futures-sink": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_sink"
+            }
+          ]
+        },
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=futures_channel;"
+      }
+    },
     "futures-core-0.3.34": {
       "name": "futures-core",
       "version": "0.3.34",
@@ -2778,6 +3420,108 @@
         ],
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=futures_core;"
+      }
+    },
+    "futures-executor-0.3.34": {
+      "name": "futures-executor",
+      "version": "0.3.34",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/futures-executor/futures-executor-0.3.34.crate",
+        "sha256": "031b47cf1a3c6cc8bc2fc76cd437f521619387907d469316e7c0bc278f1f5432",
+        "name_with_ext": "futures-executor-0.3.34.tar.gz"
+      },
+      "features": [
+        "std"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "futures_core",
+          "package_key": "futures-core-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "futures_task",
+          "package_key": "futures-task-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "futures_util",
+          "package_key": "futures-util-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "futures-core": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_core"
+          }
+        ],
+        "futures-task": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_task"
+          }
+        ],
+        "futures-util": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_util"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "futures-executor",
+        "version": "0.3.34",
+        "edition": "2018",
+        "features": [
+          "std"
+        ],
+        "crateRenames": {
+          "futures-core": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_core"
+            }
+          ],
+          "futures-task": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_task"
+            }
+          ],
+          "futures-util": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_util"
+            }
+          ]
+        },
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=futures_executor;"
       }
     },
     "futures-io-0.3.34": {
@@ -2942,6 +3686,390 @@
         },
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=futures_lite;"
+      }
+    },
+    "futures-macro-0.3.34": {
+      "name": "futures-macro",
+      "version": "0.3.34",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/futures-macro/futures-macro-0.3.34.crate",
+        "sha256": "9fb9654ba8355388abeb8dcb4fc62f511300867002afc858860463bdd9fe0c44",
+        "name_with_ext": "futures-macro-0.3.34.tar.gz"
+      },
+      "features": [],
+      "proc_macro": true,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "proc_macro2",
+          "package_key": "proc-macro2-1.0.107",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "quote",
+          "package_key": "quote-1.0.47",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "syn",
+          "package_key": "syn-3.0.3",
+          "kind": "normal",
+          "features": [
+            "full"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "proc-macro2": [
+          {
+            "version": "1.0.107",
+            "rename": "proc_macro2"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "futures-macro",
+        "version": "0.3.34",
+        "edition": "2018",
+        "crateRenames": {
+          "proc-macro2": [
+            {
+              "version": "1.0.107",
+              "rename": "proc_macro2"
+            }
+          ]
+        },
+        "release": true,
+        "procMacro": true,
+        "preBuild": "export CARGO_CRATE_NAME=futures_macro;"
+      }
+    },
+    "futures-sink-0.3.34": {
+      "name": "futures-sink",
+      "version": "0.3.34",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/futures-sink/futures-sink-0.3.34.crate",
+        "sha256": "1944426bf7d03f1d14f708785e4b33efd750b36d48a157b836b3efc15ede8e1d",
+        "name_with_ext": "futures-sink-0.3.34.tar.gz"
+      },
+      "features": [
+        "alloc",
+        "default",
+        "std"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "futures-sink",
+        "version": "0.3.34",
+        "edition": "2018",
+        "features": [
+          "alloc",
+          "default",
+          "std"
+        ],
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=futures_sink;"
+      }
+    },
+    "futures-task-0.3.34": {
+      "name": "futures-task",
+      "version": "0.3.34",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/futures-task/futures-task-0.3.34.crate",
+        "sha256": "cd417de3d1d015fc3bfd2b1ea46dfc7bab72ef86f1cc7cc9c78e728b34a6d1fd",
+        "name_with_ext": "futures-task-0.3.34.tar.gz"
+      },
+      "features": [
+        "alloc",
+        "std"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "futures-task",
+        "version": "0.3.34",
+        "edition": "2018",
+        "features": [
+          "alloc",
+          "std"
+        ],
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=futures_task;"
+      }
+    },
+    "futures-util-0.3.34": {
+      "name": "futures-util",
+      "version": "0.3.34",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/futures-util/futures-util-0.3.34.crate",
+        "sha256": "0d50a92467f8ba5dd6e3ee5d4bd04d73ab2e4e1c44474a0674821dfce14b79bc",
+        "name_with_ext": "futures-util-0.3.34.tar.gz"
+      },
+      "features": [
+        "alloc",
+        "async-await",
+        "async-await-macro",
+        "channel",
+        "futures-channel",
+        "futures-io",
+        "futures-macro",
+        "futures-sink",
+        "io",
+        "memchr",
+        "sink",
+        "slab",
+        "std"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "futures_channel",
+          "package_key": "futures-channel-0.3.34",
+          "kind": "normal",
+          "features": [
+            "std"
+          ],
+          "uses_default_features": false,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "futures_core",
+          "package_key": "futures-core-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "futures_io",
+          "package_key": "futures-io-0.3.34",
+          "kind": "normal",
+          "features": [
+            "std"
+          ],
+          "uses_default_features": false,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "futures_macro",
+          "package_key": "futures-macro-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": true,
+          "target": null,
+          "tree": "host"
+        },
+        {
+          "name": "futures_sink",
+          "package_key": "futures-sink-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "futures_task",
+          "package_key": "futures-task-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "memchr",
+          "package_key": "memchr-2.8.3",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "pin_project_lite",
+          "package_key": "pin-project-lite-0.2.17",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "slab",
+          "package_key": "slab-0.4.12",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "futures-channel": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_channel"
+          }
+        ],
+        "futures-core": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_core"
+          }
+        ],
+        "futures-io": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_io"
+          }
+        ],
+        "futures-macro": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_macro"
+          }
+        ],
+        "futures-sink": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_sink"
+          }
+        ],
+        "futures-task": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_task"
+          }
+        ],
+        "pin-project-lite": [
+          {
+            "version": "0.2.17",
+            "rename": "pin_project_lite"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "futures-util",
+        "version": "0.3.34",
+        "edition": "2018",
+        "features": [
+          "alloc",
+          "async-await",
+          "async-await-macro",
+          "channel",
+          "futures-channel",
+          "futures-io",
+          "futures-macro",
+          "futures-sink",
+          "io",
+          "memchr",
+          "sink",
+          "slab",
+          "std"
+        ],
+        "crateRenames": {
+          "futures-channel": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_channel"
+            }
+          ],
+          "futures-core": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_core"
+            }
+          ],
+          "futures-io": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_io"
+            }
+          ],
+          "futures-macro": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_macro"
+            }
+          ],
+          "futures-sink": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_sink"
+            }
+          ],
+          "futures-task": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_task"
+            }
+          ],
+          "pin-project-lite": [
+            {
+              "version": "0.2.17",
+              "rename": "pin_project_lite"
+            }
+          ]
+        },
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=futures_util;"
       }
     },
     "gen-macros-0.1.48": {
@@ -3745,7 +4873,18 @@
       "links": null,
       "binaries": [],
       "lib_target": null,
-      "runtime_dependencies": [],
+      "runtime_dependencies": [
+        {
+          "name": "core_foundation_sys",
+          "package_key": "core-foundation-sys-0.8.7",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(target_vendor = \"apple\")",
+          "tree": "target"
+        }
+      ],
       "build_dependencies": [],
       "crate_renames": {
         "core-foundation-sys": [
@@ -3772,6 +4911,33 @@
         },
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=iana_time_zone;"
+      }
+    },
+    "ident_case-1.0.1": {
+      "name": "ident_case",
+      "version": "1.0.1",
+      "edition": "2015",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/ident_case/ident_case-1.0.1.crate",
+        "sha256": "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39",
+        "name_with_ext": "ident_case-1.0.1.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "ident_case",
+        "version": "1.0.1",
+        "edition": "2015",
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=ident_case;"
       }
     },
     "indexmap-2.14.0": {
@@ -4647,6 +5813,7 @@
       },
       "features": [
         "alloc",
+        "default",
         "std"
       ],
       "proc_macro": false,
@@ -4663,6 +5830,7 @@
         "edition": "2021",
         "features": [
           "alloc",
+          "default",
           "std"
         ],
         "release": true,
@@ -4982,6 +6150,7 @@
       },
       "features": [
         "default",
+        "mcp",
         "mukaed"
       ],
       "proc_macro": false,
@@ -5046,32 +6215,35 @@
           "tree": "target"
         },
         {
-          "name": "mukae_greetd",
-          "package_key": "mukae-greetd-0.1.26",
-          "kind": "normal",
-          "features": [],
-          "uses_default_features": true,
-          "optional": false,
-          "target": "cfg(target_os = \"linux\")",
-          "tree": "target"
-        },
-        {
-          "name": "mukae_seat",
-          "package_key": "mukae-seat-0.1.0",
-          "kind": "normal",
-          "features": [],
-          "uses_default_features": true,
-          "optional": true,
-          "target": "cfg(target_os = \"linux\")",
-          "tree": "target"
-        },
-        {
           "name": "mukae_spec",
           "package_key": "mukae-spec-0.1.26",
           "kind": "normal",
           "features": [],
           "uses_default_features": true,
           "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "rmcp",
+          "package_key": "rmcp-0.15.0",
+          "kind": "normal",
+          "features": [
+            "server",
+            "transport-io"
+          ],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "schemars",
+          "package_key": "schemars-1.2.2",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
           "target": null,
           "tree": "target"
         },
@@ -5094,6 +6266,22 @@
           "features": [],
           "uses_default_features": true,
           "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "tokio",
+          "package_key": "tokio-1.53.1",
+          "kind": "normal",
+          "features": [
+            "io-util",
+            "macros",
+            "rt",
+            "sync",
+            "time"
+          ],
+          "uses_default_features": true,
+          "optional": true,
           "target": null,
           "tree": "target"
         }
@@ -5137,6 +6325,7 @@
         "edition": "2024",
         "features": [
           "default",
+          "mcp",
           "mukaed"
         ],
         "crateRenames": {
@@ -5402,19 +6591,6 @@
           "tree": "target"
         },
         {
-          "name": "zbus",
-          "package_key": "zbus-5.19.0",
-          "kind": "normal",
-          "features": [
-            "blocking-api",
-            "tokio"
-          ],
-          "uses_default_features": false,
-          "optional": false,
-          "target": "cfg(target_os = \"linux\")",
-          "tree": "target"
-        },
-        {
           "name": "zeroize",
           "package_key": "zeroize-1.9.0",
           "kind": "normal",
@@ -5424,16 +6600,6 @@
           "uses_default_features": true,
           "optional": false,
           "target": null,
-          "tree": "target"
-        },
-        {
-          "name": "zvariant",
-          "package_key": "zvariant-5.15.0",
-          "kind": "normal",
-          "features": [],
-          "uses_default_features": true,
-          "optional": false,
-          "target": "cfg(target_os = \"linux\")",
           "tree": "target"
         }
       ],
@@ -5488,8 +6654,28 @@
       },
       "runtime_dependencies": [
         {
+          "name": "kanshou",
+          "package_key": "kanshou-0.1.6",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
           "name": "libc",
           "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "mukae",
+          "package_key": "mukae-0.1.26",
           "kind": "normal",
           "features": [],
           "uses_default_features": true,
@@ -5695,13 +6881,23 @@
       "lib_target": null,
       "runtime_dependencies": [
         {
-          "name": "inotify",
-          "package_key": "inotify-0.11.5",
+          "name": "bitflags",
+          "package_key": "bitflags-2.13.1",
           "kind": "normal",
           "features": [],
-          "uses_default_features": false,
+          "uses_default_features": true,
           "optional": false,
-          "target": "cfg(any(target_os = \"linux\", target_os = \"android\"))",
+          "target": "cfg(target_os = \"macos\")",
+          "tree": "target"
+        },
+        {
+          "name": "fsevent_sys",
+          "package_key": "fsevent-sys-4.1.0",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": "cfg(target_os = \"macos\")",
           "tree": "target"
         },
         {
@@ -5722,30 +6918,6 @@
           "uses_default_features": true,
           "optional": false,
           "target": null,
-          "tree": "target"
-        },
-        {
-          "name": "mio",
-          "package_key": "mio-1.2.2",
-          "kind": "normal",
-          "features": [
-            "os-ext"
-          ],
-          "uses_default_features": true,
-          "optional": false,
-          "target": "cfg(any(target_os = \"freebsd\", target_os = \"openbsd\", target_os = \"netbsd\", target_os = \"dragonflybsd\", target_os = \"ios\"))",
-          "tree": "target"
-        },
-        {
-          "name": "mio",
-          "package_key": "mio-1.2.2",
-          "kind": "normal",
-          "features": [
-            "os-ext"
-          ],
-          "uses_default_features": true,
-          "optional": false,
-          "target": "cfg(any(target_os = \"linux\", target_os = \"android\"))",
           "tree": "target"
         },
         {
@@ -6249,6 +7421,34 @@
         ],
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=password_hash;"
+      }
+    },
+    "pastey-0.2.3": {
+      "name": "pastey",
+      "version": "0.2.3",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/pastey/pastey-0.2.3.crate",
+        "sha256": "2ee67f1008b1ba2321834326597b8e186293b049a023cdef258527550b9935b4",
+        "name_with_ext": "pastey-0.2.3.tar.gz"
+      },
+      "features": [],
+      "proc_macro": true,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "pastey",
+        "version": "0.2.3",
+        "edition": "2018",
+        "release": true,
+        "procMacro": true,
+        "preBuild": "export CARGO_CRATE_NAME=pastey;"
       }
     },
     "pbkdf2-0.13.0": {
@@ -7195,6 +8395,492 @@
         "preBuild": "export CARGO_CRATE_NAME=rand_core;"
       }
     },
+    "ref-cast-1.0.27": {
+      "name": "ref-cast",
+      "version": "1.0.27",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/ref-cast/ref-cast-1.0.27.crate",
+        "sha256": "7e440fb4e4b4147295338efb76001ab9e4efc0e5839df2c47fc5ac2381d365c3",
+        "name_with_ext": "ref-cast-1.0.27.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": "build.rs",
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "ref_cast_impl",
+          "package_key": "ref-cast-impl-1.0.27",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "host"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "ref-cast-impl": [
+          {
+            "version": "1.0.27",
+            "rename": "ref_cast_impl"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "ref-cast",
+        "version": "1.0.27",
+        "edition": "2021",
+        "crateRenames": {
+          "ref-cast-impl": [
+            {
+              "version": "1.0.27",
+              "rename": "ref_cast_impl"
+            }
+          ]
+        },
+        "release": true,
+        "build": "build.rs",
+        "preBuild": "export CARGO_CRATE_NAME=ref_cast;"
+      }
+    },
+    "ref-cast-impl-1.0.27": {
+      "name": "ref-cast-impl",
+      "version": "1.0.27",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/ref-cast-impl/ref-cast-impl-1.0.27.crate",
+        "sha256": "92ecd8964f8453721699a1ed72037b0db49ce2f5a5138486ee89bed6f67cdf3a",
+        "name_with_ext": "ref-cast-impl-1.0.27.tar.gz"
+      },
+      "features": [],
+      "proc_macro": true,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "proc_macro2",
+          "package_key": "proc-macro2-1.0.107",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "quote",
+          "package_key": "quote-1.0.47",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "syn",
+          "package_key": "syn-3.0.3",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "proc-macro2": [
+          {
+            "version": "1.0.107",
+            "rename": "proc_macro2"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "ref-cast-impl",
+        "version": "1.0.27",
+        "edition": "2021",
+        "crateRenames": {
+          "proc-macro2": [
+            {
+              "version": "1.0.107",
+              "rename": "proc_macro2"
+            }
+          ]
+        },
+        "release": true,
+        "procMacro": true,
+        "preBuild": "export CARGO_CRATE_NAME=ref_cast_impl;"
+      }
+    },
+    "rmcp-0.15.0": {
+      "name": "rmcp",
+      "version": "0.15.0",
+      "edition": "2024",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/rmcp/rmcp-0.15.0.crate",
+        "sha256": "1bef41ebc9ebed2c1b1d90203e9d1756091e8a00bbc3107676151f39868ca0ee",
+        "name_with_ext": "rmcp-0.15.0.tar.gz"
+      },
+      "features": [
+        "base64",
+        "default",
+        "macros",
+        "server",
+        "transport-async-rw",
+        "transport-io"
+      ],
+      "proc_macro": false,
+      "build_script": "build.rs",
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "async_trait",
+          "package_key": "async-trait-0.1.92",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "host"
+        },
+        {
+          "name": "base64",
+          "package_key": "base64-0.22.1",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "chrono",
+          "package_key": "chrono-0.4.45",
+          "kind": "normal",
+          "features": [
+            "clock",
+            "oldtime",
+            "serde",
+            "std"
+          ],
+          "uses_default_features": false,
+          "optional": false,
+          "target": "cfg(all(target_family = \"wasm\", target_os = \"unknown\"))",
+          "tree": "target"
+        },
+        {
+          "name": "chrono",
+          "package_key": "chrono-0.4.45",
+          "kind": "normal",
+          "features": [
+            "serde"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": "cfg(not(all(target_family = \"wasm\", target_os = \"unknown\")))",
+          "tree": "target"
+        },
+        {
+          "name": "futures",
+          "package_key": "futures-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "pastey",
+          "package_key": "pastey-0.2.3",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "host"
+        },
+        {
+          "name": "pin_project_lite",
+          "package_key": "pin-project-lite-0.2.17",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "rmcp_macros",
+          "package_key": "rmcp-macros-0.15.0",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "host"
+        },
+        {
+          "name": "schemars",
+          "package_key": "schemars-1.2.2",
+          "kind": "normal",
+          "features": [
+            "chrono04"
+          ],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde",
+          "package_key": "serde-1.0.229",
+          "kind": "normal",
+          "features": [
+            "derive",
+            "rc"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde_json",
+          "package_key": "serde_json-1.0.151",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "thiserror",
+          "package_key": "thiserror-2.0.20",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "tokio",
+          "package_key": "tokio-1.53.1",
+          "kind": "normal",
+          "features": [
+            "macros",
+            "rt",
+            "sync",
+            "time"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "tokio_util",
+          "package_key": "tokio-util-0.7.19",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "tracing",
+          "package_key": "tracing-0.1.44",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "async-trait": [
+          {
+            "version": "0.1.92",
+            "rename": "async_trait"
+          }
+        ],
+        "pin-project-lite": [
+          {
+            "version": "0.2.17",
+            "rename": "pin_project_lite"
+          }
+        ],
+        "rmcp-macros": [
+          {
+            "version": "0.15.0",
+            "rename": "rmcp_macros"
+          }
+        ],
+        "tokio-util": [
+          {
+            "version": "0.7.19",
+            "rename": "tokio_util"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "rmcp",
+        "version": "0.15.0",
+        "edition": "2024",
+        "features": [
+          "base64",
+          "default",
+          "macros",
+          "server",
+          "transport-async-rw",
+          "transport-io"
+        ],
+        "crateRenames": {
+          "async-trait": [
+            {
+              "version": "0.1.92",
+              "rename": "async_trait"
+            }
+          ],
+          "pin-project-lite": [
+            {
+              "version": "0.2.17",
+              "rename": "pin_project_lite"
+            }
+          ],
+          "rmcp-macros": [
+            {
+              "version": "0.15.0",
+              "rename": "rmcp_macros"
+            }
+          ],
+          "tokio-util": [
+            {
+              "version": "0.7.19",
+              "rename": "tokio_util"
+            }
+          ]
+        },
+        "release": true,
+        "build": "build.rs",
+        "preBuild": "export CARGO_CRATE_NAME=rmcp;"
+      }
+    },
+    "rmcp-macros-0.15.0": {
+      "name": "rmcp-macros",
+      "version": "0.15.0",
+      "edition": "2024",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/rmcp-macros/rmcp-macros-0.15.0.crate",
+        "sha256": "0e88ad84b8b6237a934534a62b379a5be6388915663c0cc598ceb9b3292bbbfe",
+        "name_with_ext": "rmcp-macros-0.15.0.tar.gz"
+      },
+      "features": [],
+      "proc_macro": true,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "darling",
+          "package_key": "darling-0.23.0",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "proc_macro2",
+          "package_key": "proc-macro2-1.0.107",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "quote",
+          "package_key": "quote-1.0.47",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde_json",
+          "package_key": "serde_json-1.0.151",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "syn",
+          "package_key": "syn-2.0.119",
+          "kind": "normal",
+          "features": [
+            "full"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "proc-macro2": [
+          {
+            "version": "1.0.107",
+            "rename": "proc_macro2"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "rmcp-macros",
+        "version": "0.15.0",
+        "edition": "2024",
+        "crateRenames": {
+          "proc-macro2": [
+            {
+              "version": "1.0.107",
+              "rename": "proc_macro2"
+            }
+          ]
+        },
+        "release": true,
+        "procMacro": true,
+        "preBuild": "export CARGO_CRATE_NAME=rmcp_macros;"
+      }
+    },
     "rustix-0.38.44": {
       "name": "rustix",
       "version": "0.38.44",
@@ -7277,36 +8963,6 @@
           "optional": false,
           "target": "cfg(all(not(windows), any(rustix_use_libc, miri, not(all(target_os = \"linux\", any(target_endian = \"little\", target_arch = \"s390x\"), any(target_arch = \"arm\", all(target_arch = \"aarch64\", target_pointer_width = \"64\"), target_arch = \"riscv64\", all(rustix_use_experimental_asm, target_arch = \"powerpc64\"), all(rustix_use_experimental_asm, target_arch = \"s390x\"), all(rustix_use_experimental_asm, target_arch = \"mips\"), all(rustix_use_experimental_asm, target_arch = \"mips32r6\"), all(rustix_use_experimental_asm, target_arch = \"mips64\"), all(rustix_use_experimental_asm, target_arch = \"mips64r6\"), target_arch = \"x86\", all(target_arch = \"x86_64\", target_pointer_width = \"64\")))))))",
           "tree": "target"
-        },
-        {
-          "name": "linux_raw_sys",
-          "package_key": "linux-raw-sys-0.4.15",
-          "kind": "normal",
-          "features": [
-            "general",
-            "ioctl",
-            "no_std"
-          ],
-          "uses_default_features": false,
-          "optional": false,
-          "target": "cfg(all(any(target_os = \"android\", target_os = \"linux\"), any(rustix_use_libc, miri, not(all(target_os = \"linux\", any(target_endian = \"little\", target_arch = \"s390x\"), any(target_arch = \"arm\", all(target_arch = \"aarch64\", target_pointer_width = \"64\"), target_arch = \"riscv64\", all(rustix_use_experimental_asm, target_arch = \"powerpc64\"), all(rustix_use_experimental_asm, target_arch = \"s390x\"), all(rustix_use_experimental_asm, target_arch = \"mips\"), all(rustix_use_experimental_asm, target_arch = \"mips32r6\"), all(rustix_use_experimental_asm, target_arch = \"mips64\"), all(rustix_use_experimental_asm, target_arch = \"mips64r6\"), target_arch = \"x86\", all(target_arch = \"x86_64\", target_pointer_width = \"64\")))))))",
-          "tree": "target"
-        },
-        {
-          "name": "linux_raw_sys",
-          "package_key": "linux-raw-sys-0.4.15",
-          "kind": "normal",
-          "features": [
-            "elf",
-            "errno",
-            "general",
-            "ioctl",
-            "no_std"
-          ],
-          "uses_default_features": false,
-          "optional": false,
-          "target": "cfg(all(not(rustix_use_libc), not(miri), target_os = \"linux\", any(target_endian = \"little\", target_arch = \"s390x\"), any(target_arch = \"arm\", all(target_arch = \"aarch64\", target_pointer_width = \"64\"), target_arch = \"riscv64\", all(rustix_use_experimental_asm, target_arch = \"powerpc64\"), all(rustix_use_experimental_asm, target_arch = \"s390x\"), all(rustix_use_experimental_asm, target_arch = \"mips\"), all(rustix_use_experimental_asm, target_arch = \"mips32r6\"), all(rustix_use_experimental_asm, target_arch = \"mips64\"), all(rustix_use_experimental_asm, target_arch = \"mips64r6\"), target_arch = \"x86\", all(target_arch = \"x86_64\", target_pointer_width = \"64\"))))",
-          "tree": "target"
         }
       ],
       "build_dependencies": [],
@@ -7326,10 +8982,6 @@
           }
         ],
         "linux-raw-sys": [
-          {
-            "version": "0.4.15",
-            "rename": "linux_raw_sys"
-          },
           {
             "version": "0.4.15",
             "rename": "linux_raw_sys"
@@ -7363,10 +9015,6 @@
             }
           ],
           "linux-raw-sys": [
-            {
-              "version": "0.4.15",
-              "rename": "linux_raw_sys"
-            },
             {
               "version": "0.4.15",
               "rename": "linux_raw_sys"
@@ -7712,6 +9360,234 @@
         "preBuild": "export CARGO_CRATE_NAME=same_file;"
       }
     },
+    "schemars-1.2.2": {
+      "name": "schemars",
+      "version": "1.2.2",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/schemars/schemars-1.2.2.crate",
+        "sha256": "687274d293b6cdc6e73e0fee520bf2049650090d7164f87672d212a3c530cf4a",
+        "name_with_ext": "schemars-1.2.2.tar.gz"
+      },
+      "features": [
+        "chrono04",
+        "default",
+        "derive",
+        "schemars_derive",
+        "std"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "chrono04",
+          "package_key": "chrono-0.4.45",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": true,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "dyn_clone",
+          "package_key": "dyn-clone-1.0.20",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "ref_cast",
+          "package_key": "ref-cast-1.0.27",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "schemars_derive",
+          "package_key": "schemars_derive-1.2.2",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": null,
+          "tree": "host"
+        },
+        {
+          "name": "serde",
+          "package_key": "serde-1.0.229",
+          "kind": "normal",
+          "features": [
+            "alloc"
+          ],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde_json",
+          "package_key": "serde_json-1.0.151",
+          "kind": "normal",
+          "features": [
+            "alloc"
+          ],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "chrono": [
+          {
+            "version": "0.4.45",
+            "rename": "chrono04"
+          }
+        ],
+        "dyn-clone": [
+          {
+            "version": "1.0.20",
+            "rename": "dyn_clone"
+          }
+        ],
+        "ref-cast": [
+          {
+            "version": "1.0.27",
+            "rename": "ref_cast"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "schemars",
+        "version": "1.2.2",
+        "edition": "2021",
+        "features": [
+          "chrono04",
+          "default",
+          "derive",
+          "schemars_derive",
+          "std"
+        ],
+        "crateRenames": {
+          "chrono": [
+            {
+              "version": "0.4.45",
+              "rename": "chrono04"
+            }
+          ],
+          "dyn-clone": [
+            {
+              "version": "1.0.20",
+              "rename": "dyn_clone"
+            }
+          ],
+          "ref-cast": [
+            {
+              "version": "1.0.27",
+              "rename": "ref_cast"
+            }
+          ]
+        },
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=schemars;"
+      }
+    },
+    "schemars_derive-1.2.2": {
+      "name": "schemars_derive",
+      "version": "1.2.2",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/schemars_derive/schemars_derive-1.2.2.crate",
+        "sha256": "d98c67716b46af2f0b8cf752abc930f6f9aecfbf671ecfb531db8a31dbe4e2ba",
+        "name_with_ext": "schemars_derive-1.2.2.tar.gz"
+      },
+      "features": [],
+      "proc_macro": true,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "proc_macro2",
+          "package_key": "proc-macro2-1.0.107",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "quote",
+          "package_key": "quote-1.0.47",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "serde_derive_internals",
+          "package_key": "serde_derive_internals-0.30.0",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "syn",
+          "package_key": "syn-3.0.3",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "proc-macro2": [
+          {
+            "version": "1.0.107",
+            "rename": "proc_macro2"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "schemars_derive",
+        "version": "1.2.2",
+        "edition": "2021",
+        "crateRenames": {
+          "proc-macro2": [
+            {
+              "version": "1.0.107",
+              "rename": "proc_macro2"
+            }
+          ]
+        },
+        "release": true,
+        "procMacro": true,
+        "preBuild": "export CARGO_CRATE_NAME=schemars_derive;"
+      }
+    },
     "scopeguard-1.2.0": {
       "name": "scopeguard",
       "version": "1.2.0",
@@ -7750,8 +9626,10 @@
         "name_with_ext": "serde-1.0.229.tar.gz"
       },
       "features": [
+        "alloc",
         "default",
         "derive",
+        "rc",
         "serde_derive",
         "std"
       ],
@@ -7791,8 +9669,10 @@
         "version": "1.0.229",
         "edition": "2021",
         "features": [
+          "alloc",
           "default",
           "derive",
+          "rc",
           "serde_derive",
           "std"
         ],
@@ -7813,6 +9693,7 @@
       },
       "features": [
         "alloc",
+        "rc",
         "result",
         "std"
       ],
@@ -7830,6 +9711,7 @@
         "edition": "2021",
         "features": [
           "alloc",
+          "rc",
           "result",
           "std"
         ],
@@ -7927,6 +9809,89 @@
         "preBuild": "export CARGO_CRATE_NAME=serde_derive;"
       }
     },
+    "serde_derive_internals-0.30.0": {
+      "name": "serde_derive_internals",
+      "version": "0.30.0",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/serde_derive_internals/serde_derive_internals-0.30.0.crate",
+        "sha256": "f852137cce035d6a4df67ccce505ff6b3e9fd3a10e3e52b24dc71e650bb1a9bd",
+        "name_with_ext": "serde_derive_internals-0.30.0.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": {
+        "name": "serde_derive_internals",
+        "path": "lib.rs"
+      },
+      "runtime_dependencies": [
+        {
+          "name": "proc_macro2",
+          "package_key": "proc-macro2-1.0.107",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "quote",
+          "package_key": "quote-1.0.47",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "syn",
+          "package_key": "syn-3.0.3",
+          "kind": "normal",
+          "features": [
+            "clone-impls",
+            "derive",
+            "parsing",
+            "printing"
+          ],
+          "uses_default_features": false,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "proc-macro2": [
+          {
+            "version": "1.0.107",
+            "rename": "proc_macro2"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "serde_derive_internals",
+        "version": "0.30.0",
+        "edition": "2021",
+        "crateRenames": {
+          "proc-macro2": [
+            {
+              "version": "1.0.107",
+              "rename": "proc_macro2"
+            }
+          ]
+        },
+        "release": true,
+        "libName": "serde_derive_internals",
+        "libPath": "lib.rs",
+        "preBuild": "export CARGO_CRATE_NAME=serde_derive_internals;"
+      }
+    },
     "serde_json-1.0.151": {
       "name": "serde_json",
       "version": "1.0.151",
@@ -7938,6 +9903,7 @@
         "name_with_ext": "serde_json-1.0.151.tar.gz"
       },
       "features": [
+        "alloc",
         "default",
         "std"
       ],
@@ -7995,6 +9961,7 @@
         "version": "1.0.151",
         "edition": "2021",
         "features": [
+          "alloc",
           "default",
           "std"
         ],
@@ -9075,6 +11042,38 @@
         "preBuild": "export CARGO_CRATE_NAME=signal_hook_registry;"
       }
     },
+    "slab-0.4.12": {
+      "name": "slab",
+      "version": "0.4.12",
+      "edition": "2018",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/slab/slab-0.4.12.crate",
+        "sha256": "0c790de23124f9ab44544d7ac05d60440adc586479ce501c1d6d7da3cd8c9cf5",
+        "name_with_ext": "slab-0.4.12.tar.gz"
+      },
+      "features": [
+        "std"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "slab",
+        "version": "0.4.12",
+        "edition": "2018",
+        "features": [
+          "std"
+        ],
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=slab;"
+      }
+    },
     "smallvec-1.15.2": {
       "name": "smallvec",
       "version": "1.15.2",
@@ -9143,6 +11142,33 @@
         ],
         "release": true,
         "preBuild": "export CARGO_CRATE_NAME=socket2;"
+      }
+    },
+    "strsim-0.11.1": {
+      "name": "strsim",
+      "version": "0.11.1",
+      "edition": "2015",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/strsim/strsim-0.11.1.crate",
+        "sha256": "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f",
+        "name_with_ext": "strsim-0.11.1.tar.gz"
+      },
+      "features": [],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [],
+      "build_dependencies": [],
+      "crate_renames": {},
+      "build_rust_crate_args": {
+        "crateName": "strsim",
+        "version": "0.11.1",
+        "edition": "2015",
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=strsim;"
       }
     },
     "subtle-2.4.1": {
@@ -9919,6 +11945,7 @@
         "bytes",
         "default",
         "fs",
+        "io-std",
         "io-util",
         "libc",
         "macros",
@@ -10076,6 +12103,7 @@
           "bytes",
           "default",
           "fs",
+          "io-std",
           "io-util",
           "libc",
           "macros",
@@ -10190,6 +12218,144 @@
         "release": true,
         "procMacro": true,
         "preBuild": "export CARGO_CRATE_NAME=tokio_macros;"
+      }
+    },
+    "tokio-util-0.7.19": {
+      "name": "tokio-util",
+      "version": "0.7.19",
+      "edition": "2021",
+      "source": {
+        "kind": "registry",
+        "url": "https://static.crates.io/crates/tokio-util/tokio-util-0.7.19.crate",
+        "sha256": "494815d09bf52b5548659851081238f0ca39ff638363907596da739561c62c52",
+        "name_with_ext": "tokio-util-0.7.19.tar.gz"
+      },
+      "features": [
+        "codec",
+        "default",
+        "libc"
+      ],
+      "proc_macro": false,
+      "build_script": null,
+      "links": null,
+      "binaries": [],
+      "lib_target": null,
+      "runtime_dependencies": [
+        {
+          "name": "bytes",
+          "package_key": "bytes-1.12.1",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "futures_core",
+          "package_key": "futures-core-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "futures_sink",
+          "package_key": "futures-sink-0.3.34",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "libc",
+          "package_key": "libc-0.2.189",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": true,
+          "target": "cfg(unix)",
+          "tree": "target"
+        },
+        {
+          "name": "pin_project_lite",
+          "package_key": "pin-project-lite-0.2.17",
+          "kind": "normal",
+          "features": [],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        },
+        {
+          "name": "tokio",
+          "package_key": "tokio-1.53.1",
+          "kind": "normal",
+          "features": [
+            "sync"
+          ],
+          "uses_default_features": true,
+          "optional": false,
+          "target": null,
+          "tree": "target"
+        }
+      ],
+      "build_dependencies": [],
+      "crate_renames": {
+        "futures-core": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_core"
+          }
+        ],
+        "futures-sink": [
+          {
+            "version": "0.3.34",
+            "rename": "futures_sink"
+          }
+        ],
+        "pin-project-lite": [
+          {
+            "version": "0.2.17",
+            "rename": "pin_project_lite"
+          }
+        ]
+      },
+      "build_rust_crate_args": {
+        "crateName": "tokio-util",
+        "version": "0.7.19",
+        "edition": "2021",
+        "features": [
+          "codec",
+          "default",
+          "libc"
+        ],
+        "crateRenames": {
+          "futures-core": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_core"
+            }
+          ],
+          "futures-sink": [
+            {
+              "version": "0.3.34",
+              "rename": "futures_sink"
+            }
+          ],
+          "pin-project-lite": [
+            {
+              "version": "0.2.17",
+              "rename": "pin_project_lite"
+            }
+          ]
+        },
+        "release": true,
+        "preBuild": "export CARGO_CRATE_NAME=tokio_util;"
       }
     },
     "toml-0.8.23": {
@@ -12819,9 +14985,9 @@
   "root_crate": "mukae-seat-0.1.0",
   "workspace_members": [
     "mukae-seat-0.1.0",
-    "mukae-native-0.1.26",
-    "mukae-spec-0.1.26",
     "mukae-0.1.26",
+    "mukae-spec-0.1.26",
+    "mukae-native-0.1.26",
     "mukae-face-0.1.26",
     "mukae-greetd-0.1.26",
     "mukae-greeter-0.1.26",
@@ -12979,6 +15145,15 @@
         ],
         "build_dependencies": [],
         "features": []
+      },
+      "base64-0.22.1": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": [
+          "alloc",
+          "default",
+          "std"
+        ]
       },
       "base64ct-1.8.3": {
         "runtime_dependencies": [],
@@ -13367,6 +15542,133 @@
         "build_dependencies": [],
         "features": []
       },
+      "darling-0.23.0": {
+        "runtime_dependencies": [
+          {
+            "name": "darling_core",
+            "package_key": "darling_core-0.23.0",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "darling_macro",
+            "package_key": "darling_macro-0.23.0",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "host"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "default",
+          "suggestions"
+        ]
+      },
+      "darling_core-0.23.0": {
+        "runtime_dependencies": [
+          {
+            "name": "ident_case",
+            "package_key": "ident_case-1.0.1",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "proc_macro2",
+            "package_key": "proc-macro2-1.0.107",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "quote",
+            "package_key": "quote-1.0.47",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "strsim",
+            "package_key": "strsim-0.11.1",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "syn",
+            "package_key": "syn-2.0.119",
+            "kind": "normal",
+            "features": [
+              "extra-traits",
+              "full"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "strsim",
+          "suggestions"
+        ]
+      },
+      "darling_macro-0.23.0": {
+        "runtime_dependencies": [
+          {
+            "name": "darling_core",
+            "package_key": "darling_core-0.23.0",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "quote",
+            "package_key": "quote-1.0.47",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "syn",
+            "package_key": "syn-2.0.119",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": []
+      },
       "digest-0.11.3": {
         "runtime_dependencies": [
           {
@@ -13425,6 +15727,11 @@
           "alloc",
           "std"
         ]
+      },
+      "dyn-clone-1.0.20": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": []
       },
       "egaku-0.1.14": {
         "runtime_dependencies": [
@@ -13704,6 +16011,348 @@
         "runtime_dependencies": [],
         "build_dependencies": [],
         "features": []
+      },
+      "futures-0.3.34": {
+        "runtime_dependencies": [
+          {
+            "name": "futures_channel",
+            "package_key": "futures-channel-0.3.34",
+            "kind": "normal",
+            "features": [
+              "sink"
+            ],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "futures_core",
+            "package_key": "futures-core-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "futures_executor",
+            "package_key": "futures-executor-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "futures_io",
+            "package_key": "futures-io-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "futures_sink",
+            "package_key": "futures-sink-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "futures_task",
+            "package_key": "futures-task-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "futures_util",
+            "package_key": "futures-util-0.3.34",
+            "kind": "normal",
+            "features": [
+              "sink"
+            ],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "alloc",
+          "async-await",
+          "default",
+          "executor",
+          "futures-executor",
+          "std"
+        ]
+      },
+      "futures-channel-0.3.34": {
+        "runtime_dependencies": [
+          {
+            "name": "futures_core",
+            "package_key": "futures-core-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "futures_sink",
+            "package_key": "futures-sink-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "alloc",
+          "futures-sink",
+          "sink",
+          "std"
+        ]
+      },
+      "futures-core-0.3.34": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": [
+          "alloc",
+          "default",
+          "std"
+        ]
+      },
+      "futures-executor-0.3.34": {
+        "runtime_dependencies": [
+          {
+            "name": "futures_core",
+            "package_key": "futures-core-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "futures_task",
+            "package_key": "futures-task-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "futures_util",
+            "package_key": "futures-util-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "std"
+        ]
+      },
+      "futures-io-0.3.34": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": [
+          "default",
+          "std"
+        ]
+      },
+      "futures-macro-0.3.34": {
+        "runtime_dependencies": [
+          {
+            "name": "proc_macro2",
+            "package_key": "proc-macro2-1.0.107",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "quote",
+            "package_key": "quote-1.0.47",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "syn",
+            "package_key": "syn-3.0.3",
+            "kind": "normal",
+            "features": [
+              "full"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": []
+      },
+      "futures-sink-0.3.34": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": [
+          "alloc",
+          "default",
+          "std"
+        ]
+      },
+      "futures-task-0.3.34": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": [
+          "alloc",
+          "std"
+        ]
+      },
+      "futures-util-0.3.34": {
+        "runtime_dependencies": [
+          {
+            "name": "futures_channel",
+            "package_key": "futures-channel-0.3.34",
+            "kind": "normal",
+            "features": [
+              "std"
+            ],
+            "uses_default_features": false,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "futures_core",
+            "package_key": "futures-core-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "futures_io",
+            "package_key": "futures-io-0.3.34",
+            "kind": "normal",
+            "features": [
+              "std"
+            ],
+            "uses_default_features": false,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "futures_macro",
+            "package_key": "futures-macro-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": true,
+            "target": null,
+            "tree": "host"
+          },
+          {
+            "name": "futures_sink",
+            "package_key": "futures-sink-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "futures_task",
+            "package_key": "futures-task-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "memchr",
+            "package_key": "memchr-2.8.3",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "pin_project_lite",
+            "package_key": "pin-project-lite-0.2.17",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "slab",
+            "package_key": "slab-0.4.12",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "alloc",
+          "async-await",
+          "async-await-macro",
+          "channel",
+          "futures-channel",
+          "futures-io",
+          "futures-macro",
+          "futures-sink",
+          "io",
+          "memchr",
+          "sink",
+          "slab",
+          "std"
+        ]
       },
       "gen-macros-0.1.48": {
         "runtime_dependencies": [
@@ -14117,6 +16766,11 @@
         "build_dependencies": [],
         "features": []
       },
+      "ident_case-1.0.1": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": []
+      },
       "indexmap-2.14.0": {
         "runtime_dependencies": [
           {
@@ -14410,6 +17064,7 @@
         "build_dependencies": [],
         "features": [
           "alloc",
+          "default",
           "std"
         ]
       },
@@ -14642,8 +17297,28 @@
       "mukae-seat-0.1.0": {
         "runtime_dependencies": [
           {
+            "name": "kanshou",
+            "package_key": "kanshou-0.1.6",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
             "name": "libc",
             "package_key": "libc-0.2.189",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "mukae",
+            "package_key": "mukae-0.1.26",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -14900,6 +17575,11 @@
         "features": [
           "getrandom"
         ]
+      },
+      "pastey-0.2.3": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": []
       },
       "pbkdf2-0.13.0": {
         "runtime_dependencies": [
@@ -15356,6 +18036,296 @@
           "std"
         ]
       },
+      "ref-cast-1.0.27": {
+        "runtime_dependencies": [
+          {
+            "name": "ref_cast_impl",
+            "package_key": "ref-cast-impl-1.0.27",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "host"
+          }
+        ],
+        "build_dependencies": [],
+        "features": []
+      },
+      "ref-cast-impl-1.0.27": {
+        "runtime_dependencies": [
+          {
+            "name": "proc_macro2",
+            "package_key": "proc-macro2-1.0.107",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "quote",
+            "package_key": "quote-1.0.47",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "syn",
+            "package_key": "syn-3.0.3",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": []
+      },
+      "rmcp-0.15.0": {
+        "runtime_dependencies": [
+          {
+            "name": "async_trait",
+            "package_key": "async-trait-0.1.92",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "host"
+          },
+          {
+            "name": "base64",
+            "package_key": "base64-0.22.1",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "chrono",
+            "package_key": "chrono-0.4.45",
+            "kind": "normal",
+            "features": [
+              "clock",
+              "oldtime",
+              "serde",
+              "std"
+            ],
+            "uses_default_features": false,
+            "optional": false,
+            "target": "cfg(all(target_family = \"wasm\", target_os = \"unknown\"))",
+            "tree": "target"
+          },
+          {
+            "name": "chrono",
+            "package_key": "chrono-0.4.45",
+            "kind": "normal",
+            "features": [
+              "serde"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": "cfg(not(all(target_family = \"wasm\", target_os = \"unknown\")))",
+            "tree": "target"
+          },
+          {
+            "name": "futures",
+            "package_key": "futures-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "pastey",
+            "package_key": "pastey-0.2.3",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "host"
+          },
+          {
+            "name": "pin_project_lite",
+            "package_key": "pin-project-lite-0.2.17",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "rmcp_macros",
+            "package_key": "rmcp-macros-0.15.0",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "host"
+          },
+          {
+            "name": "schemars",
+            "package_key": "schemars-1.2.2",
+            "kind": "normal",
+            "features": [
+              "chrono04"
+            ],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde",
+            "package_key": "serde-1.0.229",
+            "kind": "normal",
+            "features": [
+              "derive",
+              "rc"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde_json",
+            "package_key": "serde_json-1.0.151",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "thiserror",
+            "package_key": "thiserror-2.0.20",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "tokio",
+            "package_key": "tokio-1.53.1",
+            "kind": "normal",
+            "features": [
+              "macros",
+              "rt",
+              "sync",
+              "time"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "tokio_util",
+            "package_key": "tokio-util-0.7.19",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "tracing",
+            "package_key": "tracing-0.1.44",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "base64",
+          "default",
+          "macros",
+          "server",
+          "transport-async-rw",
+          "transport-io"
+        ]
+      },
+      "rmcp-macros-0.15.0": {
+        "runtime_dependencies": [
+          {
+            "name": "darling",
+            "package_key": "darling-0.23.0",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "proc_macro2",
+            "package_key": "proc-macro2-1.0.107",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "quote",
+            "package_key": "quote-1.0.47",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde_json",
+            "package_key": "serde_json-1.0.151",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "syn",
+            "package_key": "syn-2.0.119",
+            "kind": "normal",
+            "features": [
+              "full"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": []
+      },
       "rustversion-1.0.23": {
         "runtime_dependencies": [],
         "build_dependencies": [],
@@ -15399,6 +18369,128 @@
         "build_dependencies": [],
         "features": []
       },
+      "schemars-1.2.2": {
+        "runtime_dependencies": [
+          {
+            "name": "chrono04",
+            "package_key": "chrono-0.4.45",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "dyn_clone",
+            "package_key": "dyn-clone-1.0.20",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "ref_cast",
+            "package_key": "ref-cast-1.0.27",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "schemars_derive",
+            "package_key": "schemars_derive-1.2.2",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "host"
+          },
+          {
+            "name": "serde",
+            "package_key": "serde-1.0.229",
+            "kind": "normal",
+            "features": [
+              "alloc"
+            ],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde_json",
+            "package_key": "serde_json-1.0.151",
+            "kind": "normal",
+            "features": [
+              "alloc"
+            ],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "chrono04",
+          "default",
+          "derive",
+          "schemars_derive",
+          "std"
+        ]
+      },
+      "schemars_derive-1.2.2": {
+        "runtime_dependencies": [
+          {
+            "name": "proc_macro2",
+            "package_key": "proc-macro2-1.0.107",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "quote",
+            "package_key": "quote-1.0.47",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "serde_derive_internals",
+            "package_key": "serde_derive_internals-0.30.0",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "syn",
+            "package_key": "syn-3.0.3",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": []
+      },
       "scopeguard-1.2.0": {
         "runtime_dependencies": [],
         "build_dependencies": [],
@@ -15431,8 +18523,10 @@
         ],
         "build_dependencies": [],
         "features": [
+          "alloc",
           "default",
           "derive",
+          "rc",
           "serde_derive",
           "std"
         ]
@@ -15442,6 +18536,7 @@
         "build_dependencies": [],
         "features": [
           "alloc",
+          "rc",
           "result",
           "std"
         ]
@@ -15494,6 +18589,47 @@
           "default"
         ]
       },
+      "serde_derive_internals-0.30.0": {
+        "runtime_dependencies": [
+          {
+            "name": "proc_macro2",
+            "package_key": "proc-macro2-1.0.107",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "quote",
+            "package_key": "quote-1.0.47",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "syn",
+            "package_key": "syn-3.0.3",
+            "kind": "normal",
+            "features": [
+              "clone-impls",
+              "derive",
+              "parsing",
+              "printing"
+            ],
+            "uses_default_features": false,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": []
+      },
       "serde_json-1.0.151": {
         "runtime_dependencies": [
           {
@@ -15539,6 +18675,7 @@
         ],
         "build_dependencies": [],
         "features": [
+          "alloc",
           "default",
           "std"
         ]
@@ -16038,6 +19175,13 @@
         "build_dependencies": [],
         "features": []
       },
+      "slab-0.4.12": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": [
+          "std"
+        ]
+      },
       "smallvec-1.15.2": {
         "runtime_dependencies": [],
         "build_dependencies": [],
@@ -16060,6 +19204,11 @@
         "features": [
           "all"
         ]
+      },
+      "strsim-0.11.1": {
+        "runtime_dependencies": [],
+        "build_dependencies": [],
+        "features": []
       },
       "subtle-2.4.1": {
         "runtime_dependencies": [],
@@ -16500,6 +19649,7 @@
           "bytes",
           "default",
           "fs",
+          "io-std",
           "io-util",
           "libc",
           "macros",
@@ -16554,6 +19704,78 @@
         ],
         "build_dependencies": [],
         "features": []
+      },
+      "tokio-util-0.7.19": {
+        "runtime_dependencies": [
+          {
+            "name": "bytes",
+            "package_key": "bytes-1.12.1",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "futures_core",
+            "package_key": "futures-core-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "futures_sink",
+            "package_key": "futures-sink-0.3.34",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "libc",
+            "package_key": "libc-0.2.189",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": "cfg(unix)",
+            "tree": "target"
+          },
+          {
+            "name": "pin_project_lite",
+            "package_key": "pin-project-lite-0.2.17",
+            "kind": "normal",
+            "features": [],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "tokio",
+            "package_key": "tokio-1.53.1",
+            "kind": "normal",
+            "features": [
+              "sync"
+            ],
+            "uses_default_features": true,
+            "optional": false,
+            "target": null,
+            "tree": "target"
+          }
+        ],
+        "build_dependencies": [],
+        "features": [
+          "codec",
+          "default",
+          "libc"
+        ]
       },
       "toml-0.8.23": {
         "runtime_dependencies": [
@@ -17541,6 +20763,29 @@
                 "tree": "target"
               },
               {
+                "name": "rmcp",
+                "package_key": "rmcp-0.15.0",
+                "kind": "normal",
+                "features": [
+                  "server",
+                  "transport-io"
+                ],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "schemars",
+                "package_key": "schemars-1.2.2",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
+              },
+              {
                 "name": "serde",
                 "package_key": "serde-1.0.229",
                 "kind": "normal",
@@ -17561,11 +20806,28 @@
                 "optional": false,
                 "target": null,
                 "tree": "target"
+              },
+              {
+                "name": "tokio",
+                "package_key": "tokio-1.53.1",
+                "kind": "normal",
+                "features": [
+                  "io-util",
+                  "macros",
+                  "rt",
+                  "sync",
+                  "time"
+                ],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
               }
             ],
             "build_dependencies": [],
             "features": [
               "default",
+              "mcp",
               "mukaed"
             ]
           },
@@ -18150,23 +21412,6 @@
               "std"
             ]
           },
-          "futures-core-0.3.34": {
-            "runtime_dependencies": [],
-            "build_dependencies": [],
-            "features": [
-              "alloc",
-              "default",
-              "std"
-            ]
-          },
-          "futures-io-0.3.34": {
-            "runtime_dependencies": [],
-            "build_dependencies": [],
-            "features": [
-              "default",
-              "std"
-            ]
-          },
           "futures-lite-2.6.1": {
             "runtime_dependencies": [
               {
@@ -18408,6 +21653,29 @@
                 "tree": "target"
               },
               {
+                "name": "rmcp",
+                "package_key": "rmcp-0.15.0",
+                "kind": "normal",
+                "features": [
+                  "server",
+                  "transport-io"
+                ],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "schemars",
+                "package_key": "schemars-1.2.2",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
+              },
+              {
                 "name": "serde",
                 "package_key": "serde-1.0.229",
                 "kind": "normal",
@@ -18428,11 +21696,28 @@
                 "optional": false,
                 "target": null,
                 "tree": "target"
+              },
+              {
+                "name": "tokio",
+                "package_key": "tokio-1.53.1",
+                "kind": "normal",
+                "features": [
+                  "io-util",
+                  "macros",
+                  "rt",
+                  "sync",
+                  "time"
+                ],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
               }
             ],
             "build_dependencies": [],
             "features": [
               "default",
+              "mcp",
               "mukaed"
             ]
           },
@@ -19941,23 +23226,6 @@
               "std"
             ]
           },
-          "futures-core-0.3.34": {
-            "runtime_dependencies": [],
-            "build_dependencies": [],
-            "features": [
-              "alloc",
-              "default",
-              "std"
-            ]
-          },
-          "futures-io-0.3.34": {
-            "runtime_dependencies": [],
-            "build_dependencies": [],
-            "features": [
-              "default",
-              "std"
-            ]
-          },
           "futures-lite-2.6.1": {
             "runtime_dependencies": [
               {
@@ -20199,6 +23467,29 @@
                 "tree": "target"
               },
               {
+                "name": "rmcp",
+                "package_key": "rmcp-0.15.0",
+                "kind": "normal",
+                "features": [
+                  "server",
+                  "transport-io"
+                ],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "schemars",
+                "package_key": "schemars-1.2.2",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
+              },
+              {
                 "name": "serde",
                 "package_key": "serde-1.0.229",
                 "kind": "normal",
@@ -20219,11 +23510,28 @@
                 "optional": false,
                 "target": null,
                 "tree": "target"
+              },
+              {
+                "name": "tokio",
+                "package_key": "tokio-1.53.1",
+                "kind": "normal",
+                "features": [
+                  "io-util",
+                  "macros",
+                  "rt",
+                  "sync",
+                  "time"
+                ],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
               }
             ],
             "build_dependencies": [],
             "features": [
               "default",
+              "mcp",
               "mukaed"
             ]
           },
@@ -21531,6 +24839,29 @@
                 "tree": "target"
               },
               {
+                "name": "rmcp",
+                "package_key": "rmcp-0.15.0",
+                "kind": "normal",
+                "features": [
+                  "server",
+                  "transport-io"
+                ],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "schemars",
+                "package_key": "schemars-1.2.2",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
+              },
+              {
                 "name": "serde",
                 "package_key": "serde-1.0.229",
                 "kind": "normal",
@@ -21551,11 +24882,28 @@
                 "optional": false,
                 "target": null,
                 "tree": "target"
+              },
+              {
+                "name": "tokio",
+                "package_key": "tokio-1.53.1",
+                "kind": "normal",
+                "features": [
+                  "io-util",
+                  "macros",
+                  "rt",
+                  "sync",
+                  "time"
+                ],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
               }
             ],
             "build_dependencies": [],
             "features": [
               "default",
+              "mcp",
               "mukaed"
             ]
           },
@@ -22068,23 +25416,6 @@
               "std"
             ]
           },
-          "futures-core-0.3.34": {
-            "runtime_dependencies": [],
-            "build_dependencies": [],
-            "features": [
-              "alloc",
-              "default",
-              "std"
-            ]
-          },
-          "futures-io-0.3.34": {
-            "runtime_dependencies": [],
-            "build_dependencies": [],
-            "features": [
-              "default",
-              "std"
-            ]
-          },
           "futures-lite-2.6.1": {
             "runtime_dependencies": [
               {
@@ -22326,6 +25657,29 @@
                 "tree": "target"
               },
               {
+                "name": "rmcp",
+                "package_key": "rmcp-0.15.0",
+                "kind": "normal",
+                "features": [
+                  "server",
+                  "transport-io"
+                ],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "schemars",
+                "package_key": "schemars-1.2.2",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
+              },
+              {
                 "name": "serde",
                 "package_key": "serde-1.0.229",
                 "kind": "normal",
@@ -22346,11 +25700,28 @@
                 "optional": false,
                 "target": null,
                 "tree": "target"
+              },
+              {
+                "name": "tokio",
+                "package_key": "tokio-1.53.1",
+                "kind": "normal",
+                "features": [
+                  "io-util",
+                  "macros",
+                  "rt",
+                  "sync",
+                  "time"
+                ],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
               }
             ],
             "build_dependencies": [],
             "features": [
               "default",
+              "mcp",
               "mukaed"
             ]
           },
@@ -23787,23 +27158,6 @@
               "std"
             ]
           },
-          "futures-core-0.3.34": {
-            "runtime_dependencies": [],
-            "build_dependencies": [],
-            "features": [
-              "alloc",
-              "default",
-              "std"
-            ]
-          },
-          "futures-io-0.3.34": {
-            "runtime_dependencies": [],
-            "build_dependencies": [],
-            "features": [
-              "default",
-              "std"
-            ]
-          },
           "futures-lite-2.6.1": {
             "runtime_dependencies": [
               {
@@ -24045,6 +27399,29 @@
                 "tree": "target"
               },
               {
+                "name": "rmcp",
+                "package_key": "rmcp-0.15.0",
+                "kind": "normal",
+                "features": [
+                  "server",
+                  "transport-io"
+                ],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
+              },
+              {
+                "name": "schemars",
+                "package_key": "schemars-1.2.2",
+                "kind": "normal",
+                "features": [],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
+              },
+              {
                 "name": "serde",
                 "package_key": "serde-1.0.229",
                 "kind": "normal",
@@ -24065,11 +27442,28 @@
                 "optional": false,
                 "target": null,
                 "tree": "target"
+              },
+              {
+                "name": "tokio",
+                "package_key": "tokio-1.53.1",
+                "kind": "normal",
+                "features": [
+                  "io-util",
+                  "macros",
+                  "rt",
+                  "sync",
+                  "time"
+                ],
+                "uses_default_features": true,
+                "optional": true,
+                "target": null,
+                "tree": "target"
               }
             ],
             "build_dependencies": [],
             "features": [
               "default",
+              "mcp",
               "mukaed"
             ]
           },
@@ -25192,16 +28586,16 @@
       }
     }
   },
-  "cargo_lock_sha256": "0a2fe3a9249b6371dcf687133027b3c021e771aaf28189bf5d93219bff715c0b",
+  "cargo_lock_sha256": "b985b3b488e473c266d568230075211dd5983737057866c382bababe9db4a416",
   "manifest_sha256": {
     "Cargo.toml": "ec0a9d9f1d49f34e5ee255b0201045f328fe35728cbbcd5f17ac8231f097965b",
     "mukae-face/Cargo.toml": "549b7d0878dd664f34e8c1659eab3ecac6406c1cc8d2a4d65f5cb5c08271427a",
     "mukae-greetd/Cargo.toml": "a5d3a3bd16bda1596bd65b484d416d99431c7bf71bc90a720ae972c61ffc4ed5",
-    "mukae-greeter/Cargo.toml": "2a86ecd0c2cadd31821915837757b63060c9a9bd97f2275b726c8cde34beb55a",
+    "mukae-greeter/Cargo.toml": "7b422784abf4376bbe150c7c1caf411dfaf8781c80fff5212b16147ad8c48985",
     "mukae-host/Cargo.toml": "abf55ec63f96a4b1c12099513cb86f658c3f788a678395110b162864be52da23",
     "mukae-lisp/Cargo.toml": "8b7207c9482b52a233534b5463490da6c8256a304ca801baadd87c4d7e27bdcd",
     "mukae-native/Cargo.toml": "0134450be74a762a62dd07569c969c52141022e4994af0b7ab1eb8c9ec19788f",
-    "mukae-seat/Cargo.toml": "cfb797f55d81c7473a7fa9ac4c0bbeb94413fba6b1b0d40743c15addb35ed81e",
+    "mukae-seat/Cargo.toml": "14b53b9aaf52050b30fe69fa3c5d198362a2ca6c860a74c9ce9fda30e757c59e",
     "mukae-spec/Cargo.toml": "0c0f52e8b224da6259e2cc9f15fd3396c76e38fe3e6fba711ffba8ad1407ff53",
     "mukae/Cargo.toml": "da60d90283819361fad6d948b7ac8acb5ea37185ec71197d471ae71ef7a2af53"
   }

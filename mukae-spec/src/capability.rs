@@ -407,10 +407,7 @@ pub fn mint_password_proof<E: crate::env::SeatEnv + ?Sized>(
 /// unchanged is the part that carries the weight — the plaintext never
 /// derives `Debug`, never reaches a face, and never outlives the borrow.
 #[must_use]
-pub fn expose_authtok<'a, E: crate::env::SeatEnv + ?Sized>(
-    _env: &E,
-    p: &'a Passphrase,
-) -> &'a str {
+pub fn expose_authtok<'a, E: crate::env::SeatEnv + ?Sized>(_env: &E, p: &'a Passphrase) -> &'a str {
     p.expose()
 }
 

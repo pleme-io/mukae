@@ -18,6 +18,12 @@ description = "mukae-seat — the login environment with NO libpam. Pure-Rust cr
 [dependencies]
 mukae-spec = { path = "../mukae-spec", version = "0.1.0" }
 mukae-native = { path = "../mukae-native", version = "0.1.0" }
+# The introspection surface reuses `mukae::introspect::LoginFlow` rather than
+# re-deriving one. `mukae` depends only on mukae-spec + kanshou, so this edge
+# is acyclic; mukae-spec was NOT an option, because its two-dependency list is
+# the seal that makes naming `libc` in spec code an E0433.
+mukae = { path = "../mukae", version = "0.1.0" }
+kanshou = "0.1"
 libc = "0.2"
 zeroize = { version = "1", features = ["zeroize_derive"] }
 # The greeter<->daemon seam. Pure Rust; see src/ipc.rs.

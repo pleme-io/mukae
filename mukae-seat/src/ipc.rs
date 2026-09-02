@@ -201,8 +201,42 @@ pub fn serve<E: mukae_spec::env::SeatEnv>(
     env: &mut E,
     h: mukae_spec::ids::PamHandleId,
 ) -> Result<Option<()>, String> {
+    serve_observed(sock, env, h, None)
+}
+
+/// The same conversation, with every step reported to a [`LoginFlow`].
+///
+/// ── ★ WHY THE DAEMON OBSERVES HERE AND NOT IN THE GREETER ────────────────
+/// The greeter already feeds a flow from its own pump, and that flow dies
+/// with the greeter — which is at the exact moment a login succeeds. This
+/// loop is the daemon's copy of the same conversation, and the daemon
+/// outlives every greeter it spawns, so the counters and the last step
+/// survive into the session an operator is actually looking at.
+///
+/// Observation is READ-ONLY and off to one side: the flow is fed, never
+/// consulted. No branch in this function may depend on it, or an
+/// introspection surface would have become part of the authentication path.
+///
+/// `None` keeps the plain [`serve`] free of an observer it does not need,
+/// rather than making every caller invent an unused one.
+///
+/// # Errors
+/// Identical to [`serve`] — this is the same function with a tap on it.
+pub fn serve_observed<E: mukae_spec::env::SeatEnv>(
+    sock: &mut UnixStream,
+    env: &mut E,
+    h: mukae_spec::ids::PamHandleId,
+    flow: Option<&mukae::introspect::LoginFlow>,
+) -> Result<Option<()>, String> {
+    if let Some(f) = flow {
+        f.began();
+    }
     loop {
-        match env.pam_next(h).map_err(|e| format!("{e}"))? {
+        let step = env.pam_next(h).map_err(|e| format!("{e}"))?;
+        if let Some(f) = flow {
+            f.observe(&step);
+        }
+        match step {
             PamStep::Prompt { style, msg } => {
                 send(
                     sock,

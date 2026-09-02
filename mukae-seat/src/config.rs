@@ -192,7 +192,7 @@ pub fn load() -> MukaeConfig {
         // its output, which is the state you want least in a login manager.
         return MukaeConfig::prescribed();
     };
-        // ── ★ THE FIELD-OVERRIDE PREFIX MUST NOT CONTAIN THE DISCOVERY VAR ──
+    // ── ★ THE FIELD-OVERRIDE PREFIX MUST NOT CONTAIN THE DISCOVERY VAR ──
     // `MUKAE_OPT_`, not `MUKAE_`. shikumi's env layer maps `<PREFIX><FIELD>`
     // onto fields, so with the prefix `MUKAE_` the discovery variable
     // `MUKAE_CONFIG` is itself read as a field named `config` -- which does
@@ -228,19 +228,28 @@ mod tests {
         // not first, the store's non-setuid sudo shadows the wrapper and the
         // error blames the installation.
         let cfg = MukaeConfig::prescribed();
-        assert_eq!(cfg.session_path.first().map(String::as_str), Some("/run/wrappers/bin"));
+        assert_eq!(
+            cfg.session_path.first().map(String::as_str),
+            Some("/run/wrappers/bin")
+        );
     }
 
     #[test]
     fn the_prescribed_path_keeps_the_system_profile() {
         let rendered = MukaeConfig::prescribed().session_path_for(Some("luis"));
-        assert!(rendered.contains("/run/current-system/sw/bin"), "{rendered}");
+        assert!(
+            rendered.contains("/run/current-system/sw/bin"),
+            "{rendered}"
+        );
     }
 
     #[test]
     fn the_user_placeholder_is_substituted() {
         let rendered = MukaeConfig::prescribed().session_path_for(Some("gabi"));
-        assert!(rendered.contains("/etc/profiles/per-user/gabi/bin"), "{rendered}");
+        assert!(
+            rendered.contains("/etc/profiles/per-user/gabi/bin"),
+            "{rendered}"
+        );
         assert!(!rendered.contains(USER_PLACEHOLDER), "{rendered}");
     }
 

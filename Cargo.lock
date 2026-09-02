@@ -1036,7 +1036,9 @@ dependencies = [
 name = "mukae-seat"
 version = "0.1.0"
 dependencies = [
+ "kanshou",
  "libc",
+ "mukae",
  "mukae-native",
  "mukae-spec",
  "serde",

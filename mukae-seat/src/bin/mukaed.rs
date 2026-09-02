@@ -194,6 +194,7 @@ fn greeter_login(
     session_cmd: Vec<std::ffi::OsString>,
     vt: Option<std::num::NonZeroU32>,
     cfg: &mukae_seat::config::MukaeConfig,
+    state: &std::sync::Arc<mukae_seat::introspect::DaemonState>,
 ) -> Result<std::process::ExitCode, String> {
     use std::os::unix::io::AsRawFd as _;
 
@@ -210,7 +211,9 @@ fn greeter_login(
         // unit file. The greeter parses fonts, terminal escapes and keyboard
         // input; it is the largest attack surface in a login and the reason
         // the daemon is split in two at all.
-        return Err("the greeter user must not be root — that is the whole point of the split".into());
+        return Err(
+            "the greeter user must not be root — that is the whole point of the split".into(),
+        );
     }
 
     // Created BEFORE the fork so the child can inherit its end. Never a
@@ -223,9 +226,12 @@ fn greeter_login(
     // greeter does not have to guess.
     const GREETER_FD: i32 = 3;
     let mut genv = mukae_spec::env::EnvSet::default();
-    genv.0.insert("MUKAE_SOCK_FD".into(), GREETER_FD.to_string());
     genv.0
-        .insert("PATH".into(), "/run/current-system/sw/bin:/usr/bin:/bin".into());
+        .insert("MUKAE_SOCK_FD".into(), GREETER_FD.to_string());
+    genv.0.insert(
+        "PATH".into(),
+        "/run/current-system/sw/bin:/usr/bin:/bin".into(),
+    );
     // ★ crossterm reads TERM to decide what it may emit. Unset, it takes the
     // most conservative path it has and a face that looks fine under a
     // terminal emulator renders as very little on a bare VT. `linux` is what
@@ -283,16 +289,12 @@ fn greeter_login(
         }
     }
 
-    let gpid = mukae_seat::spawn_inheriting(
-        &gplan,
-        &genv,
-        mukae_spec::ids::Uid(guid),
-        inherit,
-    )
-    .map_err(|e| format!("spawning the greeter: {e}"))?;
+    let gpid = mukae_seat::spawn_inheriting(&gplan, &genv, mukae_spec::ids::Uid(guid), inherit)
+        .map_err(|e| format!("spawning the greeter: {e}"))?;
     drop(theirs);
 
     eprintln!("mukaed: greeter running as {greeter_user} (pid {})", gpid.0);
+    state.greeter_spawned(gpid.0, greeter_user);
 
     // ── the conversation, over our own wire ─────────────────────────────
     let mut env = NativeSeatEnv::new().on_console(console_for(vt));
@@ -302,7 +304,12 @@ fn greeter_login(
         .map_err(|e| format!("starting the transaction: {e}"))?;
 
     let mut sock = mine;
-    let outcome = mukae_seat::ipc::serve(&mut sock, &mut env, h)?;
+    // ★ The daemon's own copy of the conversation. The greeter feeds an
+    // identical flow from its own pump and loses it on SIGTERM — which is the
+    // instant a login SUCCEEDS. This one outlives every greeter it spawns, so
+    // the counters and the last step are still answerable from inside the
+    // session an operator is actually looking at.
+    let outcome = mukae_seat::ipc::serve_observed(&mut sock, &mut env, h, Some(state.flow()))?;
 
     if outcome.is_none() {
         eprintln!("mukaed: login incorrect");
@@ -364,6 +371,13 @@ fn greeter_login(
     }
 
     let uid = env.uid_for_handle(h).map_err(|e| format!("{e}"))?;
+    // Recorded HERE, between a proven authentication and a started session, so
+    // `last_user` is true even when the session start below FAILS — which is
+    // the case an operator most needs to see, and the one where nothing else
+    // on the machine will ever say who it was.
+    if let Some(name) = passwd_name_of_uid(uid.0) {
+        state.authenticated(&name);
+    }
     let proof = env.mint_proof(h, uid).map_err(|e| format!("{e}"))?;
     let seat = SeatId::parse("seat0").map_err(|e| format!("{e}"))?;
     let cap = SeatCapability::mint(proof, seat, h);
@@ -379,34 +393,37 @@ fn greeter_login(
         "mukaed: session opened — pid {} uid {}",
         session.pid.0, session.uid.0
     );
-        // ── ★ SAY WHAT THE SESSION WAS ACTUALLY HANDED ─────────────────────
-        // A session started with no HOME is invisible from the outside: the
-        // login succeeds, the compositor comes up, and every layer reports
-        // healthy while the person gets a machine that is not theirs. That
-        // shipped, and it took reading /proc/<pid>/environ of a live process to
-        // find -- by which point the operator had already been told twice that
-        // their theme and their shell were wrong.
-        //
-        // Keys only, and the value of HOME. No secret reaches this map (PATH,
-        // HOME, USER, LOGNAME, SHELL, XDG_*), but logging keys is enough to see
-        // an absence, and an absence is the whole failure mode here.
-        {
-            let mut keys: Vec<&str> = session.env.0.keys().map(String::as_str).collect();
-            keys.sort_unstable();
+    if let Some(name) = passwd_name_of_uid(session.uid.0) {
+        state.session_started(&name);
+    }
+    // ── ★ SAY WHAT THE SESSION WAS ACTUALLY HANDED ─────────────────────
+    // A session started with no HOME is invisible from the outside: the
+    // login succeeds, the compositor comes up, and every layer reports
+    // healthy while the person gets a machine that is not theirs. That
+    // shipped, and it took reading /proc/<pid>/environ of a live process to
+    // find -- by which point the operator had already been told twice that
+    // their theme and their shell were wrong.
+    //
+    // Keys only, and the value of HOME. No secret reaches this map (PATH,
+    // HOME, USER, LOGNAME, SHELL, XDG_*), but logging keys is enough to see
+    // an absence, and an absence is the whole failure mode here.
+    {
+        let mut keys: Vec<&str> = session.env.0.keys().map(String::as_str).collect();
+        keys.sort_unstable();
+        eprintln!(
+            "mukaed: session environment ({} vars): {}",
+            keys.len(),
+            keys.join(" ")
+        );
+        if !session.env.0.contains_key("HOME") {
             eprintln!(
-                "mukaed: session environment ({} vars): {}",
-                keys.len(),
-                keys.join(" ")
-            );
-            if !session.env.0.contains_key("HOME") {
-                eprintln!(
-                    "mukaed: WARNING — this session has no HOME. Every ~/.config \
+                "mukaed: WARNING — this session has no HOME. Every ~/.config \
                      lookup it makes will miss, so a compositor or terminal will \
                      silently run its built-in defaults instead of the \
                      operator\u{2019}s configuration."
-                );
-            }
+            );
         }
+    }
     let mut status = 0;
     unsafe { libc::waitpid(session.pid.0, &raw mut status, 0) };
     env.pam_close_session(h).map_err(|e| format!("{e}"))?;
@@ -525,10 +542,29 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
         None => None,
     };
 
+    // ── introspection ───────────────────────────────────────────────────
+    //
+    // ★ SPAWNED BEFORE THE CONVERSATION, so a login that fails to even start
+    // is still observable. `spawn_sidecar` is infallible by construction: a
+    // `None` degrades to "no introspection", never to "no login". A login
+    // manager that refuses to seat a person because a diagnostic socket would
+    // not bind is a far worse failure than being unobservable.
+    //
+    // Root has no XDG_RUNTIME_DIR, so kanshou resolves `/tmp/kanshou-0` — the
+    // same directory sentinela already uses, and root-only, which is the
+    // correct posture for a surface that publishes session identity.
+    let state = std::sync::Arc::new(mukae_seat::introspect::DaemonState::new());
+    match kanshou::Server::spawn_sidecar(mukae_seat::introspect::APP, state.clone()) {
+        Some(path) => eprintln!("mukaed: introspection at {}", path.display()),
+        None => eprintln!("mukaed: introspection sidecar did NOT start — the login still works."),
+    }
+    state.console_claimed("seat0", vt.map(std::num::NonZeroU32::get));
+    state.session_path_resolved(&cfg.session_path_for(None));
+
     // ── the greeter path: supervise a face instead of reading stdin ─────
     if let Some(program) = greeter {
         let who = greeter_user.ok_or("--greeter requires --greeter-user")?;
-        return greeter_login(&program, &who, cmd, vt, &cfg);
+        return greeter_login(&program, &who, cmd, vt, &cfg, &state);
     }
 
     let user = user.ok_or("--user is required (or use --greeter)")?;
@@ -676,8 +712,8 @@ fn run(args: &[String]) -> Result<std::process::ExitCode, String> {
 #[cfg(test)]
 mod tests {
     use super::{console_for, session_env_for};
-    use mukae_seat::config::MukaeConfig;
     use mukae_seat::Console;
+    use mukae_seat::config::MukaeConfig;
 
     // ── ★ THE ASYMMETRY THIS FUNCTION EXISTS TO REMOVE ──────────────────
     // Before it, `run` derived the attachment from `vt` and `greeter_login`
@@ -708,10 +744,7 @@ mod tests {
         // is where everything else the session runs comes from.
         let env = session_env_for(unsafe { libc::getuid() }, &MukaeConfig::prescribed());
         let path = env.0.get("PATH").expect("a session must have a PATH");
-        assert!(
-            path.contains("/run/current-system/sw/bin"),
-            "got {path:?}"
-        );
+        assert!(path.contains("/run/current-system/sw/bin"), "got {path:?}");
     }
 
     #[test]

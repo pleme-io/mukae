@@ -103,11 +103,7 @@ pub(crate) struct Prepared {
 ///
 /// # Errors
 /// [`SpawnError::UnknownPrincipal`] when the uid has no passwd entry.
-pub(crate) fn prepare(
-    plan: &SessionPlan,
-    env: &EnvSet,
-    to: Uid,
-) -> Result<Prepared, SpawnError> {
+pub(crate) fn prepare(plan: &SessionPlan, env: &EnvSet, to: Uid) -> Result<Prepared, SpawnError> {
     prepare_inheriting(plan, env, to, Vec::new())
 }
 
@@ -171,9 +167,7 @@ pub(crate) fn prepare_inheriting(
         };
         (
             entry.pw_gid,
-            CString::from_vec_unchecked(
-                std::ffi::CStr::from_ptr(entry.pw_dir).to_bytes().to_vec(),
-            ),
+            CString::from_vec_unchecked(std::ffi::CStr::from_ptr(entry.pw_dir).to_bytes().to_vec()),
             CString::from_vec_unchecked(
                 std::ffi::CStr::from_ptr(entry.pw_name).to_bytes().to_vec(),
             ),
@@ -355,13 +349,7 @@ pub(crate) fn spawn(p: &Prepared) -> Result<ChildPid, SpawnError> {
     // ══ PARENT ══
     unsafe { libc::close(wr) };
     let mut msg = [0u8; 5];
-    let n = unsafe {
-        libc::read(
-            rd,
-            msg.as_mut_ptr().cast::<libc::c_void>(),
-            msg.len(),
-        )
-    };
+    let n = unsafe { libc::read(rd, msg.as_mut_ptr().cast::<libc::c_void>(), msg.len()) };
     unsafe { libc::close(rd) };
 
     // EOF — the write end closed on a successful execve. The ONLY success
@@ -436,7 +424,10 @@ mod tests {
         ];
         // initgroups before setgid before setuid — the two orderings that
         // silently leave privilege behind if inverted.
-        let ig = order.iter().position(|s| *s == DropStep::InitGroups).unwrap();
+        let ig = order
+            .iter()
+            .position(|s| *s == DropStep::InitGroups)
+            .unwrap();
         let sg = order.iter().position(|s| *s == DropStep::Setgid).unwrap();
         let su = order.iter().position(|s| *s == DropStep::Setuid).unwrap();
         assert!(ig < sg, "initgroups needs the privilege setgid gives away");
@@ -531,10 +522,8 @@ mod tests {
         }
 
         let plan_bad = SessionPlan {
-            argv: mukae_spec::session::Argv::new(vec![
-                "/nonexistent/mukae-test-binary".into()
-            ])
-            .unwrap(),
+            argv: mukae_spec::session::Argv::new(vec!["/nonexistent/mukae-test-binary".into()])
+                .unwrap(),
             env: EnvSet::default(),
         };
         let p = prepare(&plan_bad, &EnvSet::default(), Uid(0)).unwrap();
@@ -576,8 +565,14 @@ mod tests {
         }
         // Non-empty, not merely present: HOME= with nothing after it would
         // pass a bare starts_with and break every ~ expansion just the same.
-        let home = seen.iter().find(|kv| kv.starts_with("HOME=")).expect("HOME");
-        assert!(home.len() > "HOME=".len(), "HOME is present but empty: {home:?}");
+        let home = seen
+            .iter()
+            .find(|kv| kv.starts_with("HOME="))
+            .expect("HOME");
+        assert!(
+            home.len() > "HOME=".len(),
+            "HOME is present but empty: {home:?}"
+        );
     }
 
     #[test]

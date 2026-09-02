@@ -43,9 +43,10 @@
 //! * No VT claim. The daemon that owns a console must do that; this
 //!   environment authenticates and spawns.
 
-mod spawn;
 pub mod config;
+pub mod introspect;
 pub mod ipc;
+mod spawn;
 pub mod vt;
 
 use std::collections::HashMap;
@@ -102,7 +103,10 @@ pub enum Console {
     Seatless,
     /// A seat with VTs. The VT number is REQUIRED and must be the one this
     /// session actually occupies; logind refuses 0 here.
-    Vt { seat: String, vtnr: std::num::NonZeroU32 },
+    Vt {
+        seat: String,
+        vtnr: std::num::NonZeroU32,
+    },
 }
 
 /// The production login environment.
@@ -361,8 +365,7 @@ impl SeatEnv for NativeSeatEnv {
             .insert("XDG_RUNTIME_DIR".to_string(), sess.runtime_path.clone());
         t.env.insert("XDG_SESSION_ID".to_string(), sess.id.clone());
         t.env.insert("XDG_SEAT".to_string(), sess.seat.clone());
-        t.env
-            .insert("XDG_VTNR".to_string(), sess.vtnr.to_string());
+        t.env.insert("XDG_VTNR".to_string(), sess.vtnr.to_string());
         t.session = Some(sess);
         Ok(())
     }

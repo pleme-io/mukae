@@ -49,7 +49,14 @@ const APP: &str = "mukae";
 /// Every leaf `mukae::introspect` answers. Hand-maintained for the same
 /// reason as omoya's: kanshou does not dispatch `schema()` over the wire.
 const LEAVES: &[&str] = &[
-    "mode", "may_drive", "attempts", "failures", "successes", "step", "prompt", "echo",
+    "mode",
+    "may_drive",
+    "attempts",
+    "failures",
+    "successes",
+    "step",
+    "prompt",
+    "echo",
 ];
 
 async fn ask(path: Vec<String>) -> String {
@@ -68,6 +75,29 @@ async fn ask(path: Vec<String>) -> String {
             "mukae_pid": pid,
             "query": path.join("/"),
             "value": value,
+        })
+        .to_string(),
+        // ★ A LIVE GREETER THAT REFUSED IS NOT BLINDNESS, AND COLLAPSING THE
+        // TWO COSTS A DIAGNOSIS. `blind` means nobody answered; this arm means
+        // a process answered and said no. Rendering them alike is exactly the
+        // defect omoya fixed on 2026-08-28, when `stale_scan` reported "no live
+        // omoya" against a compositor that was running perfectly and simply did
+        // not know that leaf yet.
+        //
+        // The pid is what makes it actionable: a refusal from a LIVE pid, on a
+        // leaf this binary advertises, means the running greeter is OLDER than
+        // the MCP server asking — a version skew, not an absence. Without the
+        // pid an operator cannot tell those apart and goes looking for a dead
+        // process that is running.
+        kanshou::mcp::ForwardOutcome::LiveError { pid, error } => serde_json::json!({
+            "outcome": "refused",
+            "mukae_pid": pid,
+            "query": path.join("/"),
+            "because": format!("{error:?}"),
+            "legal": LEAVES,
+            "hint": "a live greeter refused this leaf. If the leaf is listed in \
+                     `legal`, the running greeter predates this MCP server — \
+                     compare its build with `mukae --version`.",
         })
         .to_string(),
         _ => serde_json::json!({
@@ -181,7 +211,12 @@ mod tests {
     #[test]
     fn exposes_no_write_surface() {
         let src = include_str!("mcp.rs");
-        for forbidden in ["fn mukae_type", "fn mukae_key", "fn mukae_click", "fn mukae_do"] {
+        for forbidden in [
+            "fn mukae_type",
+            "fn mukae_key",
+            "fn mukae_click",
+            "fn mukae_do",
+        ] {
             assert!(
                 !src.contains(forbidden),
                 "mukae must expose no synthetic-input tool; found `{forbidden}`"
