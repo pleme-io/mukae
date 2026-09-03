@@ -6,7 +6,7 @@ members = [
     "mukae-native", "mukae-greeter", "mukae-host", "mukae-lisp", "mukae-spec"]
 
 [workspace.package]
-version = "0.1.29"
+version = "0.1.30"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/pleme-io/mukae"
