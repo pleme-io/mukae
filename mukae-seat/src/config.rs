@@ -51,6 +51,16 @@ use serde::{Deserialize, Serialize};
 /// from Nix) instead of a template language.
 pub const USER_PLACEHOLDER: &str = "{user}";
 
+/// The placeholder for the authenticated account's home directory.
+///
+/// Sibling to [`USER_PLACEHOLDER`], and needed for the same reason one level
+/// along: two of the six nix profile directories are rooted in `$HOME`, and a
+/// systemd `Environment=` line cannot expand `$HOME` — the unit runs as root,
+/// so even systemd's `%h` specifier resolves to `/root`. The value is only
+/// knowable once PAM has said who logged in, which is precisely where mukaed
+/// stands.
+pub const HOME_PLACEHOLDER: &str = "{home}";
+
 /// mukae's configuration, in shikumi's tier model.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
@@ -75,6 +85,38 @@ pub struct MukaeConfig {
     /// directory that does not exist, and silently searching it would turn a
     /// resolution failure into a mystery.
     pub session_path: Vec<String>,
+
+    /// The session's `XDG_DATA_DIRS`, as ordered entries.
+    ///
+    /// ── ★ WHY A LOGIN MANAGER HAS TO SET THIS AT ALL ─────────────────────
+    /// Because nothing else in the chain can. On NixOS the real value is
+    /// assembled from `environment.profiles` by `/etc/profile`, which a LOGIN
+    /// SHELL sources — and mukaed `execve`s the compositor directly, so the
+    /// session and every child it spawns get whatever the unit's
+    /// `Environment=` says and nothing more. Measured on plo 2026-09-03: the
+    /// live seat's `XDG_DATA_DIRS` was **unset**, while a login shell on the
+    /// same machine resolved six profile directories.
+    ///
+    /// The visible consequence was a launcher with no applications in it.
+    /// `tobira`'s discovery is spec-correct — `$XDG_DATA_HOME/applications`
+    /// plus each `$XDG_DATA_DIRS` entry — so with the variable unset it fell
+    /// back to the freedesktop default (`/usr/local/share:/usr/share`), which
+    /// on NixOS holds nothing. The operator's 24 desktop entries, `mado.desktop`
+    /// among them, sat in `/etc/profiles/per-user/<user>/share/applications`
+    /// and `~/.nix-profile/share/applications` — present, correct, and
+    /// unreachable.
+    ///
+    /// ★ Two of the six entries are per-user, which is why this cannot be a
+    /// constant in the unit file and belongs here: the account is not known
+    /// until PAM has answered. Same argument as [`Self::session_path`], one
+    /// variable along — and the same resolution, so the two cannot drift.
+    ///
+    /// Entries may carry [`USER_PLACEHOLDER`] or [`HOME_PLACEHOLDER`]; an
+    /// entry whose placeholder cannot be resolved is DROPPED rather than
+    /// emitted literally, because a search path containing `{home}` is a
+    /// directory that does not exist and searching it silently would turn a
+    /// resolution failure into a mystery.
+    pub session_data_dirs: Vec<String>,
 }
 
 impl MukaeConfig {
@@ -91,6 +133,7 @@ impl MukaeConfig {
             greeter_user: None,
             vt: None,
             session_path: Vec::new(),
+            session_data_dirs: Vec::new(),
         }
     }
 
@@ -124,7 +167,48 @@ impl MukaeConfig {
                 "/usr/bin".into(),
                 "/bin".into(),
             ],
+            // ★ THE SAME SIX DIRECTORIES `environment.profiles` NAMES, in
+            // NixOS's own order (most specific first), with `/share`
+            // appended per `environment.profileRelativeSessionVariables`.
+            // Transcribed from the live value a login shell resolves rather
+            // than invented, and verified against
+            // `nix eval .#nixosConfigurations.plo.config.environment.profiles`.
+            //
+            // `${XDG_STATE_HOME}/nix/profile` is deliberately ABSENT: NixOS
+            // lists it, but it is a shell-expanded duplicate of the
+            // `{home}/.local/state/nix/profile` entry below whenever
+            // XDG_STATE_HOME is unset (the normal case), and mukaed has no
+            // XDG_STATE_HOME to expand at this point anyway.
+            session_data_dirs: vec![
+                format!("{HOME_PLACEHOLDER}/.nix-profile/share"),
+                format!("{HOME_PLACEHOLDER}/.local/state/nix/profile/share"),
+                format!("/etc/profiles/per-user/{USER_PLACEHOLDER}/share"),
+                "/nix/var/nix/profiles/default/share".into(),
+                "/run/current-system/sw/share".into(),
+            ],
         }
+    }
+
+    /// Render [`Self::session_data_dirs`] for a named account.
+    ///
+    /// Shares [`Self::session_path_for`]'s shape and its drop-on-unresolved
+    /// rule, so the two search paths cannot acquire different semantics.
+    #[must_use]
+    pub fn session_data_dirs_for(&self, user: Option<&str>, home: Option<&str>) -> String {
+        self.session_data_dirs
+            .iter()
+            .filter_map(|entry| {
+                let mut out = entry.clone();
+                if out.contains(USER_PLACEHOLDER) {
+                    out = out.replace(USER_PLACEHOLDER, user?);
+                }
+                if out.contains(HOME_PLACEHOLDER) {
+                    out = out.replace(HOME_PLACEHOLDER, home?);
+                }
+                Some(out)
+            })
+            .collect::<Vec<_>>()
+            .join(":")
     }
 
     /// Render [`Self::session_path`] for a named account.
@@ -300,6 +384,85 @@ mod tests {
             rendered.contains("/run/current-system/sw/bin"),
             "{rendered}"
         );
+    }
+
+    #[test]
+    fn the_prescribed_data_dirs_reach_the_per_user_profile() {
+        // ★ THE WHOLE POINT, and the row that was missing: `mado.desktop` and
+        // 14 of the operator's other entries live in
+        // /etc/profiles/per-user/<user>/share/applications. A search path that
+        // omits it is a launcher with nothing in it, which is exactly what plo
+        // had — the entries were present and correct, and unreachable.
+        let d = MukaeConfig::prescribed().session_data_dirs_for(Some("luis"), Some("/home/luis"));
+        assert!(
+            d.contains("/etc/profiles/per-user/luis/share"),
+            "the per-user profile must be searched: {d}"
+        );
+        assert!(
+            d.contains("/home/luis/.nix-profile/share"),
+            "the home profile must be searched: {d}"
+        );
+        assert!(
+            d.contains("/run/current-system/sw/share"),
+            "the system profile must be searched: {d}"
+        );
+        assert!(
+            !d.contains('{'),
+            "no placeholder may survive into the value: {d}"
+        );
+        // Order is load-bearing the same way PATH's is: freedesktop resolves
+        // a duplicate id from the FIRST directory that holds it, so the
+        // per-user profile must precede the system one or a user's override
+        // of a system entry silently loses.
+        let per_user = d.find("/etc/profiles/per-user").unwrap();
+        let system = d.find("/run/current-system").unwrap();
+        assert!(
+            per_user < system,
+            "per-user must precede system so an override wins: {d}"
+        );
+    }
+
+    #[test]
+    fn an_unresolvable_placeholder_drops_its_entry_rather_than_emitting_it() {
+        // A search path containing a literal `{home}` names a directory that
+        // does not exist; searching it silently would turn a resolution
+        // failure into a mystery. Same rule as `session_path_for`.
+        let cfg = MukaeConfig::prescribed();
+        let no_user = cfg.session_data_dirs_for(None, Some("/home/luis"));
+        assert!(!no_user.contains("per-user"), "got {no_user}");
+        assert!(!no_user.contains('{'), "got {no_user}");
+        let no_home = cfg.session_data_dirs_for(Some("luis"), None);
+        assert!(!no_home.contains(".nix-profile"), "got {no_home}");
+        assert!(!no_home.contains('{'), "got {no_home}");
+        // ...but the account-independent entries survive both, so a failed
+        // lookup degrades to a usable seat rather than an empty search path.
+        assert!(no_user.contains("/run/current-system/sw/share"));
+        assert!(no_home.contains("/run/current-system/sw/share"));
+    }
+
+    #[test]
+    fn the_bare_tier_sets_no_data_dirs_and_that_is_a_choice() {
+        // The bare tier deliberately emits nothing, so `mukaed` inserts no
+        // XDG_DATA_DIRS at all rather than an empty one — an empty value is
+        // NOT the same as unset to freedesktop consumers, which fall back to
+        // the spec default only when the variable is absent.
+        assert_eq!(
+            MukaeConfig::bare().session_data_dirs_for(Some("luis"), Some("/home/luis")),
+            ""
+        );
+    }
+
+    #[test]
+    fn the_two_search_paths_resolve_the_same_account() {
+        // PATH and XDG_DATA_DIRS both carry a per-user entry, and they are
+        // rendered by two functions. If those ever disagreed about whose
+        // session this is, the symptom would be a seat that can run a binary
+        // it cannot find the launcher entry for.
+        let cfg = MukaeConfig::prescribed();
+        let p = cfg.session_path_for(Some("luis"));
+        let d = cfg.session_data_dirs_for(Some("luis"), Some("/home/luis"));
+        assert!(p.contains("/etc/profiles/per-user/luis/bin"));
+        assert!(d.contains("/etc/profiles/per-user/luis/share"));
     }
 
     #[test]

@@ -81,6 +81,22 @@ fn main() -> std::process::ExitCode {
 /// while assembling policy, and it is a lookup rather than a second source
 /// of truth: nothing here is exported.
 fn passwd_name_of_uid(uid: u32) -> Option<String> {
+    // Delegates: `passwd_of_uid` is the one lookup. This was a second copy of
+    // the same `getpwuid_r` dance, and two copies of one question is the shape
+    // this file refuses everywhere else.
+    passwd_of_uid(uid).map(|(name, _)| name)
+}
+
+/// The passwd name AND home directory for a uid, from ONE lookup.
+///
+/// ★ ONE CALL, TWO FIELDS, deliberately. `XDG_DATA_DIRS` needs both the login
+/// name and the home directory, and taking them from two `getpwuid_r` calls
+/// would be two answers to one question — the shape this file already refuses
+/// for HOME/USER/SHELL a few lines down. A record that has a name but a null
+/// `pw_dir` yields `None` for the home half rather than an empty string,
+/// because an empty home would render `/.nix-profile/share` — a real path,
+/// belonging to nobody.
+fn passwd_of_uid(uid: u32) -> Option<(String, Option<String>)> {
     let mut entry = unsafe { std::mem::zeroed::<libc::passwd>() };
     let mut buf = vec![0i8; 4096];
     let mut out = std::ptr::null_mut::<libc::passwd>();
@@ -96,11 +112,18 @@ fn passwd_name_of_uid(uid: u32) -> Option<String> {
     if rc != 0 || out.is_null() || entry.pw_name.is_null() {
         return None;
     }
-    Some(
-        unsafe { std::ffi::CStr::from_ptr(entry.pw_name) }
+    let name = unsafe { std::ffi::CStr::from_ptr(entry.pw_name) }
+        .to_string_lossy()
+        .into_owned();
+    let home = if entry.pw_dir.is_null() {
+        None
+    } else {
+        let h = unsafe { std::ffi::CStr::from_ptr(entry.pw_dir) }
             .to_string_lossy()
-            .into_owned(),
-    )
+            .into_owned();
+        if h.is_empty() { None } else { Some(h) }
+    };
+    Some((name, home))
 }
 
 /// The environment mukaed CONTRIBUTES to a session.
@@ -146,10 +169,36 @@ fn session_env_for(uid: u32, cfg: &mukae_seat::config::MukaeConfig) -> mukae_spe
     // block used to build -- see `config::tests`, which pin the wrappers-first
     // ordering that made the difference between a working sudo and an error
     // blaming the installation.
-    env.0.insert(
-        "PATH".into(),
-        cfg.session_path_for(passwd_name_of_uid(uid).as_deref()),
-    );
+    // ★ ONE resolution feeding BOTH search paths, so PATH and XDG_DATA_DIRS
+    // cannot end up describing different accounts.
+    let (user, home) = match passwd_of_uid(uid) {
+        Some((u, h)) => (Some(u), h),
+        None => (None, None),
+    };
+    env.0
+        .insert("PATH".into(), cfg.session_path_for(user.as_deref()));
+
+    // ── ★ XDG_DATA_DIRS, AND WHY A LOGIN MANAGER OWNS IT ─────────────────
+    //
+    // Nothing else in the chain can. On NixOS the value is assembled from
+    // `environment.profiles` by `/etc/profile`, which a LOGIN SHELL sources —
+    // and mukaed `execve`s the session command directly, so the session and
+    // every child it spawns get the unit's `Environment=` and nothing more.
+    // Measured on plo 2026-09-03: the live seat had **no** XDG_DATA_DIRS while
+    // a login shell on the same machine resolved six profile directories.
+    //
+    // The visible symptom was a launcher with nothing in it. `tobira`'s
+    // discovery is spec-correct, so with the variable unset it used the
+    // freedesktop default `/usr/local/share:/usr/share` — which on NixOS holds
+    // nothing — while 24 real entries, `mado.desktop` among them, sat in the
+    // per-user and home profiles. Present, correct, unreachable.
+    //
+    // It cannot live in the unit file: two of the six directories name the
+    // account, which is not known until PAM has answered. Here it is.
+    let data_dirs = cfg.session_data_dirs_for(user.as_deref(), home.as_deref());
+    if !data_dirs.is_empty() {
+        env.0.insert("XDG_DATA_DIRS".into(), data_dirs);
+    }
     // Not a class the session can choose: mukaed only ever starts one after
     // authenticating a person. XDG_SESSION_TYPE is deliberately NOT set --
     // mukaed cannot know whether the command it is about to exec is graphical,
