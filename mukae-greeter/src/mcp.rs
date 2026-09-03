@@ -251,6 +251,7 @@ const DAEMON_LEAVES: &[&str] = &[
     "seat",
     "session_open",
     "session_owner",
+    "session_data_dirs",
     "session_path",
     "step",
     "successes",

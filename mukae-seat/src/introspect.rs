@@ -74,6 +74,14 @@ struct Facts {
     session_owner: Option<String>,
     session_open: bool,
     session_path: Option<String>,
+    /// The session's `XDG_DATA_DIRS`, as resolved.
+    ///
+    /// ★ PUBLISHED FOR THE SAME REASON `session_path` IS: it is a fact the
+    /// daemon decides and nothing downstream can report back. When it was
+    /// absent the symptom was a launcher with nothing in it, and the only way
+    /// to see the cause was reading `/proc/<compositor>/environ` as root.
+    /// Now it is a query.
+    session_data_dirs: Option<String>,
     config_source: Option<String>,
 }
 
@@ -160,6 +168,18 @@ impl DaemonState {
         }
     }
 
+    /// Record the resolved `XDG_DATA_DIRS`.
+    ///
+    /// Separate from [`Self::session_path_resolved`] rather than folded into
+    /// it: the two are resolved at different moments (this one needs the
+    /// authenticated account), and one setter taking both would invite a
+    /// caller to pass a stale half.
+    pub fn session_data_dirs_resolved(&self, dirs: &str) {
+        if let Ok(mut f) = self.facts.lock() {
+            f.session_data_dirs = Some(dirs.to_owned());
+        }
+    }
+
     /// Record a successful authentication. Sticky — `last_user` outlives the
     /// session so the daemon can still answer after everything else is gone.
     pub fn authenticated(&self, user: &str) {
@@ -208,6 +228,7 @@ impl DaemonState {
             "session_owner": g(&|f| serde_json::json!(f.session_owner)),
             "last_user": g(&|f| serde_json::json!(f.last_user)),
             "session_path": g(&|f| serde_json::json!(f.session_path)),
+            "session_data_dirs": g(&|f| serde_json::json!(f.session_data_dirs)),
             "config_source": g(&|f| serde_json::json!(f.config_source)),
             // ── static catalogs ────────────────────────────────────────
             // Typed, tested, and until now reachable only from inside the
@@ -249,6 +270,7 @@ pub const LEAVES: &[&str] = &[
     "session_open",
     "session_owner",
     "session_path",
+    "session_data_dirs",
     "step",
     "successes",
     "uptime_s",
@@ -455,5 +477,63 @@ mod tests {
             st.query(&Query::field(vec!["nonsense".to_string()]))
                 .is_err()
         );
+    }
+
+    // ── The snapshot ↔ LEAVES tie, BOTH directions ──────────────────────
+
+    #[test]
+    fn every_leaf_the_catalog_advertises_is_actually_answered() {
+        // ★ THE HALF-WIRING GATE. `snapshot_json` is built by hand and
+        // `LEAVES` is a hand list, so a leaf can be added to one and not the
+        // other — and the failure is silent in the direction that matters: an
+        // agent asks for an advertised leaf and gets nothing back. Adding
+        // `session_data_dirs` is exactly the change that could have done it,
+        // and this file had NEITHER direction gated before now.
+        let st = DaemonState::default();
+        let snap = st.snapshot_json();
+        let obj = snap.as_object().expect("the snapshot is an object");
+        for leaf in LEAVES {
+            assert!(
+                obj.contains_key(*leaf),
+                "LEAVES advertises `{leaf}` but the snapshot does not carry it"
+            );
+        }
+    }
+
+    #[test]
+    fn every_leaf_the_snapshot_carries_is_advertised() {
+        // The other direction, which fails softer but still wrongly: a leaf
+        // that exists and is undiscoverable is one nobody will ever read.
+        let st = DaemonState::default();
+        let snap = st.snapshot_json();
+        let obj = snap.as_object().expect("the snapshot is an object");
+        for key in obj.keys() {
+            assert!(
+                LEAVES.contains(&key.as_str()),
+                "the snapshot carries `{key}` but LEAVES does not advertise it"
+            );
+        }
+    }
+
+    #[test]
+    fn the_leaf_catalog_is_not_empty() {
+        // Anti-vacuity: both ties above pass trivially over an empty list, so
+        // the denominator is asserted rather than assumed.
+        assert!(
+            LEAVES.len() >= 20,
+            "the daemon catalog collapsed to {} leaves",
+            LEAVES.len()
+        );
+    }
+
+    #[test]
+    fn the_resolved_data_dirs_are_readable_once_set() {
+        let st = DaemonState::default();
+        // Absent before a session — null, not an empty string, because
+        // "nobody has logged in yet" and "the search path is empty" are
+        // different answers and an agent must be able to tell them apart.
+        assert!(st.snapshot_json()["session_data_dirs"].is_null());
+        st.session_data_dirs_resolved("/a/share:/b/share");
+        assert_eq!(st.snapshot_json()["session_data_dirs"], "/a/share:/b/share");
     }
 }

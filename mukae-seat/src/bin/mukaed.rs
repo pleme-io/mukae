@@ -431,9 +431,17 @@ fn greeter_login(
     let seat = SeatId::parse("seat0").map_err(|e| format!("{e}"))?;
     let cap = SeatCapability::mint(proof, seat, h);
 
+    let session_environment = session_env_for(uid.0, cfg);
+    // ★ PUBLISHED BY READING BACK WHAT THE SESSION ACTUALLY GOT, never by
+    // re-deriving it. A leaf that recomputes its own answer can agree with
+    // itself while disagreeing with the session — which is precisely the
+    // failure this leaf exists to make visible.
+    if let Some(dirs) = session_environment.0.get("XDG_DATA_DIRS") {
+        state.session_data_dirs_resolved(dirs);
+    }
     let plan = SessionPlan {
         argv,
-        env: session_env_for(uid.0, cfg),
+        env: session_environment,
     };
     let session = mukae_spec::session::start_session(&mut env, cap, plan)
         .map_err(|e| format!("starting the session: {e}"))?;
