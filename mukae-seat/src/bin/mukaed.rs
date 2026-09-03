@@ -467,17 +467,38 @@ fn greeter_login(
     {
         let mut keys: Vec<&str> = session.env.0.keys().map(String::as_str).collect();
         keys.sort_unstable();
+        // ★ "CONTRIBUTES", NOT "environment". This map is mukaed's OWN
+        // contribution; `spawn` adds HOME, USER, LOGNAME and SHELL from the
+        // passwd record at exec, so the session's real environment is
+        // strictly larger. Calling it "session environment" made the line
+        // read as a complete inventory, which is what made the warning below
+        // believable.
         eprintln!(
-            "mukaed: session environment ({} vars): {}",
+            "mukaed: contributes {} vars: {} (spawn adds HOME/USER/LOGNAME/SHELL)",
             keys.len(),
             keys.join(" ")
         );
-        if !session.env.0.contains_key("HOME") {
+        // ── ★ CHECK THE SOURCE `spawn` ACTUALLY USES ─────────────────────
+        //
+        // This tested `session.env` for a HOME key — a map that never has one
+        // by construction, because spawn derives it later from passwd. So the
+        // warning fired on EVERY successful login and was ALWAYS wrong.
+        //
+        // Measured 2026-09-03: the live session had `HOME=/home/luis` in its
+        // environ while this line insisted it had none. A warning that is
+        // always wrong is worse than no warning — it trains a reader to skip
+        // the log, and it cost a real investigation, sending me after a
+        // phantom missing-HOME bug while three genuine defects sat on screen.
+        //
+        // The real failure condition is a passwd record with no usable home,
+        // which is what spawn would then fail to set. Ask that.
+        if passwd_of_uid(session.uid.0).is_none_or(|(_, home)| home.is_none()) {
             eprintln!(
-                "mukaed: WARNING — this session has no HOME. Every ~/.config \
-                     lookup it makes will miss, so a compositor or terminal will \
-                     silently run its built-in defaults instead of the \
-                     operator\u{2019}s configuration."
+                "mukaed: WARNING — uid {} has no home directory in its passwd \
+                 record, so the session starts with no HOME. Every ~/.config \
+                 lookup will miss and a compositor or terminal will silently \
+                 run its built-in defaults.",
+                session.uid.0
             );
         }
     }
