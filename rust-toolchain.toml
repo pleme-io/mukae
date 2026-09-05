@@ -14,22 +14,36 @@
 # to blame. Pinning here is what makes `cargo test` reproducible at all.
 #
 # ★ THIS IS NOT A SECOND SOURCE OF TRUTH. It names the SAME compiler the flake
-# already resolves: `fenix` in flake.lock is stable 2026-07-16, whose
-# data/stable.json carries rustc-1.97.1. So the rustup path (ci.yml), the nix
-# path (crate2nix, `nix develop`) and the auto-release nextest gate now read
+# already resolves: `fenix` in flake.lock is stable 2026-09-03, whose
+# data/stable.json carries rustc-1.98.1. So the rustup path (ci.yml), the nix
+# path (crate2nix, `nix develop`) and the auto-release nextest gate all read
 # one compiler's diagnostics instead of three.
+#
+# It is ALSO registered fleet-side: `nix/lib/rust-toolchain-witness.nix`'s
+# `pinnedConsumers` names this repo, and `parts/fleet.nix`'s
+# `rust-pins-track-fleet-rustc` reads THIS FILE from the flake input and fails
+# the fleet gate if it falls behind the fleet compiler. So the two numbers
+# cannot drift apart silently — which is exactly what they had done.
 #
 # ★ KNOWN COST, ACCEPTED KNOWINGLY: a bare `cargo test` on a workstation whose
 # `cargo` is NOT rustup — a nix-profile cargo, for instance — ignores this file
-# and keeps using whatever it is. If that is older than 1.97.1 the seals will
-# mismatch locally while CI is green. That is the stale toolchain talking, not
-# a regression: run the suite through the flake's own toolchain instead.
+# and keeps using whatever it is. As of 2026-09-05 the pleme-io fleet puts the
+# fenix toolchain on every operator's PATH (nix/modules/shared/
+# rust-toolchain-fenix.nix), so that gap is now closed by construction rather
+# than by hoping.
 #
 # ★ WHEN flake.lock's fenix MOVES, THIS MOVES WITH IT, IN THE SAME COMMIT, and
 # the seals are re-blessed alongside:
 #     TRYBUILD=overwrite cargo test -p mukae-spec --test compile_fail
 # Bumping one without the other puts `main` straight back where it just was.
+#
+# ★ AND THAT IS NOT HYPOTHETICAL — IT HAD ALREADY HAPPENED. Measured
+# 2026-09-05 on a pristine checkout at this file's PREVIOUS pin (1.97.1):
+# `cargo test -p mukae-spec --test compile_fail` reported "3 of 7 tests
+# failed". The seals had been re-blessed on 2026-09-02 against a compiler that
+# was NOT the pinned one, so the gate was red at its own pin and stayed that
+# way. The pin was right; nobody ran it. A gate nobody runs is not yet a gate.
 [toolchain]
-channel = "1.97.1"
+channel = "1.98.1"
 profile = "minimal"
 components = ["rustfmt", "clippy"]
