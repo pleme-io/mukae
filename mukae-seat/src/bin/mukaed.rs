@@ -200,11 +200,17 @@ fn session_env_for(uid: u32, cfg: &mukae_seat::config::MukaeConfig) -> mukae_spe
         env.0.insert("XDG_DATA_DIRS".into(), data_dirs);
     }
     // Not a class the session can choose: mukaed only ever starts one after
-    // authenticating a person. XDG_SESSION_TYPE is deliberately NOT set --
-    // mukaed cannot know whether the command it is about to exec is graphical,
-    // and guessing "tty" for a Wayland seat would be a confident wrong answer
-    // that display-backend autodetection would then act on.
+    // authenticating a person.
     env.0.insert("XDG_SESSION_CLASS".into(), "user".into());
+    // ── ★ SESSION FACTS: TOLD, NEVER GUESSED ─────────────────────────────
+    // mukaed still does not guess XDG_SESSION_TYPE -- it cannot know whether
+    // `--cmd` is graphical. The module that names the compositor DOES know,
+    // and says so through `MukaeConfig::session_type` and friends. Without a
+    // config these are empty and nothing changes. `SessionVar` refuses every
+    // name inserted above, so no fact can overwrite a derived value.
+    for (k, v) in cfg.session_facts() {
+        env.0.insert(k, v);
+    }
     env
 }
 
@@ -823,6 +829,34 @@ mod tests {
         let env = session_env_for(unsafe { libc::getuid() }, &MukaeConfig::prescribed());
         let path = env.0.get("PATH").expect("a session must have a PATH");
         assert!(path.contains("/run/current-system/sw/bin"), "got {path:?}");
+    }
+
+    #[test]
+    fn declared_session_facts_reach_the_session_environment() {
+        // ★ THE ROW THAT WAS MISSING. Five variables were once declared on
+        // mukaed's UNIT and none reached the compositor; this pins that a
+        // fact declared in the CONFIG does.
+        let cfg: MukaeConfig = serde_yaml::from_str(
+            "session_type: wayland\ncurrent_desktop: omoya\nsession_env:\n  NIXOS_OZONE_WL: \"1\"\n",
+        )
+        .unwrap();
+        let env = session_env_for(unsafe { libc::getuid() }, &cfg);
+        assert_eq!(
+            env.0.get("XDG_SESSION_TYPE").map(String::as_str),
+            Some("wayland")
+        );
+        assert_eq!(
+            env.0.get("XDG_CURRENT_DESKTOP").map(String::as_str),
+            Some("omoya")
+        );
+        assert_eq!(env.0.get("NIXOS_OZONE_WL").map(String::as_str), Some("1"));
+        assert!(env.0.get("PATH").unwrap().starts_with("/run/wrappers/bin"));
+    }
+
+    #[test]
+    fn without_a_config_the_session_type_is_not_guessed() {
+        let env = session_env_for(unsafe { libc::getuid() }, &MukaeConfig::prescribed());
+        assert!(!env.0.contains_key("XDG_SESSION_TYPE"));
     }
 
     #[test]

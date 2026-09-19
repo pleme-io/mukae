@@ -40,6 +40,8 @@
 //! config would be worse than one that complained, since the operator would
 //! spend the evening editing a file nothing reads.
 
+use std::collections::BTreeMap;
+
 use serde::{Deserialize, Serialize};
 
 /// The placeholder [`MukaeConfig::session_path`] entries may carry for the
@@ -117,6 +119,139 @@ pub struct MukaeConfig {
     /// directory that does not exist and searching it silently would turn a
     /// resolution failure into a mystery.
     pub session_data_dirs: Vec<String>,
+
+    /// What kind of session `--cmd` starts — rendered as `XDG_SESSION_TYPE`.
+    ///
+    /// ── ★ TOLD, NEVER GUESSED ─────────────────────────────────────────────
+    /// mukaed cannot know whether the command it execs is graphical, and
+    /// guessing `tty` for a Wayland seat would be a confident wrong answer
+    /// that every toolkit's backend autodetection then acts on. So the fact
+    /// comes from whoever DOES know — the Nix module that also names the
+    /// compositor in `--cmd`. `None` leaves the variable unset, which is what
+    /// mukaed has always done.
+    ///
+    /// Measured on plo 2026-09-19, why it cannot stay unset on a Wayland seat:
+    /// `google-chrome-stable` refused to start ("Missing X server or
+    /// $DISPLAY") because Chromium's `--ozone-platform-hint=auto` chooses
+    /// Wayland from `XDG_SESSION_TYPE=wayland` and otherwise falls back to X11
+    /// — and the seat has no Xwayland. Setting only this variable made the
+    /// same binary come up on Wayland.
+    pub session_type: Option<SessionType>,
+
+    /// The desktop name — rendered as `XDG_CURRENT_DESKTOP`. Portals and
+    /// toolkits key per-desktop behaviour on it. `None` leaves it unset.
+    pub current_desktop: Option<String>,
+
+    /// Further session variables — toolkit hints like `NIXOS_OZONE_WL`,
+    /// `MOZ_ENABLE_WAYLAND`, `QT_QPA_PLATFORM`.
+    ///
+    /// ── ★ THE ONLY ROUTE A VARIABLE HAS INTO THE SESSION ─────────────────
+    /// mukaed builds the session environment from scratch and execs the
+    /// session with it, so an `Environment=` line on mukaed's unit reaches
+    /// mukaed and STOPS — measured on plo 2026-09-09, where five such lines
+    /// were declared and none reached the compositor. A variable is in the
+    /// session if it is here, and not otherwise.
+    ///
+    /// Keys are [`SessionVar`]s: a name mukaed derives itself (PATH,
+    /// XDG_DATA_DIRS, the typed fields above) or that PAM/logind owns
+    /// (XDG_RUNTIME_DIR, XDG_SEAT, HOME, …) is REFUSED at parse time, so two
+    /// sources can never disagree about one variable.
+    pub session_env: BTreeMap<SessionVar, String>,
+}
+
+/// `XDG_SESSION_TYPE`'s values, per the freedesktop/logind vocabulary.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum SessionType {
+    /// A text console session.
+    Tty,
+    /// An X11 session.
+    X11,
+    /// A Wayland session.
+    Wayland,
+}
+
+impl SessionType {
+    /// The literal value of `XDG_SESSION_TYPE`.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Tty => "tty",
+            Self::X11 => "x11",
+            Self::Wayland => "wayland",
+        }
+    }
+}
+
+/// Variables a [`SessionVar`] may not name: mukaed derives them itself, or
+/// PAM/logind sets them once the session opens. A second writer for any of
+/// these is a disagreement waiting to be resolved by whichever runs last.
+pub const RESERVED_SESSION_VARS: &[&str] = &[
+    "PATH",
+    "XDG_DATA_DIRS",
+    "XDG_SESSION_CLASS",
+    "XDG_SESSION_TYPE",
+    "XDG_CURRENT_DESKTOP",
+    "XDG_RUNTIME_DIR",
+    "XDG_SEAT",
+    "XDG_VTNR",
+    "XDG_SESSION_ID",
+    "HOME",
+    "USER",
+    "LOGNAME",
+    "SHELL",
+];
+
+/// An environment-variable name the config may set in the session.
+///
+/// Constructed only through [`SessionVar::parse`] (serde goes through it), so
+/// an empty name, one containing `=` or NUL, or a [`RESERVED_SESSION_VARS`]
+/// name has no representation — the config file is refused and the seat comes
+/// up on prescribed defaults, as for any other malformed config.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct SessionVar(String);
+
+impl SessionVar {
+    /// Validate a variable name.
+    ///
+    /// # Errors
+    /// A reason string naming what is wrong with `name`.
+    pub fn parse(name: &str) -> Result<Self, String> {
+        if name.is_empty() {
+            return Err("a session variable name may not be empty".into());
+        }
+        if name.contains('=') || name.contains('\0') {
+            return Err(format!(
+                "session variable name {name:?} contains '=' or NUL"
+            ));
+        }
+        if RESERVED_SESSION_VARS.contains(&name) {
+            return Err(format!(
+                "{name} is owned by mukaed or PAM/logind; set it through its typed field, not session_env"
+            ));
+        }
+        Ok(Self(name.to_owned()))
+    }
+
+    /// The variable's name.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl TryFrom<String> for SessionVar {
+    type Error = String;
+    fn try_from(s: String) -> Result<Self, String> {
+        Self::parse(&s)
+    }
+}
+
+impl From<SessionVar> for String {
+    fn from(v: SessionVar) -> Self {
+        v.0
+    }
 }
 
 impl MukaeConfig {
@@ -134,6 +269,9 @@ impl MukaeConfig {
             vt: None,
             session_path: Vec::new(),
             session_data_dirs: Vec::new(),
+            session_type: None,
+            current_desktop: None,
+            session_env: BTreeMap::new(),
         }
     }
 
@@ -186,6 +324,11 @@ impl MukaeConfig {
                 "/nix/var/nix/profiles/default/share".into(),
                 "/run/current-system/sw/share".into(),
             ],
+            // No session facts in the prescription: which kind of session
+            // `--cmd` starts is known to the module that names it, not here.
+            session_type: None,
+            current_desktop: None,
+            session_env: BTreeMap::new(),
         }
     }
 
@@ -228,6 +371,27 @@ impl MukaeConfig {
             })
             .collect::<Vec<_>>()
             .join(":")
+    }
+
+    /// The session facts this config declares, as variable → value pairs:
+    /// [`Self::session_type`], [`Self::current_desktop`], then
+    /// [`Self::session_env`]. Reserved names cannot appear (see
+    /// [`SessionVar`]), so these never collide with what mukaed derives.
+    #[must_use]
+    pub fn session_facts(&self) -> Vec<(String, String)> {
+        let mut out = Vec::new();
+        if let Some(t) = self.session_type {
+            out.push(("XDG_SESSION_TYPE".to_owned(), t.as_str().to_owned()));
+        }
+        if let Some(d) = &self.current_desktop {
+            out.push(("XDG_CURRENT_DESKTOP".to_owned(), d.clone()));
+        }
+        out.extend(
+            self.session_env
+                .iter()
+                .map(|(k, v)| (k.as_str().to_owned(), v.clone())),
+        );
+        out
     }
 }
 
@@ -541,5 +705,60 @@ mod tests {
             "{DISCOVERY_VAR} is inside the {FIELD_ENV_PREFIX} namespace — \
              the documented config override would disable itself"
         );
+    }
+
+    #[test]
+    fn session_facts_render_the_typed_fields_and_the_extras() {
+        let cfg: MukaeConfig = serde_yaml::from_str(
+            "session_type: wayland\ncurrent_desktop: omoya\nsession_env:\n  NIXOS_OZONE_WL: \"1\"\n",
+        )
+        .expect("a valid config");
+        let facts = cfg.session_facts();
+        assert!(
+            facts.contains(&("XDG_SESSION_TYPE".into(), "wayland".into())),
+            "{facts:?}"
+        );
+        assert!(
+            facts.contains(&("XDG_CURRENT_DESKTOP".into(), "omoya".into())),
+            "{facts:?}"
+        );
+        assert!(
+            facts.contains(&("NIXOS_OZONE_WL".into(), "1".into())),
+            "{facts:?}"
+        );
+        // Omitted fields keep the prescribed tier — a config that only states
+        // session facts must not cost the session its PATH.
+        assert_eq!(cfg.session_path, MukaeConfig::prescribed().session_path);
+    }
+
+    #[test]
+    fn the_prescribed_tier_declares_no_session_facts() {
+        // mukaed does not guess: without a config, XDG_SESSION_TYPE stays unset.
+        assert!(MukaeConfig::prescribed().session_facts().is_empty());
+        assert!(MukaeConfig::bare().session_facts().is_empty());
+    }
+
+    #[test]
+    fn a_reserved_name_in_session_env_refuses_the_config() {
+        for name in RESERVED_SESSION_VARS {
+            let yaml = format!("session_env:\n  {name}: x\n");
+            assert!(
+                serde_yaml::from_str::<MukaeConfig>(&yaml).is_err(),
+                "{name} must be refused in session_env"
+            );
+        }
+    }
+
+    #[test]
+    fn a_malformed_name_has_no_representation() {
+        assert!(SessionVar::parse("").is_err());
+        assert!(SessionVar::parse("A=B").is_err());
+        assert!(SessionVar::parse("A\0B").is_err());
+        assert!(SessionVar::parse("NIXOS_OZONE_WL").is_ok());
+    }
+
+    #[test]
+    fn an_unknown_session_type_refuses_the_config() {
+        assert!(serde_yaml::from_str::<MukaeConfig>("session_type: mir\n").is_err());
     }
 }
