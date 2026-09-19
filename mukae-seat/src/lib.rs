@@ -363,6 +363,15 @@ impl SeatEnv for NativeSeatEnv {
         // not export it leaves every consumer falling back to /tmp.
         t.env
             .insert("XDG_RUNTIME_DIR".to_string(), sess.runtime_path.clone());
+        // ★ THE SESSION BUS — pam_systemd's job, and so ours. Measured on plo
+        // 2026-09-19: the user bus was listening at /run/user/1001/bus and the
+        // seat had NO DBUS_SESSION_BUS_ADDRESS, so every client failed to reach
+        // it (chrome: "own address type"), chrome's os_crypt could not reach a
+        // keyring or portal and fell back to its fixed key, and portals timed
+        // out. Same rule as pam_systemd: set only when the socket is there.
+        if let Some(addr) = session_bus_address(std::path::Path::new(&sess.runtime_path)) {
+            t.env.insert("DBUS_SESSION_BUS_ADDRESS".to_string(), addr);
+        }
         t.env.insert("XDG_SESSION_ID".to_string(), sess.id.clone());
         t.env.insert("XDG_SEAT".to_string(), sess.seat.clone());
         t.env.insert("XDG_VTNR".to_string(), sess.vtnr.to_string());
@@ -490,8 +499,54 @@ fn uid_of(user: &str) -> Option<Uid> {
     Some(Uid(entry.pw_uid))
 }
 
+/// The session-bus address for a runtime dir, or `None` when no bus is there.
+///
+/// pam_systemd's rule, exactly: `unix:path=$XDG_RUNTIME_DIR/bus`, and only if
+/// that path is a socket. Advertising an address nothing listens on would turn
+/// "no session bus" into a connection error in every client instead of the
+/// clean absence they already handle.
+#[must_use]
+pub fn session_bus_address(runtime_dir: &std::path::Path) -> Option<String> {
+    use std::os::unix::fs::FileTypeExt as _;
+    let bus = runtime_dir.join("bus");
+    let meta = std::fs::metadata(&bus).ok()?;
+    if !meta.file_type().is_socket() {
+        return None;
+    }
+    let path = bus.to_str()?;
+    // D-Bus address values escape everything outside a small safe set; a
+    // runtime dir is `/run/user/<uid>`, so refuse rather than half-escape.
+    if !path
+        .bytes()
+        .all(|b| b.is_ascii_alphanumeric() || b"/-_.".contains(&b))
+    {
+        return None;
+    }
+    Some(format!("unix:path={path}"))
+}
+
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn the_session_bus_is_advertised_only_when_its_socket_exists() {
+        let dir = std::env::temp_dir().join(format!("mukae-bus-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        // absent
+        assert_eq!(super::session_bus_address(&dir), None);
+        // a regular file is not a bus
+        std::fs::write(dir.join("bus"), b"").unwrap();
+        assert_eq!(super::session_bus_address(&dir), None);
+        std::fs::remove_file(dir.join("bus")).unwrap();
+        // a listening socket is
+        let _l = std::os::unix::net::UnixListener::bind(dir.join("bus")).unwrap();
+        assert_eq!(
+            super::session_bus_address(&dir),
+            Some(format!("unix:path={}/bus", dir.display()))
+        );
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
     use super::*;
 
     fn env() -> NativeSeatEnv {

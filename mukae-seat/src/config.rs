@@ -196,6 +196,7 @@ pub const RESERVED_SESSION_VARS: &[&str] = &[
     "XDG_SEAT",
     "XDG_VTNR",
     "XDG_SESSION_ID",
+    "DBUS_SESSION_BUS_ADDRESS",
     "HOME",
     "USER",
     "LOGNAME",
