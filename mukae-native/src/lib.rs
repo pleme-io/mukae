@@ -43,8 +43,67 @@ pub mod verify;
 
 use std::path::Path;
 
-use shadow::ShadowEntry;
+use shadow::{ShadowEntry, Validity};
 use verify::{Verdict, verify, verify_absent_user};
+
+/// Seconds in a day, for turning a UNIX timestamp into shadow(5)'s day count.
+const DAY: i64 = 86_400;
+
+/// Today, as shadow(5) counts days: whole days since the epoch, UTC.
+///
+/// ★ `div_euclid`, not `/`. Rust's `/` truncates toward zero, so a timestamp
+/// before 1970 would round the wrong way — which matters not at all in
+/// practice and costs nothing to get right, and getting it wrong here would
+/// be an off-by-one in an account-expiry check.
+#[must_use]
+pub fn today_days(unix_secs: i64) -> i64 {
+    unix_secs.div_euclid(DAY)
+}
+
+/// Whether `user` may log in on day `today`, independently of the password.
+///
+/// ★ A SEPARATE READ OF THE SHADOW FILE FROM `verify_user`, deliberately.
+/// PAM's `acct_mgmt` is its own step for a reason: the two answers are about
+/// different things, and an account can expire between authentication and
+/// session start. Re-reading is one `open` on a file already in page cache.
+///
+/// An absent user is [`Validity::AccountExpired`] — the safe reading, and
+/// unreachable in practice because authentication refused first.
+///
+/// # Errors
+/// The reason the shadow file could not be read, which is a different thing
+/// from a refusal and must not be reported as one.
+pub fn account_validity(shadow_path: &Path, user: &str, today: i64) -> Result<Validity, String> {
+    let text = std::fs::read_to_string(shadow_path)
+        .map_err(|e| format!("reading {}: {e}", shadow_path.display()))?;
+    Ok(text
+        .lines()
+        .filter_map(ShadowEntry::parse_line)
+        .find(|e| e.name == user)
+        .map_or(Validity::AccountExpired, |e| e.validity(today)))
+}
+
+/// Whether `/etc/nologin` blocks this login, and the message it carries.
+///
+/// ★ ROOT IS EXEMPT, which is `pam_nologin`'s own rule and is the whole point
+/// of the file: it exists so an administrator can lock everyone else out
+/// while keeping a way back in. mukaed replaced the PAM stack and inherited
+/// none of this — the file could sit there through a maintenance window with
+/// every user still logging in.
+///
+/// Returns `None` when the file is absent, which is the normal state.
+#[must_use]
+pub fn nologin_block(path: &Path, is_root: bool) -> Option<String> {
+    if is_root {
+        return None;
+    }
+    // A file that exists but cannot be read still blocks: its presence is the
+    // signal and its contents are only the message.
+    match std::fs::metadata(path) {
+        Ok(_) => Some(std::fs::read_to_string(path).unwrap_or_default()),
+        Err(_) => None,
+    }
+}
 
 /// Verify a passphrase for `user` against a shadow file.
 ///

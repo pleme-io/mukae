@@ -39,3 +39,7 @@ serde_yaml = "0.9"
 [[bin]]
 name = "mukaed"
 path = "src/bin/mukaed.rs"
+
+[dev-dependencies]
+# pwhash — to MAKE a real shadow hash in a test rather than paste one.
+pwhash = "1"

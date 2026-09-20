@@ -64,6 +64,13 @@ use mukae_spec::session::SessionPlan;
 /// shadow file elsewhere is a configuration rather than a fork.
 const DEFAULT_SHADOW: &str = "/etc/shadow";
 
+/// The file whose presence blocks every non-root login.
+///
+/// `pam_nologin`'s file, which mukaed inherited none of when it replaced the
+/// PAM stack — so it could sit there through a maintenance window with every
+/// user still logging in.
+const DEFAULT_NOLOGIN: &str = "/etc/nologin";
+
 /// One login in progress.
 struct Txn {
     user: Option<String>,
@@ -112,6 +119,12 @@ pub enum Console {
 /// The production login environment.
 pub struct NativeSeatEnv {
     shadow: std::path::PathBuf,
+    /// The file whose mere EXISTENCE blocks every non-root login.
+    ///
+    /// A field rather than a constant so a test can point it somewhere it
+    /// controls — the check is one `stat`, and an untestable one would have
+    /// stayed unwritten exactly as long as the expiry check did.
+    nologin: std::path::PathBuf,
     console: Console,
     txns: HashMap<u64, Txn>,
     next: u64,
@@ -129,10 +142,18 @@ impl NativeSeatEnv {
         Self::with_shadow(std::path::PathBuf::from(DEFAULT_SHADOW))
     }
 
+    /// Point the nologin check somewhere a test controls.
+    #[must_use]
+    pub fn with_nologin(mut self, nologin: std::path::PathBuf) -> Self {
+        self.nologin = nologin;
+        self
+    }
+
     #[must_use]
     pub fn with_shadow(shadow: std::path::PathBuf) -> Self {
         Self {
             shadow,
+            nologin: std::path::PathBuf::from(DEFAULT_NOLOGIN),
             // Seatless by default, and that is the honest default for a
             // process that has not claimed a console: registering against
             // seat0 without owning a VT is how two owners end up fighting for
@@ -281,12 +302,61 @@ impl SeatEnv for NativeSeatEnv {
     }
 
     fn pam_acct_mgmt(&mut self, h: PamHandleId) -> Result<AcctVerdict, PamError> {
-        let t = self.txn(h)?;
-        if t.authenticated {
-            Ok(AcctVerdict::Ok)
-        } else {
-            Ok(AcctVerdict::PermDenied)
+        // ── ★ THIS STEP USED TO BE `if authenticated { Ok }` ─────────────
+        //
+        // Which made `AcctVerdict::AcctExpired` and
+        // `AcctVerdict::NewAuthTokRequired` — two arms declared in
+        // `mukae-spec` with a doc explaining why they must be distinct —
+        // UNREACHABLE in the production environment. `chage -E 2020-01-01`,
+        // `chage -I 1` past the window, `chage -d 0`, and `touch
+        // /etc/nologin` were each refused by the greetd/pam_unix stack mukae
+        // replaced and each opened a full logind session under mukaed.
+        //
+        // The account data was not merely unchecked, it was never parsed:
+        // `ShadowEntry` kept fields 1 and 2 and dropped 3–9. See
+        // `shadow::Validity`.
+        let (authenticated, user) = {
+            let t = self.txn(h)?;
+            (t.authenticated, t.user.clone())
+        };
+        if !authenticated {
+            return Ok(AcctVerdict::PermDenied);
         }
+        let Some(user) = user else {
+            // Authenticated with no username is not a state this env can
+            // produce; refusing is the only safe reading of it.
+            return Ok(AcctVerdict::PermDenied);
+        };
+
+        // ★ ROOT IS EXEMPT FROM nologin AND NOTHING ELSE. That is
+        // `pam_nologin`'s rule and the reason the file is useful: it locks
+        // everyone else out of a machine while keeping a way back in.
+        let is_root = user == "root";
+        if mukae_native::nologin_block(&self.nologin, is_root).is_some() {
+            return Ok(AcctVerdict::PermDenied);
+        }
+
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_or(0, |d| i64::try_from(d.as_secs()).unwrap_or(i64::MAX));
+        let today = mukae_native::today_days(now);
+
+        // ★ AN UNREADABLE SHADOW FILE IS AN ERROR, NOT A REFUSAL AND NOT A
+        // PASS. Reporting "your account expired" to someone whose credentials
+        // were fine on a misconfigured machine sends them to the wrong
+        // problem; passing would be the fail-open this whole change removes.
+        let validity = mukae_native::account_validity(&self.shadow, &user, today)
+            .map_err(|_| PamError::OutOfOrder("the shadow file could not be read"))?;
+
+        Ok(match validity {
+            mukae_native::shadow::Validity::Ok => AcctVerdict::Ok,
+            mukae_native::shadow::Validity::MustChangePassword => AcctVerdict::NewAuthTokRequired,
+            // Both of these are dead accounts. They are separate states in
+            // `Validity` because the REASON differs and an operator needs it;
+            // PAM has one verdict for "no, and not by changing anything".
+            mukae_native::shadow::Validity::AccountExpired
+            | mukae_native::shadow::Validity::InactiveElapsed => AcctVerdict::AcctExpired,
+        })
     }
 
     fn pam_chauthtok(&mut self, h: PamHandleId) -> Result<(), PamError> {
@@ -551,6 +621,134 @@ mod tests {
 
     fn env() -> NativeSeatEnv {
         NativeSeatEnv::with_shadow(std::path::PathBuf::from("/nonexistent/shadow"))
+    }
+
+    /// The name of whoever is running the test, straight out of NSS.
+    ///
+    /// ★ NOT `$USER`. The account-management path only reaches its decision
+    /// for a user `uid_of` can resolve, so the test has to name a REAL one —
+    /// and an env var that is unset (a systemd unit, a bare CI shell) would
+    /// make the whole test silently vacuous, which is exactly the shape the
+    /// defect under test already had.
+    fn current_user() -> String {
+        // SAFETY: `getpwuid` returns a pointer into a static buffer, read
+        // immediately and copied. Single-threaded within this test.
+        unsafe {
+            let pw = libc::getpwuid(libc::getuid());
+            assert!(!pw.is_null(), "the running uid must resolve through NSS");
+            std::ffi::CStr::from_ptr((*pw).pw_name)
+                .to_string_lossy()
+                .into_owned()
+        }
+    }
+
+    /// Drive a whole transaction to authenticated, against `shadow`.
+    fn authenticate(e: &mut NativeSeatEnv, user: &str, pass: &str) -> PamHandleId {
+        let h = e
+            .pam_start(
+                &ServiceName::parse("login").expect("a valid service"),
+                Some(&UserName::parse(user).expect("a valid name")),
+            )
+            .expect("a transaction starts");
+        // Handing the username in means the first prompt is the masked one.
+        match e.pam_next(h).expect("a step") {
+            PamStep::Prompt { style, .. } => {
+                assert_eq!(style, MsgStyle::PromptEchoOff, "expected the passphrase");
+            }
+            other => panic!("expected a masked prompt, got {other:?}"),
+        }
+        e.pam_answer(h, PamAnswer::Secret(Passphrase::new(pass.to_string())))
+            .expect("the answer matches the prompt");
+        // ★ `pam_answer` RETURNS `Ok` FOR A REFUSED PASSPHRASE — it reports
+        // whether the answer matched the PROMPT, not whether it was right; a
+        // refusal is recorded on the transaction. Without this the helper is
+        // blind: a broken setup hands back an UNAUTHENTICATED handle and
+        // `pam_acct_mgmt` answers `PermDenied`, which reads exactly like the
+        // refusal these tests are looking for. Not hypothetical — a shared
+        // temp path between two parallel tests did precisely that here.
+        match e.pam_next(h).expect("a step") {
+            PamStep::Complete => {}
+            other => panic!("authentication did not complete: {other:?}"),
+        }
+        h
+    }
+
+    /// A temp shadow file nobody else is writing.
+    ///
+    /// ★ A COUNTER, NOT A PREFIX OF THE LINE. The first version keyed on
+    /// `{line:.8}`, whose first eight characters are the USERNAME — the same
+    /// for every case — so two tests running in parallel wrote one path and
+    /// each read the other's hash. `cargo test` is parallel by default; a
+    /// per-test temp file needs a per-test name.
+    fn shadow_with(line: &str) -> std::path::PathBuf {
+        use std::sync::atomic::{AtomicU32, Ordering};
+        static N: AtomicU32 = AtomicU32::new(0);
+        let p = std::env::temp_dir().join(format!(
+            "mukae-shadow-{}-{}",
+            std::process::id(),
+            N.fetch_add(1, Ordering::Relaxed)
+        ));
+        std::fs::write(&p, format!("{line}\n")).expect("writes");
+        p
+    }
+
+    /// ★ THE WIRE-UP, NOT THE ARITHMETIC. `shadow::validity` has its own
+    /// exhaustive tests; what failed here was that `pam_acct_mgmt` NEVER
+    /// ASKED — it was `if authenticated { Ok }`, which made two of
+    /// `AcctVerdict`'s four arms unreachable in production. So this test goes
+    /// through the real flow and reads the real verdict.
+    #[test]
+    fn an_expired_account_is_refused_after_a_correct_passphrase() {
+        let user = current_user();
+        let hash = pwhash::sha512_crypt::hash("correct horse").expect("hashes");
+
+        // Healthy first, so a refusal below cannot be the setup failing.
+        let ok = shadow_with(&format!("{user}:{hash}:20000:0:99999:7:::"));
+        let mut e = NativeSeatEnv::with_shadow(ok.clone());
+        let h = authenticate(&mut e, &user, "correct horse");
+        assert_eq!(e.pam_acct_mgmt(h), Ok(AcctVerdict::Ok));
+
+        // `chage -E 2020-01-01` — field 8 = 18262. Logged in before today.
+        let expired = shadow_with(&format!("{user}:{hash}:20000:0:99999:7::18262:"));
+        let mut e = NativeSeatEnv::with_shadow(expired.clone());
+        let h = authenticate(&mut e, &user, "correct horse");
+        assert_eq!(e.pam_acct_mgmt(h), Ok(AcctVerdict::AcctExpired));
+
+        // `chage -d 0` — must change at next login.
+        let must = shadow_with(&format!("{user}:{hash}:0:0:99999:7:::"));
+        let mut e = NativeSeatEnv::with_shadow(must.clone());
+        let h = authenticate(&mut e, &user, "correct horse");
+        assert_eq!(e.pam_acct_mgmt(h), Ok(AcctVerdict::NewAuthTokRequired));
+
+        for p in [ok, expired, must] {
+            let _ = std::fs::remove_file(p);
+        }
+    }
+
+    #[test]
+    fn nologin_blocks_a_non_root_login_and_a_wrong_passphrase_still_outranks_it() {
+        let user = current_user();
+        let hash = pwhash::sha512_crypt::hash("correct horse").expect("hashes");
+        let shadow = shadow_with(&format!("{user}:{hash}:20000:0:99999:7:::"));
+        let nologin =
+            std::env::temp_dir().join(format!("mukae-nologin-{}-blocks", std::process::id()));
+        std::fs::write(&nologin, b"maintenance\n").expect("writes");
+
+        let mut e = NativeSeatEnv::with_shadow(shadow.clone()).with_nologin(nologin.clone());
+        let h = authenticate(&mut e, &user, "correct horse");
+        assert_eq!(
+            e.pam_acct_mgmt(h),
+            Ok(AcctVerdict::PermDenied),
+            "/etc/nologin must block a non-root login"
+        );
+
+        // Remove it and the same credentials pass — so the refusal above was
+        // the file and not the setup.
+        std::fs::remove_file(&nologin).expect("removes");
+        let mut e = NativeSeatEnv::with_shadow(shadow.clone()).with_nologin(nologin);
+        let h = authenticate(&mut e, &user, "correct horse");
+        assert_eq!(e.pam_acct_mgmt(h), Ok(AcctVerdict::Ok));
+        let _ = std::fs::remove_file(shadow);
     }
 
     #[test]
