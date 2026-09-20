@@ -7,6 +7,12 @@
 //! rather than trusted.
 //!
 //! ── ★ EVERYTHING IS ALLOCATED BEFORE THE FORK ────────────────────────────
+//! ★ The rule below is ENFORCED, not merely stated: see
+//! `tests::the_child_window_calls_nothing_that_can_block_on_an_orphaned_lock`,
+//! which scans this file's own fork-to-exec window. It exists because this
+//! paragraph sat above a violating `initgroups` call since the file was
+//! written — prose binds nobody.
+//!
 //! Between `fork(2)` and `execve(2)` a child may call only async-signal-safe
 //! functions. `malloc` is not one: the allocator lock can be held by another
 //! thread at the instant of the fork, and that thread does not exist in the
@@ -82,6 +88,28 @@ pub(crate) struct Prepared {
     user: CString,
     uid: u32,
     gid: u32,
+    /// The supplementary groups, RESOLVED IN THE PARENT.
+    ///
+    /// ── ★ WHY NOT `initgroups(3)` IN THE CHILD ──────────────────────────
+    /// The child called `libc::initgroups` between `fork` and `execve`, and
+    /// this struct's own first line says why that cannot stand: "everything
+    /// the child needs, ALLOCATED WHILE ALLOCATION IS STILL LEGAL". The
+    /// module header spells out the rule it broke — "between fork(2) and
+    /// execve(2) a child may call only async-signal-safe functions. `malloc`
+    /// is not one: the allocator lock can be held by another thread at the
+    /// instant of the fork, and the child is the only thread that survives,
+    /// so nothing will ever release it."
+    ///
+    /// `initgroups` is a wrapper over `getgrouplist(3)`, which resolves
+    /// through NSS: it mallocs and reallocs its gid buffer and `dlopen`s
+    /// `libnss_*` modules (sss, ldap, systemd). mukaed runs a kanshou sidecar
+    /// thread that allocates on every incoming query, so the fork can land
+    /// with the arena lock held and the child blocks forever — a login that
+    /// hangs with no error, on the one process that lets an operator in.
+    ///
+    /// Resolved here, where allocation is legal, and applied in the child
+    /// with `setgroups(2)` — a bare syscall, and async-signal-safe.
+    groups: Vec<libc::gid_t>,
     /// One descriptor the child should KEEP, duplicated onto a known number.
     ///
     /// ── ★ WHY THIS IS AN EXPLICIT OPT-IN AND NOT A LOOSENING ────────────
@@ -230,6 +258,8 @@ pub(crate) fn prepare_inheriting(
         .collect::<Result<Vec<_>, _>>()
         .map_err(|_| SpawnError::Refused)?;
 
+    let groups = resolve_groups(&user, gid);
+
     Ok(Prepared {
         argv,
         envp,
@@ -237,8 +267,44 @@ pub(crate) fn prepare_inheriting(
         user,
         uid: to.0,
         gid,
+        groups,
         inherit,
     })
+}
+
+/// The supplementary groups `user` belongs to, including `gid`.
+///
+/// ★ PARENT-SIDE ON PURPOSE — this is the NSS-resolving, allocating half of
+/// what `initgroups(3)` does, lifted out of the fork-to-exec window. See
+/// [`Prepared::groups`].
+///
+/// A resolution failure degrades to the primary gid alone rather than
+/// erroring: that is what the user gets on a host whose group source is
+/// unreachable, and it is strictly less privilege than the full list, so the
+/// failure direction is safe.
+fn resolve_groups(user: &CString, gid: u32) -> Vec<libc::gid_t> {
+    let primary = gid as libc::gid_t;
+    // 32 covers every real account; the retry handles the rest. Bounded at
+    // two attempts because `getgrouplist` reports the exact size it needs on
+    // the first failure — a loop here could spin on a source that keeps
+    // growing.
+    let mut n: libc::c_int = 32;
+    for _ in 0..2 {
+        let mut buf: Vec<libc::gid_t> = vec![primary; usize::try_from(n).unwrap_or(32)];
+        // SAFETY: `buf` has `n` writable elements and `user` is NUL-terminated.
+        let rc = unsafe { libc::getgrouplist(user.as_ptr(), primary, buf.as_mut_ptr(), &mut n) };
+        if rc >= 0 {
+            buf.truncate(usize::try_from(n).unwrap_or(0));
+            if buf.is_empty() {
+                buf.push(primary);
+            }
+            return buf;
+        }
+        if n <= 0 {
+            break;
+        }
+    }
+    vec![primary]
 }
 
 /// Fork, drop, verify, exec.
@@ -294,7 +360,12 @@ pub(crate) fn spawn(p: &Prepared) -> Result<ChildPid, SpawnError> {
             }
             // Supplementary groups FIRST — this needs the privilege the next
             // two calls give away.
-            if libc::initgroups(p.user.as_ptr(), p.gid) < 0 {
+            //
+            // ★ `setgroups`, NOT `initgroups`. The list was resolved in the
+            // parent (see `Prepared::groups`); this is a bare syscall, which
+            // is what the fork-to-exec window allows. `initgroups` here went
+            // through NSS and could block on the allocator lock forever.
+            if libc::setgroups(p.groups.len(), p.groups.as_ptr()) < 0 {
                 die(wr, ChildFail::InitGroups);
             }
             // gid BEFORE uid. Reversed, this call fails and the session keeps
@@ -409,6 +480,135 @@ fn errno() -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The set of names that may NOT appear between `fork` and `execve`.
+    ///
+    /// Each one allocates, takes a lock, or resolves through NSS — and the
+    /// child is the only thread that survived the fork, so a lock another
+    /// thread held at that instant is never released. mukaed runs a kanshou
+    /// sidecar that allocates on every query, so the window is not
+    /// theoretical.
+    ///
+    /// ★ This list is the module header's rule made MECHANICAL. The header
+    /// has stated it since the file was written and `initgroups` sat in the
+    /// window anyway — prose binds nobody. Two sources of truth would drift,
+    /// so the header now points here.
+    const FORBIDDEN_IN_CHILD: &[&str] = &[
+        "initgroups",  // → getgrouplist → malloc + dlopen(libnss_*)
+        "getgrouplist",
+        "getpwnam",    // NSS again
+        "getpwuid",
+        "getgrnam",
+        "malloc",
+        "to_string",   // any Rust allocation is the same hazard
+        "to_owned",
+        "String::",
+        "format!",
+        "Vec::",
+        "vec!",
+        "CString::new",
+        "println!",    // stdio takes a lock
+        "eprintln!",
+        "tracing::",   // allocates and locks a subscriber
+    ];
+
+    /// The child window's SOURCE contains no call that can block on a lock
+    /// the fork orphaned.
+    ///
+    /// A source scan, deliberately: the hazard is a call that *exists*, and
+    /// no runtime test can reach it — the deadlock needs the sidecar thread
+    /// to hold the arena lock at the exact instant of the fork, which is
+    /// precisely the case a test cannot schedule. So the property is proved
+    /// where it is decidable.
+    ///
+    /// ★ The scan stops at `#[cfg(test)]`, or this test's own
+    /// `FORBIDDEN_IN_CHILD` literals would match themselves and it would
+    /// fail against correct code — the failure mode that makes a source
+    /// scanner get deleted rather than fixed.
+    #[test]
+    fn the_child_window_calls_nothing_that_can_block_on_an_orphaned_lock() {
+        let src = include_str!("spawn.rs");
+        let code = &src[..src.find("#[cfg(test)]").expect("test module marker")];
+
+        let open = code.find("══ CHILD ══").expect("child window marker");
+        let close = code[open..]
+            .find("libc::execve(")
+            .expect("execve ends the window")
+            + open;
+        // ★ COMMENTS STRIPPED FIRST. The hazard is a CALL, not a word: the
+        // window's own prose explains why `initgroups` is not there, and
+        // scanning raw text flags that explanation as the violation. Measured
+        // — this test failed on its first run against correct code, which is
+        // exactly how a source scanner earns a reputation for noise and gets
+        // deleted instead of fixed.
+        let window: String = code[open..close]
+            .lines()
+            .map(|l| l.split("//").next().unwrap_or(""))
+            .collect::<Vec<_>>()
+            .join("\n");
+        let window = window.as_str();
+
+        let found: Vec<&str> = FORBIDDEN_IN_CHILD
+            .iter()
+            .copied()
+            .filter(|needle| window.contains(needle))
+            .collect();
+
+        assert!(
+            found.is_empty(),
+            "between fork and execve, which may call only async-signal-safe \
+             functions, the source names: {found:?}. Resolve it in the parent \
+             and store the result in `Prepared` — see its `groups` field for \
+             the shape."
+        );
+    }
+
+    /// The window is non-empty — the anti-vacuity half.
+    ///
+    /// Without this, a refactor that renamed the marker or moved `execve`
+    /// would give the scan above an empty slice, which contains nothing and
+    /// so passes. A gate that goes green by measuring nothing is worse than
+    /// no gate: it is a green light nobody re-checks.
+    #[test]
+    fn the_scanned_child_window_is_not_empty() {
+        let src = include_str!("spawn.rs");
+        let code = &src[..src.find("#[cfg(test)]").unwrap()];
+        let open = code.find("══ CHILD ══").unwrap();
+        let close = code[open..].find("libc::execve(").unwrap() + open;
+        let window: String = code[open..close]
+            .lines()
+            .map(|l| l.split("//").next().unwrap_or(""))
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        // Measured on the COMMENT-STRIPPED window, the same text the scan
+        // above reads — a floor on the raw slice would stay satisfied by
+        // prose alone while the code under it shrank to nothing.
+        // The real window is ~30 lines of code. 500 chars is a floor that a genuine
+        // shrink would have to cross deliberately, not a pin on today's size.
+        assert!(
+            window.len() > 500,
+            "the scanned window is {} chars — too small to be the real child \
+             body, so the scan above is proving nothing",
+            window.len()
+        );
+        assert!(window.contains("libc::setuid"), "window lost the drop calls");
+    }
+
+    /// The resolution happens in the parent, where allocation is legal.
+    #[test]
+    fn resolve_groups_always_yields_at_least_the_primary_gid() {
+        // A name no host has, so resolution genuinely fails and the degraded
+        // path is what is measured — not the happy one.
+        let nobody = CString::new("mukae-no-such-account-4c1f").unwrap();
+        let got = resolve_groups(&nobody, 4242);
+        assert!(
+            got.contains(&4242),
+            "a failed resolution must still carry the primary gid, else the \
+             child calls setgroups with an empty list and DROPS the group it \
+             was given: {got:?}"
+        );
+    }
 
     /// The drop order is the security property, and it is asserted on the
     /// TYPE rather than left to the reader: `DropStep`'s discriminants are
