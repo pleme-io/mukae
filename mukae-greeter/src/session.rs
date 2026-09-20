@@ -223,8 +223,22 @@ impl Session {
         // Zeroizing buffer only helps if something drops it, and leaving an
         // answered password on screen-state until the next reset is exactly
         // the window a core dump lands in.
-        if style == MsgStyle::PromptEchoOff {
-            self.face.masked = egaku::SecretInput::new();
+        //
+        // ★ AND THE VISIBLE ONE TOO. Only the masked field was cleared, and
+        // the asymmetry was nowhere decided — `pump` routes the NEXT echo-on
+        // prompt back to the same still-populated widget, and `insert_char`
+        // appends at the cursor, which sits at the end of the previous
+        // answer. A stack with a visible second factor ("login:" then
+        // "Verification code:") therefore sent `luis123456`: the username
+        // concatenated with the code, to a prompt expecting the code.
+        //
+        // The masked clear's own reason applies here unchanged — an answered
+        // field left in screen state is the window a core dump lands in — and
+        // a visible field is not less worth clearing for being visible: it is
+        // a username, and the next prompt may be anything.
+        match style {
+            MsgStyle::PromptEchoOff => self.face.masked = egaku::SecretInput::new(),
+            _ => self.face.user = egaku::TextInput::new(),
         }
         self.pump();
     }

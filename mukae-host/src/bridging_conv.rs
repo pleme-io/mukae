@@ -88,6 +88,42 @@ pub unsafe extern "C" fn bridging_conv(
     // ★ No unwinding across the FFI boundary, ever. The panic most likely here
     // is a closed channel while the greeter is dying, which is precisely when
     // undefined behaviour is least welcome.
+    /// Free a partially-filled response array, scrubbing every answer first.
+    ///
+    /// ── ★ ONE CLEANUP FOR EVERY FAILURE PATH ────────────────────────────
+    /// There were three, and they disagreed: the `malloc_cstr` failure freed
+    /// the strings and the array, the null-message arm freed only the array,
+    /// and the unanswered-prompt path freed NOTHING. Contract rule 3 is one
+    /// rule; it gets one implementation.
+    ///
+    /// ★ AND IT SCRUBS. `resp` holds the plaintext of an answer the person
+    /// already gave, and `free` hands the page back untouched — so a password
+    /// typed into a conversation that then failed stayed legible in the heap.
+    /// Written volatile, byte at a time, because a plain `write_bytes` to an
+    /// allocation that is freed on the next line is exactly what a compiler
+    /// is entitled to delete.
+    ///
+    /// # Safety
+    /// `arr` is null or a `calloc`'d array of at least `filled` responses,
+    /// each `resp` null or a `malloc_cstr` NUL-terminated string.
+    unsafe fn free_responses(arr: *mut ffi::pam_response, filled: usize) {
+        if arr.is_null() {
+            return;
+        }
+        for j in 0..filled {
+            let p = unsafe { (*arr.add(j)).resp };
+            if p.is_null() {
+                continue;
+            }
+            let len = unsafe { libc::strlen(p) };
+            for k in 0..len {
+                unsafe { std::ptr::write_volatile(p.cast::<u8>().add(k), 0) };
+            }
+            unsafe { libc::free(p.cast()) };
+        }
+        unsafe { libc::free(arr.cast()) };
+    }
+
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         // SAFETY: the worker installed a live ConvSide and outlives the call.
         let side: &ConvSide = unsafe { &*appdata_ptr.cast::<ConvSide>() };
@@ -107,7 +143,10 @@ pub unsafe extern "C" fn bridging_conv(
             // SAFETY: Linux-PAM passes an array of n pointers (rule 4).
             let m = unsafe { *msg.add(i) };
             if m.is_null() {
-                unsafe { libc::free(arr.cast()) };
+                // ★ THE RESPONSES UNDER IT TOO. This freed only the array,
+                // leaking every answer already written into it — each of
+                // which is the plaintext of something the person typed.
+                unsafe { free_responses(arr, i) };
                 return None;
             }
             // SAFETY: m points to a pam_message libpam owns for this call.
@@ -121,13 +160,22 @@ pub unsafe extern "C" fn bridging_conv(
                     .into_owned()
             };
 
-            let answer = match style_raw {
-                ffi::PAM_PROMPT_ECHO_OFF => {
-                    side.ask(MsgStyle::PromptEchoOff, PromptText(text)).ok()?
-                }
-                ffi::PAM_PROMPT_ECHO_ON => {
-                    side.ask(MsgStyle::PromptEchoOn, PromptText(text)).ok()?
-                }
+            // ★ `.ok()?` USED TO SIT ON BOTH OF THESE, and `?` returns from
+            // the closure WITHOUT FREEING ANYTHING: the calloc'd array and
+            // every plaintext answer already written into it were leaked, for
+            // the life of the process, whenever a prompt went unanswered. The
+            // reachable case is a PAM stack that batches two echo-off messages
+            // in one call — pam_pwquality's "New password:" / "Retype new
+            // password:" — with the greeter killed or Escape pressed between
+            // them: message 0's answer is malloc'd, message 1 fails, and the
+            // first password stays in the heap.
+            //
+            // Contract rule 3, written out twice in this repo, says what must
+            // happen instead: "on any failure, free everything already
+            // allocated and return PAM_CONV_ERR with *resp left null."
+            let asked = match style_raw {
+                ffi::PAM_PROMPT_ECHO_OFF => side.ask(MsgStyle::PromptEchoOff, PromptText(text)),
+                ffi::PAM_PROMPT_ECHO_ON => side.ask(MsgStyle::PromptEchoOn, PromptText(text)),
                 // Errors and info want no answer. Telling the face is
                 // best-effort — a module that emits info while the greeter is
                 // shutting down must not fail the whole conversation.
@@ -137,6 +185,10 @@ pub unsafe extern "C" fn bridging_conv(
                     // where no answer does. calloc already zeroed it.
                     continue;
                 }
+            };
+            let Ok(answer) = asked else {
+                unsafe { free_responses(arr, i) };
+                return None;
             };
 
             // ★ The one place a secret is turned into bytes on this path, and
@@ -167,14 +219,10 @@ pub unsafe extern "C" fn bridging_conv(
                 (*slot).resp_retcode = 0;
                 if (*slot).resp.is_null() {
                     // Free what we allocated so far, then bail. Partially
-                    // filled is not a state libpam may see.
-                    for j in 0..=i {
-                        let p = (*arr.add(j)).resp;
-                        if !p.is_null() {
-                            libc::free(p.cast());
-                        }
-                    }
-                    libc::free(arr.cast());
+                    // filled is not a state libpam may see. (This path was
+                    // already correct about the array; it now also SCRUBS,
+                    // like the other two.)
+                    free_responses(arr, i + 1);
                     return None;
                 }
             }

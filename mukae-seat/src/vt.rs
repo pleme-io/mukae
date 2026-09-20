@@ -141,18 +141,43 @@ impl Console {
         if self.restored {
             return Ok(());
         }
-        self.restored = true;
         let fd = self.tty.as_raw_fd();
         // Keyboard first, then text mode. Reversed, a failure between the two
         // leaves a visible console whose keyboard is still raw — which looks
         // like a hung machine rather than a half-restored one.
+        //
+        // ── ★ BOTH ARE ATTEMPTED, AND THE LATCH COMES LAST ───────────────
+        //
+        // This set `self.restored = true` FIRST and returned early on the
+        // keyboard ioctl. So a `KDSKBMODE` failure skipped `KD_TEXT` and left
+        // the latch set — and `Drop`'s `self.restore()` then took the
+        // `if self.restored { return Ok(()) }` fast path and did nothing. The
+        // console stayed in KD_GRAPHICS: black screen, dead keyboard, healthy
+        // machine, recovery by reboot or an ssh the operator may not have.
+        // That is the exact state the module header says it exists to make
+        // impossible, and `Drop`'s comment claims it is unreachable.
+        //
+        // Now: attempt both whatever the first one does, keep the FIRST
+        // error, and latch only on complete success. A raw keyboard on a
+        // VISIBLE console is bad; a raw keyboard on a BLACK one is worse, so
+        // giving up on `KD_TEXT` because the keyboard failed is the wrong
+        // trade. Not latching on failure means `Drop` tries again, which is
+        // free and occasionally works — the ioctl may have failed because the
+        // VT was being reallocated under us.
+        let mut first_err = None;
         if unsafe { libc::ioctl(fd, KDSKBMODE, self.prior_kbmode) } < 0 {
-            return Err(VtError::SetMode(errno()));
+            first_err = Some(VtError::SetMode(errno()));
         }
-        if unsafe { libc::ioctl(fd, KDSETMODE, KD_TEXT) } < 0 {
-            return Err(VtError::SetMode(errno()));
+        if unsafe { libc::ioctl(fd, KDSETMODE, KD_TEXT) } < 0 && first_err.is_none() {
+            first_err = Some(VtError::SetMode(errno()));
         }
-        Ok(())
+        match first_err {
+            Some(e) => Err(e),
+            None => {
+                self.restored = true;
+                Ok(())
+            }
+        }
     }
 }
 

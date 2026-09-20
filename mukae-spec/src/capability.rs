@@ -269,8 +269,23 @@ impl<S: SeatState> SeatCapability<S> {
 /// The consequence is stated rather than discovered: **an autologin session
 /// has a locked keyring, and that is a fact about cryptography, not a
 /// misconfiguration.** A system that claims otherwise is lying.
-#[derive(Debug)]
 pub struct KeyringUnlock(String);
+
+/// ★ HAND-WRITTEN, LIKE EVERY OTHER SECRET CARRIER IN THIS MODULE.
+///
+/// This was `#[derive(Debug)]` over the plaintext login password, while
+/// `Passphrase` and `Evidence` both carry a redacting impl and the module
+/// header says in bold: "A secret that prints itself is a secret in the logs.
+/// The redaction is the whole impl, so there is no path that renders the
+/// plaintext." There was a path, and it was the widest one available —
+/// `Outcome::Authenticated { keyring: Option<KeyringUnlock> }` derives Debug
+/// and is publicly re-exported, so any caller that logged or panicked on an
+/// outcome printed the password. `proof` beside it redacts; this did not.
+impl core::fmt::Debug for KeyringUnlock {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str("KeyringUnlock(<redacted>)")
+    }
+}
 
 impl KeyringUnlock {
     /// `pub(crate)`: minting this is the conversation's privilege.

@@ -424,6 +424,41 @@ impl SeatEnv for NativeSeatEnv {
             eprintln!("mukae-seat: logind refused CreateSession: {e}");
             PamError::OutOfOrder("logind refused the session")
         })?;
+        // ── ★ REFUSE AN *EXISTING* SESSION RATHER THAN ADOPTING IT ──────
+        //
+        // `CreateSession` is called with `pid: std::process::id()` — mukaed's
+        // own, since no session child exists yet — and logind answers with
+        // `existing = true` when something ALREADY registered a session for
+        // that pid. `Session::existing`'s own doc says what that means:
+        // "Not an error and not a success — a distinct fact… a caller that
+        // treats it as a fresh session is wrong." Nothing read it; a grep
+        // across the tree found no production consumer at all.
+        //
+        // The reachable case is the documented stdin path: `mukaed login
+        // --user alice --cmd …` run under sudo from an operator's OWN logged-in
+        // terminal. mukaed's pid is inside that operator's session, so logind
+        // returns it, and alice's session was then exec'd with
+        // `XDG_RUNTIME_DIR=/run/user/<operator-uid>` — alice writing into
+        // another user's runtime directory, reached through a session she does
+        // not own, and reported to her as hers.
+        //
+        // Refused rather than repaired: the fix is to ask logind for a session
+        // for the CHILD's pid, which means forking first, and that is a real
+        // change to the ordering this function sits in. Until it lands, "no
+        // session" is the honest answer and the only safe one.
+        if sess.existing {
+            eprintln!(
+                "mukae-seat: logind returned an EXISTING session ({}) for pid {} — refusing to \
+                 adopt it. Run mukaed from outside a logged-in session, or wait for the \
+                 fork-then-CreateSession change.",
+                sess.id,
+                std::process::id()
+            );
+            return Err(PamError::OutOfOrder(
+                "logind returned an existing session for this pid — refusing to adopt another \
+                 user's session",
+            ));
+        }
         // logind is what creates /run/user/<uid>, and it reports back the
         // values the session must carry. Read them from the reply rather than
         // deriving them here, so the two cannot disagree.
