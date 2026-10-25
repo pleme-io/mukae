@@ -39,7 +39,7 @@ jobs:
     - name: cargo fmt
       run: cargo fmt --all -- --check
     - name: cargo test
-      run: cargo test --workspace
+      run: nix develop -c cargo test --workspace
 
   darwin:
     # The face must stay buildable on the operator's own machine. Scoped to
