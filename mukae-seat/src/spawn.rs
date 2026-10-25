@@ -494,22 +494,22 @@ mod tests {
     /// window anyway — prose binds nobody. Two sources of truth would drift,
     /// so the header now points here.
     const FORBIDDEN_IN_CHILD: &[&str] = &[
-        "initgroups",  // → getgrouplist → malloc + dlopen(libnss_*)
+        "initgroups", // → getgrouplist → malloc + dlopen(libnss_*)
         "getgrouplist",
-        "getpwnam",    // NSS again
+        "getpwnam", // NSS again
         "getpwuid",
         "getgrnam",
         "malloc",
-        "to_string",   // any Rust allocation is the same hazard
+        "to_string", // any Rust allocation is the same hazard
         "to_owned",
         "String::",
         "format!",
         "Vec::",
         "vec!",
         "CString::new",
-        "println!",    // stdio takes a lock
+        "println!", // stdio takes a lock
         "eprintln!",
-        "tracing::",   // allocates and locks a subscriber
+        "tracing::", // allocates and locks a subscriber
     ];
 
     /// The child window's SOURCE contains no call that can block on a lock
@@ -592,7 +592,10 @@ mod tests {
              body, so the scan above is proving nothing",
             window.len()
         );
-        assert!(window.contains("libc::setuid"), "window lost the drop calls");
+        assert!(
+            window.contains("libc::setuid"),
+            "window lost the drop calls"
+        );
     }
 
     /// The resolution happens in the parent, where allocation is legal.
