@@ -14,8 +14,8 @@
 # to blame. Pinning here is what makes `cargo test` reproducible at all.
 #
 # ★ THIS IS NOT A SECOND SOURCE OF TRUTH. It names the SAME compiler the flake
-# already resolves: `fenix` in flake.lock is stable 2026-09-03, whose
-# data/stable.json carries rustc-1.98.1. So the rustup path (ci.yml), the nix
+# already resolves: `fenix` in flake.lock is stable 2026-10-15, whose
+# data/stable.json carries rustc-1.99.1. So the rustup path (ci.yml), the nix
 # path (crate2nix, `nix develop`) and the auto-release nextest gate all read
 # one compiler's diagnostics instead of three.
 #
@@ -44,6 +44,6 @@
 # was NOT the pinned one, so the gate was red at its own pin and stayed that
 # way. The pin was right; nobody ran it. A gate nobody runs is not yet a gate.
 [toolchain]
-channel = "1.98.1"
+channel = "1.99.1"
 profile = "minimal"
 components = ["rustfmt", "clippy"]
