@@ -18,7 +18,7 @@
 //!
 //! **NOT here, and deliberately not stubbed:** the seat/device/VT half of
 //! `SeatEnv` (M4), the PAM linkage (M3), any face (M5/M6), the handoff (M7).
-//! `theory/MUKAE.md` §7 is the phase list; a `todo!()` behind a signature that
+//! Each is a named phase; a `todo!()` behind a signature that
 //! reads as implemented would be worse than the absence, because only the
 //! absence is a compile error at the call site.
 //!

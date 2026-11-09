@@ -1,6 +1,6 @@
 //! `MockSeatEnv` — a whole login, with no machine.
 //!
-//! This is the differentiator. The landscape survey behind `theory/MUKAE.md`
+//! This is the differentiator. A landscape survey of login managers
 //! found that no login manager anywhere runs its authentication flow against a
 //! mock PAM: they test the UI, they test the config parser, and they test the
 //! login by logging in. So every ordering bug in the PAM sequence — the ones

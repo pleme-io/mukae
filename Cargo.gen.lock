@@ -10,7 +10,7 @@
     "mukae-lisp/Cargo.toml": "8b7207c9482b52a233534b5463490da6c8256a304ca801baadd87c4d7e27bdcd",
     "mukae-native/Cargo.toml": "0134450be74a762a62dd07569c969c52141022e4994af0b7ab1eb8c9ec19788f",
     "mukae-seat/Cargo.toml": "8eb3a3f1f33de6cdf3d9066c84a4759b35fcf3d02b87f74bec6bd00f422ff9ce",
-    "mukae-spec/Cargo.toml": "0c0f52e8b224da6259e2cc9f15fd3396c76e38fe3e6fba711ffba8ad1407ff53",
+    "mukae-spec/Cargo.toml": "eef6c7e292dd522aa22616533cf2384d54fdec143c2c51617553520009fa7314",
     "mukae/Cargo.toml": "da60d90283819361fad6d948b7ac8acb5ea37185ec71197d471ae71ef7a2af53"
   },
   "target_resolves": {

@@ -8,7 +8,7 @@
 //!
 //! **COMPILED AND LINKED against linux-pam 1.7.1 on x86_64-linux. NEVER RUN.**
 //!
-//! Not one line of this has authenticated anybody. `theory/MUKAE.md` M3's
+//! Not one line of this has authenticated anybody. M3's
 //! done-predicate is a `loginctl show-session` transcript from a real VM
 //! reporting `Type=tty Class=user Seat=seat0 VTNr=N`, plus `/run/user/<uid>`
 //! existing during a session and being *gone* after logout. None of that has

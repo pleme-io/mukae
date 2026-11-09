@@ -7,7 +7,7 @@ compiler that will move.
 
 ## M0's done-predicate, item by item
 
-`theory/MUKAE.md` §7 defines M0 as three things. All three are met.
+M0 is defined as three things. All three are met.
 
 | | | state |
 |---|---|---|
@@ -31,7 +31,7 @@ Each row is a committed `.stderr` snapshot, not a claim.
 | `argv_to_shell_string` | [8] a command re-split by a shell | **E0277** | not predicted |
 | `syscall_in_spec_consumer` | [14] a syscall through the border | **E0433** | E0433 ✓ |
 
-**Correction to `theory/MUKAE.md` §4.4, row 4.** The doc predicts **E0405**
+**Row 4: the predicted code was wrong.** The prediction was **E0405**
 ("cannot find trait") for a downstream crate implementing `SeatState`. The
 measured code is **E0277** — sealing produces an unsatisfied *trait bound*, not
 an unresolved name, because `SeatState` itself is public and only its

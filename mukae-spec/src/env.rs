@@ -1,6 +1,6 @@
 //! `SeatEnv` — the seam that makes a login testable with no machine.
 //!
-//! The landscape survey behind `theory/MUKAE.md` found that **no harness
+//! A landscape survey of login managers found that **no harness
 //! anywhere runs a full login flow against a mock PAM.** Every login manager
 //! in the field tests its UI and its config parser, and tests the actual
 //! authentication by logging in by hand. This trait is that missing harness.

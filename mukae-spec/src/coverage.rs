@@ -54,7 +54,7 @@ impl Phase {
         matches!(self, Self::Implemented)
     }
 
-    /// The `theory/MUKAE.md` §7 phase that lands it.
+    /// The phase that lands it.
     #[must_use]
     pub const fn milestone(self) -> &'static str {
         match self {

@@ -4,7 +4,7 @@
 //!
 //! - **the form parses and lowers** — the ordinary path
 //! - **the form CANNOT SAY certain things** — the interesting path. Each of
-//!   these is an illegal state from `theory/MUKAE.md` §4.4 that a data
+//!   these is an illegal state of the login border that a data
 //!   language cannot express as a type, so it is enforced at the one boundary
 //!   where the typed information exists: lowering.
 

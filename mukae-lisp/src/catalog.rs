@@ -1,5 +1,5 @@
 //! `(defsessions …)`, `(defhandoff …)` and `:faces` — the three forms
-//! `theory/MUKAE.md` §4.2 sketches and the last pass did not ship.
+//! planned for the authoring surface that the last pass did not ship.
 //!
 //! ## What is real here and what is a declaration
 //!

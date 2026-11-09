@@ -1,6 +1,6 @@
 //! # `(defmukae …)` — a login manager's configuration as data
 //!
-//! `theory/MUKAE.md` §4.2 designs this surface. This is it, written against
+//! This is the authoring surface, written against
 //! tatara-lisp's **measured** behaviour rather than its documented behaviour —
 //! the two differ in three places, each recorded below where it bites.
 //!

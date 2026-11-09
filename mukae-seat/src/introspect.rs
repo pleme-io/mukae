@@ -235,8 +235,7 @@ impl DaemonState {
             // process. Each is published as the constant it already is, not
             // re-derived — `coverage` answers "which milestone is this
             // machine actually running" as a QUERY rather than a doc read,
-            // which is the claim theory/MUKAE.md §8 currently gets wrong
-            // about plo.
+            // which has got it wrong about plo before.
             "coverage": coverage_json(),
             "drift_keys": drift_keys_json(),
             "uptime_s": self.started.elapsed().as_secs(),

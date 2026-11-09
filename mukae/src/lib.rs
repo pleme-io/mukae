@@ -16,9 +16,8 @@
 //! seam. The capability chain, the seat typestate, the PAM conversation, and
 //! a mock that runs a whole login with no machine.
 //!
-//! **Not here**, and each is a named phase in
-//! [`theory/MUKAE.md`](https://github.com/pleme-io/theory/blob/main/MUKAE.md)
-//! §7 rather than an oversight:
+//! **Not here**, and each is a named phase
+//! rather than an oversight:
 //!
 //! | | phase |
 //! |---|---|

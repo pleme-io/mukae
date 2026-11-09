@@ -1,6 +1,6 @@
 //! The capability chain — the centrepiece.
 //!
-//! Five of the sixteen illegal states in `theory/MUKAE.md` §4.4 are closed
+//! Five of the sixteen illegal states of the login border are closed
 //! here, and all five are closed the same way: **the caller cannot name the
 //! argument**. Not a runtime check that returns `Err`, not a lint, not a
 //! review item — an expression that does not compile.
