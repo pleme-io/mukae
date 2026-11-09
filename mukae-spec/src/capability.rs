@@ -27,7 +27,7 @@ use std::marker::PhantomData;
 /// This is deliberately a thin local type rather than a dependency: at M0 the
 /// crate has no dependencies beyond serde and thiserror (see Cargo.toml's
 /// comment on why that list is an invariant). The fleet's `cofre::Secret` is
-/// the destination and is named in MUKAE.md illegal state [9]; wiring it is a
+/// the destination and is named in illegal state [9]; wiring it is a
 /// later rung, and claiming it here would be a round-up.
 pub struct Passphrase(String);
 

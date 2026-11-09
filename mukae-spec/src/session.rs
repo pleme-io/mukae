@@ -84,7 +84,7 @@ pub enum SessionError {
 /// Start a session. **The signature is the lock.**
 ///
 /// The ordering below is not arbitrary and is the half of a login where the
-/// real bugs live (`MUKAE.md` §9, "genuinely hard"). Each step is here because
+/// real bugs live. Each step is here because
 /// doing it in a different order breaks something silently:
 ///
 /// 1. `pam_setcred(Establish)` — BEFORE the privilege drop, because

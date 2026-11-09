@@ -158,7 +158,7 @@ half at M4, so today every key honestly reads as unseen.
 
 ## What is NOT sealed, and why
 
-Two of `MUKAE.md`'s sixteen illegal states are **only-mitigated**, and both for
+Two of the sixteen illegal states are **only-mitigated**, and both for
 the same reason: they are facts about the world rather than about our
 abstractions, so they do not become types by trying harder.
 
@@ -233,14 +233,14 @@ It is a SEPARATE CRATE on purpose. `mukae-spec`'s dependency list is the
 mechanism that closes illegal state [14], so every crate added there deletes a
 proof; the authoring surface sits above the border and depends on it.
 
-**Three measured corrections to `MUKAE.md` §4.2's sketch.**
+**Three measured corrections to the authoring-surface sketch.**
 
 1. **Enum values must be single words.** `DeriveKeywordSexp` lowercases the
    identifier with *no separator*, while field names go snake → kebab. Two
-   opposite conventions in one language. §4.2 writes `:sealed-memfd`,
+   opposite conventions in one language. The sketch writes `:sealed-memfd`,
    `:physical-presence` and `:no-display` as *values* — none of those parse.
    Pinned by `enum_values_have_no_separator_but_field_names_do`.
-2. **A typo'd kwarg IS rejected on the derive path.** §4.2 calls a lint "not
+2. **A typo'd kwarg IS rejected on the derive path.** The sketch calls a lint "not
    optional here" because of the silent empty-`Vec` trap. That trap is real on
    the *manual* extraction path; `DeriveTataraDomain` emits a
    `__TATARA_ALLOWED_KEYWORDS` gate that errors with a did-you-mean. Re-pinned
@@ -263,7 +263,7 @@ information exists:
 
 ### `:catalog`, `:handoff` and `:faces` — shipped, at three different tiers
 
-All three of §4.2's remaining sections now exist, and they are **not equally
+All three remaining sections of the sketch now exist, and they are **not equally
 real**. Saying so is the point:
 
 | section | tier | why |
@@ -275,7 +275,7 @@ real**. Saying so is the point:
 **I said last pass that these needed hardware. That was wrong**, and it is
 worth naming as the error it was: `:catalog` is a filesystem read behind a
 mockable seam and `:faces` is data — neither goes near a GPU. What the handoff
-is actually blocked on is §5.5's **S1**, an upstream shikumi change measured at
+is actually blocked on is **S1**, an upstream shikumi change measured at
 ~1453 `ConfigTierKind` sites, because an injected `Discovered` fact is
 currently overwritten by `prescribed_default()` (ordinals `Bare, Discovered,
 Default, Custom`). That is a real dependency and a large one — but it is *our
@@ -298,15 +298,15 @@ The name check catches an author reaching for it anyway under a volatility that
 does not fit.
 
 **Every one of the seven absence paths resolves to an empty dict**, with the
-denominator carried in `Absence::ALL` rather than in prose. That is §5.4's
-contract verbatim: a missing handoff must be indistinguishable from a machine
+denominator carried in `Absence::ALL` rather than in prose. That is the handoff's
+contract: a missing handoff must be indistinguishable from a machine
 that never had one, so the session re-probes exactly as it would have. A
 fallback that guessed would be worse than no handoff, because the session would
 trust the guess.
 
-### One modelling correction to §4.2, made on merit
+### One modelling correction to the sketch, made on merit
 
-§4.2 writes `:honor (:hidden :no-display :try-exec)` — a list, implying an open
+The sketch writes `:honor (:hidden :no-display :try-exec)` — a list, implying an open
 set. The XDG Desktop Entry spec defines exactly those three and no more, so the
 shipped form is three named optional flags. An unknown hint has nowhere to go
 and the same hint cannot be named twice. Undeclared means **honoured**:

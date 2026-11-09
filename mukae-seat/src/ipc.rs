@@ -1,7 +1,7 @@
 //! The seam between the greeter and the daemon — mukae's own, not greetd's.
 //!
 //! ── ★ WHY A NEW PROTOCOL AND NOT greetd-ipc ──────────────────────────────
-//! `MUKAE.md` §3 settled this: greetd's wire is a *deletable compatibility
+//! This is settled: greetd's wire is a *deletable compatibility
 //! adapter*, kept so an operator with an existing setup can point it at
 //! mukae, and so mukae's faces could drive an upstream greetd while `mukaed`
 //! was not yet trusted with root. Both of those are scaffolds. The internal

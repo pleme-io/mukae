@@ -13,8 +13,7 @@
 //! * **No greeter supervision.** The conversation is answered on stdin, so
 //!   this is a login rather than a login *screen*. Wiring `mukae-greeter` to
 //!   it over a socketpair is the next rung and needs a typed protocol —
-//!   MUKAE.md is explicit that greetd's wire is a deletable adapter, not the
-//!   internal seam.
+//!   greetd's wire is a deletable adapter, not the internal seam.
 //!
 //! So this is the M3 subject: it proves the privileged path end to end, and
 //! its done-predicate is a `loginctl show-session` transcript, not a build.

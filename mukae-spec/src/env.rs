@@ -7,7 +7,7 @@
 //!
 //! ## Scope at M0, stated rather than implied
 //!
-//! `MUKAE.md` §4.3 defines the whole trait: PAM, seat/device brokering, VT
+//! The whole trait covers PAM, seat/device brokering, VT
 //! control, process control, identity, handoff and clock. **This is the PAM +
 //! process + identity + clock subset**, which is what M0 needs to drive a
 //! conversation to a session.

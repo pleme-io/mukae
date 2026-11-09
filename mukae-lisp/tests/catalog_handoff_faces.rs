@@ -117,7 +117,7 @@ fn a_hotplug_volatile_fact_at_a_late_epoch_is_refused() {
 /// than no handoff at all, because the session would trust the guess.
 #[test]
 fn all_seven_absence_paths_resolve_to_an_empty_dict() {
-    assert_eq!(Absence::ALL.len(), 7, "the seven paths of MUKAE.md §5.7");
+    assert_eq!(Absence::ALL.len(), 7, "the seven absence paths");
     for a in Absence::ALL {
         assert_eq!(
             a.answer(),

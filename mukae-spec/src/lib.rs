@@ -42,7 +42,7 @@
 //!
 //! ## What is NOT a type, and why saying so matters
 //!
-//! Two of `MUKAE.md`'s sixteen illegal states are *only mitigated*, and the
+//! Two of the sixteen illegal states are *only mitigated*, and the
 //! reason is the same in both: they are facts about the world, not about our
 //! abstractions. Missing a libseat disable-ack deadline is a deadline; a
 //! greeter that painted nothing is a claim about photons. Neither becomes a

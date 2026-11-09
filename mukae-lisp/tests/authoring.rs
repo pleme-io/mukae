@@ -145,7 +145,7 @@ fn a_vt_console_without_a_number_is_refused() {
 
 /// ★ THE SILENT-TYPO TRAP, RE-ASSERTED FOR THIS DOMAIN.
 ///
-/// `MUKAE.md` §4.2 warns that a mistyped keyword yields an empty `Vec`
+/// The authoring sketch warns that a mistyped keyword yields an empty `Vec`
 /// reported as SUCCESS, and calls a lint "not optional here". That warning
 /// describes tatara-lisp's *manual* extraction path. On the DERIVE path the
 /// emitted `__TATARA_ALLOWED_KEYWORDS` gate rejects it with a did-you-mean.
